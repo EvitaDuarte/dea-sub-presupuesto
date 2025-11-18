@@ -12,52 +12,49 @@
         <link rel="stylesheet" href="assetsF/css/panel_style.css">
         <?php $version = filemtime('assetsF/css/seccion.css'); ?>
         <link rel="stylesheet" href="assetsF/css/seccion.css?v=<?=$version?>">
-        <!-------------DataTable-------------
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script 
-            src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js">
-        </script> -->
     </head>
     <body>
-        <form name="frmPartidas" id="frmPartidas" method="post" enctype="multipart/form-data">
+        <form name="frmProyectos" id="frmProyectos" method="post" enctype="multipart/form-data">
             <div id="main_container">    
                 <?php include('P_Cuentas00_MenuPrincipal.php'); // Incluye el menú principal?>
                 <section class="datos-personales2">
-                    <h2 class="titleM">Catálogo de Partidas</h2>
+                    <h2 class="titleM">Catálogo de Proyectos</h2>
                     <div class="container-data">
                         <div class="data-form">
                             <div class="wrapper">
-                                <section class="seccion_caja_despliegueflex" id="secCap">
-                                    <div class="caja_captura0">
-                                        <label for="partida" class="lbl_txt">Partida</label>
-                                        <input type="text" name="partida" id="partida"  disabled 
-                                        onkeyup="this.title=this.value;">
-                                    </div>
-                                    <div class="caja_captura0">
-                                        <label for="compraMenor" class="lbl_txt">Compra Menor</label>
-                                        <input type="text" name="compraMenor" id="compraMenor" disabled  
-                                        onkeyup="this.title=this.value;">
-                                    </div>
-                                    <div class="caja_captura0">
-                                        <label for="ordenCompra" class="lbl_txt">Orden Compra</label>
-                                        <input type="text" name="ordenCompra" id="ordenCompra" disabled 
-                                        onkeyup="this.title=this.value;">
-                                    </div>
-                                    <div class="caja_captura0">
-                                        <label for="contactamay" class="lbl_txt">Contabilidad</label>
-                                        <input type="text" id="contactamay" name="contactamay" disabled
-                                        onkeyup="this.title=this.value;">
-                                    </div>
-                                    <div class="caja_captura3flex">
-                                        <label for="nombre" class="lbl_txt">Nombre</label>
-                                        <input type="text" id="nombre" name="nombre"  disabled
-                                        onkeyup="this.title=this.value;">
-                                    </div>
-                                </section>
+                                <!-- <section class="seccion_caja_despliegueflex" id="secCap"> -->
                                 <section class="seccion_caja" id="botones">
                                     <div class="caja_captura0">
-                                        <label for="selNumReg" class="lbl_txt">Búsqueda</label>
+                                        <label for="clvpy" class="lbl_txt">Proyecto</label>
+                                        <input type="text" name="clvpy" id="clvpy"   
+                                        onkeyup="this.title=this.value;" title="Clave de Proyecto">
+                                    </div>
+                                    <div class="caja_captura">
+                                        <label for="despy" class="lbl_txt">Nombre</label>
+                                        <input type="text" name="despy" id="despy"   
+                                        onkeyup="this.title=this.value;" title="Nombre Proyecto">
+                                    </div>
+                                    <div class="caja_captura0">
+                                        <label for="geografico" class="lbl_txt">Geográfico</label>
+                                        <input type="text" name="geografico" id="geografico"  
+                                        onkeyup="this.title=this.value;" title="Geografico">
+                                    </div>
+                                    <div class="caja_captura0">
+                                        <label for="activo" class="lbl_txt">Estatus</label>
+                                        <select id="activo" name="activo" title="Estatus">
+                                            <option value=true>ACTIVO</option>
+                                            <option value=false>INACTIVO</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field-button_" id="grpBotones">
+                                        <a class="btn_1 efecto" onclick="actualizaProyecto();"> 
+                                            <span>ActualizaProyecto</span>
+                                        </a>
+                                    </div>
+                                </section>
+                                <section class="seccion_caja" id="busqueda">
+                                    <div class="caja_captura0">
+                                        <label for="selNumReg" class="lbl_txt">No.Reg</label>
                                         <select id="selNumReg" name="selNumReg" title="No Reg">
                                             <option value=15>15</option>
                                             <option value=30>30</option>
@@ -67,37 +64,36 @@
                                         </select>
                                     </div>
                                     <div class="caja_captura0">
-                                        <label for="aCamSel" class="lbl_txt">Búsqueda</label>
+                                        <label for="aCamSel" class="lbl_txt">Celda</label>
                                         <select id="aCamSel" name="aCamSel">
                                             <option value="">-- Todos --</option>
-                                            <option value="a.partida">Partida</option>
-                                            <option value="a.compramenor">Compra Menor</option>
-                                            <option value="a.ordencompra">Orden Compra</option>
-                                            <option value="a.contactamay">Cuenta Mayor</option>
-                                            <option value="a.nombre">Nombre</option>
+                                            <option value="a.clvpy">Proyecto</option>
+                                            <option value="a.despy">Nombre</option>
+                                            <option value="a.geografico">Geografico</option>
+                                            <option value="a.activo">Activo</option>
                                         </select>
                                     </div>
                                     <div class="caja_captura3">
-                                        <label for="txtBuscar" class="lbl_txt">Búsqueda</label>
+                                        <label for="txtBuscar" class="lbl_txt">Valor</label>
                                         <input type="text" id="txtBuscar" name="txtBuscar"  
                                         onkeyup="this.title=this.value;" title="Valor a Buscar">
                                     </div>
                                     <div class="form-field-button_" id="grpBotones">
-                                        <a class="btn_1 efecto" onclick="cargaCatalogoPartidas(1);"> 
+                                        <a class="btn_1 efecto" onclick="cargaCatalogoProyectos(1);"> 
                                             <span>Buscar</span>
                                         </a>
                                     </div>
                                 </section>
-                                <hr>
-                                <div id="paginador"></div>
+                                <section class="seccion_caja" id="paginas">
+                                    <div id="paginador"></div>
+                                </section>
                                 <div class="tabla-con-cuadricula">
-                                    <table class="tablex" id="tblPartidas">
+                                    <table class="tablex" id="tblProyectos">
                                         <thead>
                                             <tr>
-                                                <th>Partida</th>
-                                                <th>CompraMenor</th>
-                                                <th>OrdenCompra</th>
-                                                <th>Contabilidad</th>
+                                                <th>Proyecto</th>
+                                                <th>Geografico</th>
+                                                <th>Activo</th>
                                                 <th>Nombre</th>
                                             </tr>
                                         </thead>
@@ -140,6 +136,6 @@
         <script src="jsP/P_backspace_.js?v=<?php echo filemtime('jsP/P_backspace_.js'); ?>"></script>
         <script src="jsP/P_cerrar_sesion_.js?v=<?php  echo filemtime('jsP/P_cerrar_sesion_.js'); ?>"></script>
         <script src="jsP/P_rutinas_.js?v=<?php  echo filemtime('jsP/P_rutinas_.js'); ?>"></script>
-        <script src="jsP/P_partidas_.js?v=<?php echo filemtime('jsP/P_partidas_.js'); ?>"></script>
+        <script src="jsP/P_proyectos_.js?v=<?php echo filemtime('jsP/P_proyectos_.js'); ?>"></script>
     </body>
 </html>

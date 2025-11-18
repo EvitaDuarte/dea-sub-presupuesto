@@ -13,7 +13,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 } 
-global $conn_pdo;
+
 require_once($_SESSION['conW']);
 
 // _____________________________________________________________________________

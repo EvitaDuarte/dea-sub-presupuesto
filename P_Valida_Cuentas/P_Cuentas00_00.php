@@ -27,6 +27,6 @@
         </section>
     </div>
 <!--     El filemtime asegura que el navegador cargue el JS solo si este se modifico, evitando tener que borrar cookies -->
-    <script src="jsP/P_cerrarSesion_.js?v=<?php echo filemtime('jsP/P_cerrarSesion_.js'); ?>"></script>
+    <script src="jsP/P_cerrar_sesion_.js?v=<?php echo filemtime('jsP/P_cerrar_sesion_.js'); ?>"></script>
 </body>
 </html>

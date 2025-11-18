@@ -580,7 +580,7 @@ async function conectayEjecutaPostModerna(aParametros, cPhp, aTabla = null) {
         // Mantienes la llamada a tu función que ya existe
         respuesta__(data);
     }catch (error) {
-        document.getElementById('loader-container').style.display = 'none';
+        loader('none');
         console.error("[Error de red o al procesar JSON:"  + "]", error);
     }
 }
@@ -618,10 +618,7 @@ function respuesta__(data){                                     // Respuesta del
                 vRespuesta = JSON.parse(conexion1.responseText);
             }catch(error){
                 mandaMensaje("Php Error "+conexion1.responseText);
-                var loader = document.getElementById('loader-container'); // Este contenedor cuando esta activo bloquela la interacción con el usuario
-                if (loader) {
-                    loader.style.display = 'none'; // Contenedor que bloquea la pantalla mientras se genera un proceso largo
-                }
+                loader('none');
                 return false;
             }
             if (vRespuesta.success==true){                      // EL Servidor ejecuto exitosamente la operación Solicitada
@@ -643,10 +640,7 @@ function respuesta__(data){                                     // Respuesta del
             }
         }else{
             //console.log("La respuesta de PHP esta vacía", "[" + sanitizeLogOutput(conexion1.responseText) + "]");
-            var loader = document.getElementById('loader-container'); // Este contenedor cuando esta activo bloquela la interacción con el usuario
-            if (loader) {
-                loader.style.display = 'none'; // Contenedor que bloquea la pantalla mientras se genera un proceso largo
-            }
+            loader('none');
             mandaMensaje("Problemas en la codificación");
             return false;
         }
@@ -2113,5 +2107,216 @@ function restableceEtiquetaSpan(cId='input_text',cEtiqueta='Seleccione Archivo d
         spanText.textContent = "Seleccione Archivo de ......"; 
     }
 }
+
+// __________________________________________________________________________________
+const loader=(cStatus)=>{
+    var loader = document.getElementById('loader-container');
+    if (loader) {
+        loader.style.display = cStatus; // 'none'; // Contenedor que bloquea la pantalla mientras se genera un proceso largo
+    }
+}
+// __________________________________________________________________________________
+// __________________________________________________________________________________
+function pintarTablaHTML(idTabla, registros, aParametros) {
+
+    cTabla = document.getElementById(idTabla).getElementsByTagName('tbody')[0];
+    limpiaTabla(cTabla);
+
+    if (registros.length === 0) {
+        document.getElementById(cTabla).innerHTML = "<b>No hay registros.</b>";
+        return;
+    }
+
+    let html = "";
+
+    registros.forEach(row => {
+        html += "<tr>";
+
+        aParametros.campos.forEach((c,i) => {
+
+            let nom = c.nombre.split(".")[1];
+            let val = row[nom] ?? "";
+
+            // Campo con scroll (OPCIÓN: todo en la misma celda)
+            if (aParametros.scroll.includes(nom) && val.length > aParametros.maxscroll) {
+
+                html += `
+                    <td>
+                        <div class="celda-scroll">
+
+                            <div class="texto-visible" data-fulltext="${val}">
+                                ${val}
+                            </div>
+
+                            <div class="scroll-container">
+                                <div class="scroll-interno">${val}</div>
+                            </div>
+
+                        </div>
+                    </td>`;
+            
+            } else {
+
+                html += `<td>${val}</td>`;
+            }
+
+        });
+
+        html += "</tr>";
+    });
+
+    html += "</table>";
+    cTabla.innerHTML = html;
+
+    document.querySelectorAll(".celda-scroll").forEach(celda => {
+        let visible = celda.querySelector(".texto-visible");
+        let scroll = celda.querySelector(".scroll-container");
+
+        scroll.addEventListener("scroll", () => {
+            visible.scrollLeft = scroll.scrollLeft;
+        });
+    });
+}
+// __________________________________________________________________________________
+function pintarTablaHTMLEscucha(idTabla, registros, aParametros, aIdsHtml = []) {
+    const cTabla = document.getElementById(idTabla).getElementsByTagName('tbody')[0];
+    limpiaTabla(cTabla);
+
+    if (registros.length === 0) {
+        cTabla.innerHTML = "<b>No hay registros.</b>";
+        return;
+    }
+
+    let html = "";
+
+    registros.forEach((row, rowIndex) => {
+        html += "<tr data-index='" + rowIndex + "'>";
+
+        aParametros.campos.forEach((c, i) => {
+            let nom = c.nombre.split(".")[1];
+            let val = row[nom] ?? "";
+
+            // Campo con scroll
+            if (aParametros.scroll.includes(nom) && val.length > aParametros.maxscroll) {
+                html += `
+                    <td>
+                        <div class="celda-scroll">
+                            <div class="texto-visible" data-fulltext="${val}">${val}</div>
+                            <div class="scroll-container">
+                                <div class="scroll-interno">${val}</div>
+                            </div>
+                        </div>
+                    </td>`;
+            } else {
+                html += `<td>${val}</td>`;
+            }
+        });
+
+        html += "</tr>";
+    });
+
+    cTabla.innerHTML = html;
+
+    // Sincronización de scroll en celdas
+    document.querySelectorAll(".celda-scroll").forEach(celda => {
+        let visible = celda.querySelector(".texto-visible");
+        let scroll = celda.querySelector(".scroll-container");
+
+        scroll.addEventListener("scroll", () => {
+            visible.scrollLeft = scroll.scrollLeft;
+        });
+    });
+
+    // --- Agregar listener a cada fila ---
+    cTabla.querySelectorAll("tr").forEach((tr, rowIndex) => {
+        tr.addEventListener("click", () => {
+            aParametros.campos.forEach((c, colIndex) => {
+                if (!aIdsHtml[colIndex]) return; // si no hay ID correspondiente, saltar
+
+                const input = document.getElementById(aIdsHtml[colIndex]);
+                if (!input) return;
+
+                const nom = c.nombre.split(".")[1];
+                const valor = registros[rowIndex][nom] ?? "";
+
+                if (input.tagName === "INPUT") {
+                    if (input.type === "checkbox") {
+                        input.checked = Boolean(valor);
+                    } else {
+                        input.value = valor;
+                    }
+                } else if (input.tagName === "SELECT" || input.tagName === "TEXTAREA") {
+                    input.value = valor;
+                }
+            });
+        });
+    });
+}
+
+// __________________________________________________________________________________
+function generarPaginador(totalPaginas, aParametros) {
+    const cont = document.getElementById("paginador");
+    cont.innerHTML = "";
+
+    const paginaActual = aParametros.pagina || 1;
+    const rango = 10; // máximo botones visibles
+    const mostrarNav = totalPaginas > rango;
+
+    // Función auxiliar para crear botones
+    const crearBoton = (texto, page, claseExtra = "") => {
+        const a = document.createElement("a");
+        a.innerText = texto;
+        a.href = "#";
+        a.className = "pagina-btn " + claseExtra;
+        a.onclick = () => {
+            aParametros.pagina = page;
+            conectayEjecutaPost(aParametros, cPhpBusca);
+        };
+        cont.appendChild(a);
+    };
+
+    // Botones "Primero" y "Anterior"
+    if (mostrarNav) {
+        crearBoton("Primero", 1);
+        crearBoton("Anterior", Math.max(1, paginaActual - 1));
+    }
+
+    let inicio = Math.max(1, paginaActual - Math.floor(rango / 2));
+    let fin = inicio + rango - 1;
+    if (fin > totalPaginas) {
+        fin = totalPaginas;
+        inicio = Math.max(1, fin - rango + 1);
+    }
+
+    // Si el rango no incluye la primera página, mostrar "1" y "…"
+    if (inicio > 1) {
+        crearBoton("1", 1);
+        const span = document.createElement("span");
+        span.innerText = "…";
+        span.style.padding = "0 5px";
+        cont.appendChild(span);
+    }
+
+    // Botones de páginas dentro del rango
+    for (let i = inicio; i <= fin; i++) {
+        crearBoton(i, i, i === paginaActual ? "activo" : "");
+    }
+
+    // Si el rango no incluye la última página, mostrar "…" y la última página
+    if (fin < totalPaginas) {
+        const span = document.createElement("span");
+        span.innerText = "…";
+        span.style.padding = "0 5px";
+        cont.appendChild(span);
+        crearBoton(totalPaginas, totalPaginas);
+    }
+
+    // Botones "Siguiente" y "Último"
+    if (mostrarNav) {
+        crearBoton("Siguiente", Math.min(totalPaginas, paginaActual + 1));
+        crearBoton("Último", totalPaginas);
+    }
+}
+
 
 // __________________________________________________________________________________

@@ -119,30 +119,30 @@
 			function actualizarMenus() {
 				/*
 			    vEsquema = document.getElementById("nomEsquema").value.toUpperCase().substring(0, 3);
-			    console.log('Esquema actual:', vEsquema);
+			    con sole.log('Esquema actual:', vEsquema);
 
 			    document.querySelectorAll('li').forEach(function(li, index) {
 			        var esquemas = li.getAttribute('data-esquema');
 			        var cId      = li.getAttribute('id');
-			        console.log(`Elemento ${index}: data-esquema = ${esquemas}`,`Id=${cId}`);
+			        con sole.log(`Elemento ${index}: data-esquema = ${esquemas}`,`Id=${cId}`);
 
 			        if (esquemas != null) {
 			            if (esquemas.includes(vEsquema)) {
-			                console.log(`Elemento ${index} visible`,`Id=${cId}`);
+			                con sole.log(`Elemento ${index} visible`,`Id=${cId}`);
 			                li.style.display = 'block';
 			            } else {
-			                console.log(`Elemento ${index} oculto`,`Id=${cId}*****`);
+			                con sole.log(`Elemento ${index} oculto`,`Id=${cId}*****`);
 			                li.style.display = 'none';
 			            }
 			        } else {
-			            //console.log(`Elemento ${index} sin data-esquema, visible`);
+			            //con sole.log(`Elemento ${index} sin data-esquema, visible`);
 			            li.style.display = 'block';
 			        }
 			    });
 			    */
 				// Oculta o Despliega los submenus de cada Opción principal, de acuerdo al ROL
 				vEsquema = document.getElementById("nomEsquema").value.toUpperCase().substring(0,3);
-				console.log(`Esquema=${vEsquema}`);
+				// con sole.log(`Esquema=${vEsquema}`);
 				if (vEsquema!="ADM1"){ // El administrador puede ver todo
 				    document.querySelectorAll('li').forEach(function(li) {
 				        var esquemas = li.getAttribute('data-esquema');
