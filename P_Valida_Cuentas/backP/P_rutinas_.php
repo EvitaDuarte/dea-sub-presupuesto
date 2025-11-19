@@ -1080,5 +1080,15 @@ function fechaHoraActual(): string {
     return $fecha->format('Y-m-d H:i:s');
 }
 // _________________________________________________________________________________
+function aOpcionesWs($url){
+	return     Array(
+		"uri"					=> $url,			"style"					=> SOAP_RPC,
+		"use"					=> SOAP_ENCODED, 	"soap_version"			=> SOAP_1_1,
+		"cache_wsdl"			=> WSDL_CACHE_BOTH, "connection_timeout" 	=> 15,
+		"trace" 				=> true, 			"encoding" 				=> "UTF-8",
+		"exceptions" 			=> true, 			"features" 				=> SOAP_SINGLE_ELEMENT_ARRAYS
+	);
+}
+// _________________________________________________________________________________
 
 ?>

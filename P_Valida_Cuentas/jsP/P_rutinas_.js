@@ -2269,7 +2269,8 @@ function generarPaginador(totalPaginas, aParametros) {
         a.href = "#";
         a.className = "pagina-btn " + claseExtra;
         a.onclick = () => {
-            aParametros.pagina = page;
+            aParametros.pagina  = page;
+            gPagina             = page; // Debe ser una variable global definida en el JS principal
             conectayEjecutaPost(aParametros, cPhpBusca);
         };
         cont.appendChild(a);

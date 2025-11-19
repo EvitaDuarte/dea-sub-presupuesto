@@ -8,21 +8,19 @@
     if(isset($_SESSION['tiempo'])){
         $vida_session = time() - $_SESSION['tiempo'];
         if($vida_session > $vinactivo){
-            // header("Location P_Cuentas00_Salir.php"); //exit;
             header("Location: P_Cuentas00_home.php");exit;
         }else{
             $_SESSION['tiempo'] = time();
         }
     }else{
-        //header("Location P_Cuenta00_Salir.php");//exit;
         header("Location: P_Cuenta00_home.php");exit;
     }
 
     
 
     if(!isset($_SESSION['ValCtasClave'])){
-        header("Location P_Cuenta00_salir.php"); //exit;
-        // header("Location: P_Cuentas00_home.php");exit;
+        header("Location: P_Cuenta00_salir.php"); //exit;
+        //header("Location: P_Cuentas00_home.php");exit;
     }else{
         // Se recuperan variables de sesion
         $usrClave     = $_SESSION['ValCtasClave'];

@@ -8,10 +8,11 @@
  *                	
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
-var cPhp      	 = "P_Proyecto_.php";	// En este php estarán las funciones que se invocaran desde este JS
-var cPhpBusca	 = "P_Busca_Pagina_.php";
-var gTabla	  	 = "";					// Tabla HTML que se esta visualizando
-var gForma	  	 = "";
+var cPhp      	= "P_Proyecto_.php";	// En este php estarán las funciones que se invocaran desde este JS
+var cPhpBusca	= "P_Busca_Pagina_.php";
+var gTabla	  	= "";					// Tabla HTML que se esta visualizando
+var gForma	  	= "";
+var gPagina		= 1; 
 
 window.onload = function () {		// Función que se ejecuta al cargar la página HTML que invoca a P_partidas_.js
 	// Se obtiene el nombre del archivo que lo invoca
@@ -63,10 +64,15 @@ async function procesarRespuesta__(vRes) {
 	loader('none');
 	cOpcion = vRes.parametros.opcion;
 	switch(cOpcion){
+		// ______________________________
 		case "buscaYPagina":
 			aIds = ["clvpy","geografico","activo","despy"]
 			pintarTablaHTMLEscucha("tblProyectos",vRes.registros,vRes.parametros,aIds);
 			generarPaginador(vRes.totalPaginas, vRes.parametros);
+		break;
+		// ______________________________
+		case "PyVerificaSiga":
+			cargaCatalogoProyectos(gPagina);
 		break;
 	}
 
@@ -88,6 +94,21 @@ const actualizaProyecto=()=>{
 		return false;
 	}
 	cDesPy = valorDeObjeto("despy",false);  cGeo = valorDeObjeto("geografico",false) ; cActivo = valorDeObjeto("activo",false);
+	if ( !cDesPy || !cGeo || !cActivo ){
+		mandaMensaje("Faltan Parámetros " );
+		return false;
+	}
+	esperaRespuesta(`Desea revisar el proyecto ${cPy} en SIGA`).then((respuesta) => {
+		aDatos = {
+			opcion		: "PyVerificaSiga",
+			idPy		: cPy,
+			nombre		: cDesPy,
+			geografico	: cGeo,
+			activo		: cActivo
+		};
+		conectayEjecutaPost(aDatos,cPhp);
+
+	});
 	
 }
 // _______________________________________________________________________________

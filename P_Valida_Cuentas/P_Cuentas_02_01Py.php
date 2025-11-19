@@ -36,12 +36,16 @@
                                     </div>
                                     <div class="caja_captura0">
                                         <label for="geografico" class="lbl_txt">Geográfico</label>
-                                        <input type="text" name="geografico" id="geografico"  
-                                        onkeyup="this.title=this.value;" title="Geografico">
+                                        <select id="geografico" name="geografico" title="Geográfico">
+                                            <option value=''>Seleccione</option>
+                                            <option value='SI'>SI</option>
+                                            <option value='NO'>NO</option>
+                                        </select>
                                     </div>
                                     <div class="caja_captura0">
                                         <label for="activo" class="lbl_txt">Estatus</label>
                                         <select id="activo" name="activo" title="Estatus">
+                                            <option value=''>Seleccione</option>
                                             <option value=true>ACTIVO</option>
                                             <option value=false>INACTIVO</option>
                                         </select>
