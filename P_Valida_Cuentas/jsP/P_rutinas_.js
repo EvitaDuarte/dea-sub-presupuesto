@@ -26,263 +26,317 @@ botones.forEach((item) => {
         });
     }
 });
+// ______________________________________________________________________________
+const expresiones = {
+    soloLetras                  : { regex: /^[A-Za-záéíñóúÁÉÍÓÚüÜÑ\s\.]+$/                              , mensaje : "solo puede llevar letras y espacios" },
+    letrasNumerosSeparadores    : { regex: /^[A-Za-záéíóúñÑÁÉÍÓÚ0-9.\-_,\/\s]+$/                        , mensaje : "solo puede llevar letras, números, punto, -, _, / y espacios" },
+    soloLetrasNumerosEspacios   : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s]*$/                 , mensaje : "solo puede llevar letras, números y espacios"},
+    soloDominio                 : { regex: /^[a-z]+\.[a-z]+$/                                           , mensaje : "solo debe ser el formato nombre.apellido en minúsculas"}, 
+    soloNumeros                 : { regex: /^[0-9]+$/                                                   , mensaje : "solo puede llevar números"},
+    soloUr                      : { regex: /^[a-zA-Z]{2}[a-zA-Z0-9]{2}$/                                , mensaje : "solo puede tener dos letras iniciales y letras y números en los dos últimos caracteres"},
+    soloImportes                : { regex: /^-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/   , mensaje : "solo puede llevar números,comas,punto decimal"},
+    soloImportesPositivos       : { regex: /^\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/     , mensaje : "solo números, comas(3), punto decimal, sin signo, dos decimales"},
+    soloCuenta                  : { regex: /^[a-zA-ZñÑ0-9-() ]+$/                                       , mensaje : "solo puede llevar Letras - Numeros ()"},
+    soloSiglas                  : { regex: /^[a-zA-Z]+[0-9]+-$/                                         , mensaje : "solo puede llevar Letras seguido de Números y Guion final"},
+    soloNumerosGuion            : { regex: /^[0-9-]+$/                                                  , mensaje : "solo puede llevar Números y guion"},
+    soloLetrasNumerosGuion      : { regex: /^[A-Za-z0-9\- ]+$/                                          , mensaje : "solo puede llevar Letras, Números y guion"},
+    soloLetrasNumeros           : { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ ]+$/                                , mensaje : "solo puede llevar Letras, Números y espacios"},
+    soloLetrasNumerosSinEspacios: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ]+$/                                 , mensaje : "solo puede llevar Letras, Números sin espacios"},
+    exclusivoLetras             : { regex: /^[a-zA-Z]+$/                                                , mensaje : "solo puede llevar Letras, sin espacios"},
+    exclusivoUR                 : { regex: /^[A-Za-z]{2}\d{2}$/                                         , mensaje : "Por favor, ingresa dos letras seguidas de dos números. para UR"}
+};
+// ______________________________________________________________________________
+function validaValor(inputHTML) {
+
+    const idExpresion = inputHTML.dataset.exp;
+    const lValida     = inputHTML.dataset.valida === "true"; // <-- conversión a booleano
+
+    const expresion = expresiones[idExpresion];
+
+    let cVar    = inputHTML.value.trim();
+    let cCampo  = inputHTML.title;
+
+    // Validar campo vacío
+    if (cVar === "") {
+        if (lValida) {
+            FocoEnObjeto(inputHTML);
+            mandaMensaje(cCampo + ": debe de llevar información");
+            return false;
+        }
+        return true;
+    }
+
+    // Validar con regex
+    if (expresion.regex.test(cVar)) {
+        return true;
+    } else {
+        FocoEnObjeto(inputHTML);
+        mandaMensaje(`${cCampo}: ${expresion.mensaje}`)
+        limpiaObjeto(inputHTML.id);
+        return false;
+    }
+}
+
+// ______________________________________________________________________________
+
 // Verifica que cVar solo contenga letras mayusculas, minusculas, acentos y espacios
 // _________________________________
-function sololetras(cVar,cCampo,cHTML,lValida=false){
-	var expresionRegular = /^[A-Za-záéíñóúÁÉÍÓÚüÜÑ\s\.]+$/;
-    cVar = cVar.trim();
-    if (cVar===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false;
-        }
-        return true;
-    }
-	if (expresionRegular.test(cVar)) {
-    	//con sole.log("La cadena contiene solo letras mayúsculas y minúsculas.");
-    	return true;
-  	} else {
-        FocoEn(cHTML);
-    	mandaMensaje(cCampo +": solo puede llevar letras y espacios");
-        FocoEn(cHTML);
-    	return false;
-  	}
-}
+// _________________________________
+// function sololetras(idHtml,lValida=false){
+// 	let expresionRegular = /^[A-Za-záéíñóúÁÉÍÓÚüÜÑ\s\.]+$/;
+//     let cVar    = idHtml.value.trim();
+//     let cCampo  = idHtml.title;
+//     if (cVar===""){
+//         if (lValida){
+//             FocoEn(idHtml);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(idHtml);
+//             return false;
+//         }
+//         return true;
+//     }
+// 	if (expresionRegular.test(cVar)) {
+//     	return true;
+//   	} else {
+//         FocoEn(idHtml);
+//     	mandaMensaje(cCampo +": solo puede llevar letras y espacios");
+//         FocoEn(idHtml);
+//     	return false;
+//   	}
+// }
 // _____________________________________________________________________________________________
-function soloLetrasNumerosSeparadores(cVar,cCampo,cHTML,lValida=false){
-    var expresionRegular = /^[[a-zA-ZáéíóúñÑÁÉÍÓÚ][a-zA-ZáéíóúñÑÁÉÍÓÚ0-9.\-\,\_\/\s]*$/;
-    if (cVar.trim()===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (expresionRegular.test(cVar)) {
-        return true;
-    } else {
-        FocoEn(cHTML);
-        mandaMensaje(cCampo +": solo puede llevar letras, números, punto, -, _, / y espacios");
-        FocoEn(cHTML)
-        return false;
-    }
+// function soloLetrasNumerosSeparadores(cVar,cCampo,cHTML,lValida=false){
+//     var expresionRegular = /^[[a-zA-ZáéíóúñÑÁÉÍÓÚ][a-zA-ZáéíóúñÑÁÉÍÓÚ0-9.\-\,\_\/\s]*$/;
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (expresionRegular.test(cVar)) {
+//         return true;
+//     } else {
+//         FocoEn(cHTML);
+//         mandaMensaje(cCampo +": solo puede llevar letras, números, punto, -, _, / y espacios");
+//         FocoEn(cHTML)
+//         return false;
+//     }
 
-}
+// }
 // _____________________________________________________________________________________________
-function soloLetrasNumerosEspacios(cVar,cCampo,cHTML, lValida=false){
-    var expresionRegular = /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s]*$/;
-    // cVar ya debe de venir con trim, uppercase, etc por eso no se puede obtener usando cHTML
-    if (cVar.trim()===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (expresionRegular.test(cVar)) {
-        //con sole.log("La cadena contiene solo letras mayúsculas y minúsculas.");
-        return true;
-    } else {
-        FocoEn(cHTML);
-        mandaMensaje(cCampo +": solo puede llevar letras, números y espacios");
-        FocoEn(cHTML);
-        return false;
-    }
+// function soloLetrasNumerosEspacios(cVar,cCampo,cHTML, lValida=false){
+//     var expresionRegular = /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s]*$/;
+//     // cVar ya debe de venir con trim, uppercase, etc por eso no se puede obtener usando cHTML
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (expresionRegular.test(cVar)) {
+//         //con sole.log("La cadena contiene solo letras mayúsculas y minúsculas.");
+//         return true;
+//     } else {
+//         FocoEn(cHTML);
+//         mandaMensaje(cCampo +": solo puede llevar letras, números y espacios");
+//         FocoEn(cHTML);
+//         return false;
+//     }
 
-}
+// }
 // _________________________________
-function soloDominio(cVar,cCampo,cHTML,lValida=false){ 
-	// Verifica si cVar solo tenga letras minusculas y un punto decimal 
-	var regex =  /^[a-z]+\.[a-z]+$/;  // /^[a-z]+\.$/;
-    if (cVar.trim()===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    // Verificar si la variable cumple con la expresión regular && texto.trim() !== ""
-    if (regex.test(cVar) && cVar.trim()!="" ) {
-        //con sole.log("La variable cumple con los requisitos.");
-        return true;
-    } else {
-        //con sole.log("La variable no cumple con los requisitos.");
-        FocoEn(cHTML);
-        mandaMensaje(cCampo+ ": debe ser del formato nombre.apellido en minúsculas");
-        FocoEn(cHTML);
-        return false;
-    }
-}
+// function soloDominio(cVar,cCampo,cHTML,lValida=false){ 
+// 	// Verifica si cVar solo tenga letras minusculas y un punto decimal 
+// 	var regex =  /^[a-z]+\.[a-z]+$/;  // /^[a-z]+\.$/;
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     // Verificar si la variable cumple con la expresión regular && texto.trim() !== ""
+//     if (regex.test(cVar) && cVar.trim()!="" ) {
+//         //con sole.log("La variable cumple con los requisitos.");
+//         return true;
+//     } else {
+//         //con sole.log("La variable no cumple con los requisitos.");
+//         FocoEn(cHTML);
+//         mandaMensaje(cCampo+ ": debe ser del formato nombre.apellido en minúsculas");
+//         FocoEn(cHTML);
+//         return false;
+//     }
+// }
 // _________________________________
-function soloNumeros(cVar,cCampo,cHTML,lValida=false){
-    var patron = /^[0-9]+$/;
-    if (cVar.trim()===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (patron.test(cVar)){
-        return true;
-    }else{
-        FocoEn(cHTML);
-        mandaMensaje(cCampo+": solo puede llevar números");
-        FocoEn(cHTML);
-        return false;
-    }
-}
+// function soloNumeros(cVar,cCampo,cHTML,lValida=false){
+//     var patron = /^[0-9]+$/;
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (patron.test(cVar)){
+//         return true;
+//     }else{
+//         FocoEn(cHTML);
+//         mandaMensaje(cCampo+": solo puede llevar números");
+//         FocoEn(cHTML);
+//         return false;
+//     }
+// }
 // _________________________________
-function soloUR(cCampo,cHTML,lValida=false){
-    // Expresión regular para verificar el formato
-    var patron = /^[a-zA-Z]{2}[a-zA-Z0-9]{2}$/;
-    cObj = document.getElementById(cHTML);
-    cVar = cObj.value.trim();
-    if (cVar.trim()===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    // Verificar si el valor cumple con la expresión regular
-    if (patron.test(cVar)) {
-        return true
-    } else {
-        cObj.focus();
-        cObj.click();
-        mandaMensaje(cCampo+": solo puede tener dos letras iniciales y letras y números en los dos últimos caracteres");
-        return false;
-    }
-}
+// function soloUR(cCampo,cHTML,lValida=false){
+//     // Expresión regular para verificar el formato
+//     var patron = /^[a-zA-Z]{2}[a-zA-Z0-9]{2}$/;
+//     cObj = document.getElementById(cHTML);
+//     cVar = cObj.value.trim();
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     // Verificar si el valor cumple con la expresión regular
+//     if (patron.test(cVar)) {
+//         return true
+//     } else {
+//         cObj.focus();
+//         cObj.click();
+//         mandaMensaje(cCampo+": solo puede tener dos letras iniciales y letras y números en los dos últimos caracteres");
+//         return false;
+//     }
+// }
 // _________________________________
-function soloImportes(cCampo,cHTML,lValida=false){
-    //var patron = /^-?\d{1,3}(\d{3})*(,\d+)?(\.\d+)?$/;
-    var patron =  /^-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/;
-    cObj = document.getElementById(cHTML);
-    cVar = cObj.value.trim();
-    if (cVar.trim()===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (patron.test(cVar)){
-        return true;
-    }else{
-        cObj.focus();
-        cObj.click();
-        mandaMensaje(cCampo+": solo puede llevar números,comas,punto decimal");
-        return false;
-    }
-}
+// function soloImportes(cCampo,cHTML,lValida=false){
+//     //var patron = /^-?\d{1,3}(\d{3})*(,\d+)?(\.\d+)?$/;
+//     var patron =  /^-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/;
+//     cObj = document.getElementById(cHTML);
+//     cVar = cObj.value.trim();
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (patron.test(cVar)){
+//         return true;
+//     }else{
+//         cObj.focus();
+//         cObj.click();
+//         mandaMensaje(cCampo+": solo puede llevar números,comas,punto decimal");
+//         return false;
+//     }
+// }
 // _________________________________
 // _________________________________
-function soloImportesPositivos(input, lValida = false) {
+// function soloImportesPositivos(input, lValida = false) {
 
-    //var patron = /^(?!0\d)(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/; // Expresión regular
-    //var patron = /^(?!0\d)(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/;
-    //var numero = input.value.trim().replace(/,/g, ''); // Eliminar comas
-    // Funciona tanto si el valor trae comas o no , tambien valida que las comas esten bien posicionadas
-    var patron =  /^\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/;
-    var numero = input.value.trim(); 
-    // Verificar si el campo está vacío
-    if (numero === "") {
-        if (lValida) {
-            FocoEnObjeto(input);
-            mandaMensaje(input.getAttribute("data-info") + ": debe de llevar información");
-            FocoEnObjeto(input);
-            return false;
-        }
-        return true;
-    }
+//     //var patron = /^(?!0\d)(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/; // Expresión regular
+//     //var patron = /^(?!0\d)(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/;
+//     //var numero = input.value.trim().replace(/,/g, ''); // Eliminar comas
+//     // Funciona tanto si el valor trae comas o no , tambien valida que las comas esten bien posicionadas
+//     var patron =  /^\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/;
+//     var numero = input.value.trim(); 
+//     // Verificar si el campo está vacío
+//     if (numero === "") {
+//         if (lValida) {
+//             FocoEnObjeto(input);
+//             mandaMensaje(input.getAttribute("data-info") + ": debe de llevar información");
+//             FocoEnObjeto(input);
+//             return false;
+//         }
+//         return true;
+//     }
 
-    // Comprobar que el número cumple con el patrón
-    if (!patron.test(numero)) {
-        FocoEnObjeto(input);
-        mandaMensaje(input.getAttribute("data-info") + ": solo números, comas(3), punto decimal, sin signo, dos decimales");
-        FocoEnObjeto(input);
-        return false;
-    }
+//     // Comprobar que el número cumple con el patrón
+//     if (!patron.test(numero)) {
+//         FocoEnObjeto(input);
+//         mandaMensaje(input.getAttribute("data-info") + ": solo números, comas(3), punto decimal, sin signo, dos decimales");
+//         FocoEnObjeto(input);
+//         return false;
+//     }
 
-    // Si no trae comas, agregarlas
-    // Paso 1: quitar comas para convertir a número
-    var sinComas = numero.replace(/,/g, '');
+//     // Si no trae comas, agregarlas
+//     // Paso 1: quitar comas para convertir a número
+//     var sinComas = numero.replace(/,/g, '');
 
-    // Paso 2: convertir a número flotante y luego formatear con comas
-    var numeroFloat = parseFloat(sinComas);
+//     // Paso 2: convertir a número flotante y luego formatear con comas
+//     var numeroFloat = parseFloat(sinComas);
 
-    // Verifica que no sea NaN
-    if (!isNaN(numeroFloat)) {
-        // Formatea con separadores de miles y máximo 2 decimales
-        input.value = numeroFloat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+//     // Verifica que no sea NaN
+//     if (!isNaN(numeroFloat)) {
+//         // Formatea con separadores de miles y máximo 2 decimales
+//         input.value = numeroFloat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 // _________________________________
-function soloCuenta(cTitulo,cHTML,lValida=false){
-    //var patron = /^[a-zA-ZñÑ\s]+(?:\s-\s(?:\d{4}|\(\d{4}-\d{4}\)))?$/;
-    var patron = /^[a-zA-ZñÑ0-9-() ]+$/;
-    cObj = document.getElementById(cHTML);
-    cVar = cObj.value.trim();
-    if (cVar===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cTitulo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (patron.test(cVar)){
-        return true;
-    }else{
-        cObj.focus();
-        cObj.click();
-        mandaMensaje(cTitulo+": solo puede llevar Letras - Numeros ()");
-        return false;
-    }
-}
+// function soloCuenta(cTitulo,cHTML,lValida=false){
+//     //var patron = /^[a-zA-ZñÑ\s]+(?:\s-\s(?:\d{4}|\(\d{4}-\d{4}\)))?$/;
+//     var patron = /^[a-zA-ZñÑ0-9-() ]+$/;
+//     cObj = document.getElementById(cHTML);
+//     cVar = cObj.value.trim();
+//     if (cVar===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cTitulo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (patron.test(cVar)){
+//         return true;
+//     }else{
+//         cObj.focus();
+//         cObj.click();
+//         mandaMensaje(cTitulo+": solo puede llevar Letras - Numeros ()");
+//         return false;
+//     }
+// }
 // _________________________________
-function soloSiglas(cCampo,cHTML,lValida=false){
-    var patron = /^[a-zA-Z]+[0-9]+-$/;
-    cObj = document.getElementById(cHTML);
-    cVar = cObj.value.trim();
-    if (cVar===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (patron.test(cVar)){
-        return true;
-    }else{
-        cObj.focus();
-        cObj.click();
-        mandaMensaje(cCampo+": solo puede llevar Letras seguido de Números y Guion final");
-        return false;
-    }
-}
+// function soloSiglas(cCampo,cHTML,lValida=false){
+//     var patron = /^[a-zA-Z]+[0-9]+-$/;
+//     cObj = document.getElementById(cHTML);
+//     cVar = cObj.value.trim();
+//     if (cVar===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (patron.test(cVar)){
+//         return true;
+//     }else{
+//         cObj.focus();
+//         cObj.click();
+//         mandaMensaje(cCampo+": solo puede llevar Letras seguido de Números y Guion final");
+//         return false;
+//     }
+// }
 // _________________________________
 function anioValido(cAnio){
     var fechaActual = new Date();
@@ -290,109 +344,132 @@ function anioValido(cAnio){
     return (cAnio<=añoActual && (añoActual-cAnio)<6 );
 }
 // _________________________________
-function soloNumerosGuion(cVar,cCampo,cHTML,lValida=false){
-  // Expresión regular que verifica que la variable tenga al menos un número o guion y no esté vacía
-    var patron = /^[0-9-]+$/;
-    if (cVar.trim()===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (patron.test(cVar.trim())){
-        return true
-    }else{
-        document.getElementById(cHTML).focus();
-        document.getElementById(cHTML).click();
-        mandaMensaje(cCampo+": solo puede llevar Números y guion");
-    }
-    return false;
-}
+// function soloNumerosGuion(cVar,cCampo,cHTML,lValida=false){
+//   // Expresión regular que verifica que la variable tenga al menos un número o guion y no esté vacía
+//     var patron = /^[0-9-]+$/;
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (patron.test(cVar.trim())){
+//         return true
+//     }else{
+//         document.getElementById(cHTML).focus();
+//         document.getElementById(cHTML).click();
+//         mandaMensaje(cCampo+": solo puede llevar Números y guion");
+//     }
+//     return false;
+// }
 // _________________________________
-function soloLetrasNumerosGuion(cVar,cCampo,cHTML,lValida=false){
-  // Expresión regular que verifica que la variable tenga al menos un número o guion y no esté vacía
-  var patron = /^[A-Za-z0-9\- ]+$/;
-    if (cVar.trim()===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (patron.test(cVar.trim())){
-        return true;
-    }else{
-        document.getElementById(cHTML).focus();
-        document.getElementById(cHTML).click();
-        mandaMensaje(cCampo+": solo puede llevar Letras Números y guion");
-    }
-  return false;
-}
+// function soloLetrasNumerosGuion(cVar,cCampo,cHTML,lValida=false){
+//   // Expresión regular que verifica que la variable tenga al menos un número o guion y no esté vacía
+//   var patron = /^[A-Za-z0-9\- ]+$/;
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (patron.test(cVar.trim())){
+//         return true;
+//     }else{
+//         document.getElementById(cHTML).focus();
+//         document.getElementById(cHTML).click();
+//         mandaMensaje(cCampo+": solo puede llevar Letras Números y guion");
+//     }
+//   return false;
+// }
 // _________________________________
-function exclusivoLetras(cCampo,cHTML,lValida=false){
-    var patron = /^[a-zA-Z]+$/
-    cObj = document.getElementById(cHTML);
-    cVar = cObj.value.trim();
-    if (cVar===""){
-        if (lValida){
-            FocoEn(cHTML);
-            mandaMensaje(cCampo+": debe de llevar información");
-            FocoEn(cHTML);
-            return false; 
-        }
-        return true;
-    }
-    if (patron.test(cVar)){
-        return true;
-    }else{
-        cObj.focus();
-        cObj.click();
-        mandaMensaje(cCampo+": solo puede llevar Letras");
-        return false;
-    }
-}
+// function function soloLetrasNumeros(idHtml,lValida=false){
+//     // Expresión regular que verifica que la variable tenga al menos un número o guion y no esté vacía
+//     let patron  = /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ ]+$/;
+//     let cVar    = idHtml.value;
+//     if (cVar.trim()===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (patron.test(cVar.trim())){
+//         return true;
+//     }else{
+//         document.getElementById(cHTML).focus();
+//         document.getElementById(cHTML).click();
+//         mandaMensaje(cCampo+": solo puede llevar Letras Números y espacios");
+//     }
+//     return false;
+// }
 // _________________________________
-function exclusivoUR(input) {
-    var entrada = input.value.trim();
-
-    // Expresión regular que verifica dos letras seguidas de dos números
-    var patron = /^[A-Za-z]{2}\d{2}$/;
-
-    if (!patron.test(entrada)) {
-        input.focus();
-        input.click();
-        mandaMensaje("Por favor, ingresa dos letras seguidas de dos números. para UR");
-        // Limpiar el campo o realizar otras acciones según tus necesidades
-        //input.value = "";
-        // Devolver el enfoque al elemento input
-        input.focus();
-        input.click();
-    }
-}
+// function exclusivoLetras(cCampo,cHTML,lValida=false){
+//     var patron = /^[a-zA-Z]+$/
+//     cObj = document.getElementById(cHTML);
+//     cVar = cObj.value.trim();
+//     if (cVar===""){
+//         if (lValida){
+//             FocoEn(cHTML);
+//             mandaMensaje(cCampo+": debe de llevar información");
+//             FocoEn(cHTML);
+//             return false; 
+//         }
+//         return true;
+//     }
+//     if (patron.test(cVar)){
+//         return true;
+//     }else{
+//         cObj.focus();
+//         cObj.click();
+//         mandaMensaje(cCampo+": solo puede llevar Letras");
+//         return false;
+//     }
+// }
 // _________________________________
-function tieneValor(cVar,cCampo,cHTML){ // Pregunta si la variable tiene información
-    // Revisar si se usa para la validación en los botones
-    regreso = false;
-    if (cVar===null || cVar === undefined){           // Detecta nulo
-        document.getElementById(cHTML).focus();
-        document.getElementById(cHTML).click();
-        mandaMensaje("Se require un valor para "+cCampo)
+// function exclusivoUR(input) {
+//     var entrada = input.value.trim();
 
-    }else if( cVar.trim()==="" ){                     // Detecta vacía
-        document.getElementById(cHTML).focus();
-        document.getElementById(cHTML).click();
-        mandaMensaje("Ingrese valor para "+cCampo)
+//     // Expresión regular que verifica dos letras seguidas de dos números
+//     var patron = /^[A-Za-z]{2}\d{2}$/;
 
-    }else{
-        regreso = true;
-    }
-    return regreso;
-}
+//     if (!patron.test(entrada)) {
+//         input.focus();
+//         input.click();
+//         mandaMensaje("Por favor, ingresa dos letras seguidas de dos números. para UR");
+//         // Limpiar el campo o realizar otras acciones según tus necesidades
+//         //input.value = "";
+//         // Devolver el enfoque al elemento input
+//         input.focus();
+//         input.click();
+//     }
+// }
+// _________________________________
+// function tieneValor(cVar,cCampo,cHTML){ // Pregunta si la variable tiene información
+//     // Revisar si se usa para la validación en los botones
+//     regreso = false;
+//     if (cVar===null || cVar === undefined){           // Detecta nulo
+//         document.getElementById(cHTML).focus();
+//         document.getElementById(cHTML).click();
+//         mandaMensaje("Se require un valor para "+cCampo)
+
+//     }else if( cVar.trim()==="" ){                     // Detecta vacía
+//         document.getElementById(cHTML).focus();
+//         document.getElementById(cHTML).click();
+//         mandaMensaje("Ingrese valor para "+cCampo)
+
+//     }else{
+//         regreso = true;
+//     }
+//     return regreso;
+// }
 // _________________________________
 function seCapturo(oHTML){ // Pregunta si la variable tiene información
     regreso = false;
@@ -669,20 +746,36 @@ function llenaCombo(select,aCombo,cValor=""){ // llena un HTML Select (combobox)
     }
 }
 // ______________________________________________
-function llenaComboCveDes(select,aCombo){ // llena un HTML Select (combobox) a partir del arreglo aCombo
+function llenaComboCveDes(select, aCombo) {
+    // Limpiar el select
     select.innerHTML = "";
-    var opcion   = document.createElement("option");
-    opcion.text  = "Seleccione ..."  // Texto visible de la opción
-    opcion.value = ""; // Valor de la opción (puede ser diferente del texto visible)
-    select.appendChild(opcion);
 
-    for (var i = 0; i < aCombo.length; i++) {
-        var opcion   = document.createElement("option");
-        opcion.text  = aCombo[i]["descripcion"].trim();  // Texto visible de la opción
-        opcion.value = String(aCombo[i]["clave"]).trim(); // Valor de la opción (puede ser diferente del texto visible)
-        select.appendChild(opcion); // Agrega la opción al select
+    // Opción por defecto
+    const opcionDefault     = document.createElement("option");
+    opcionDefault.text      = "Seleccione ...";
+    opcionDefault.value     = "";
+    select.appendChild(opcionDefault);
+
+    // Llenar opciones
+    for (let i = 0; i < aCombo.length; i++) {
+        const item      = aCombo[i];
+        const opcion    = document.createElement("option");
+
+        if (item.descripcion) {
+            // Si existe descripción, mostrar "clave - descripción"
+            opcion.text = `${item.clave} - ${item.descripcion.trim()}`;
+        } else {
+            // Si no existe, solo la clave
+            opcion.text = String(item.clave);
+        }
+
+        // Valor siempre es clave (o vacío si no existe)
+        opcion.value = item.clave != null ? String(item.clave).trim() : "";
+
+        select.appendChild(opcion);
     }
 }
+
 // ______________________________________________
 function llenaComboCveNombre(select,aCombo){ // llena un HTML Select (combobox) a partir del arreglo aCombo
     // Recorre el arreglo y crea opciones
@@ -1814,27 +1907,27 @@ function validaCorreo(oMail,lVacio=false){
     return true;
 }
 // __________________________________________________________________________________
-const soloNumeros_ = (oHtml, lValida = false) => { // Se tiene soloNumeros, pero lleva mas parámetros
-    const cVar = oHtml.value.trim();
-    const patron = /^[0-9]+$/;
+// const soloNumeros_ = (oHtml, lValida = false) => { // Se tiene soloNumeros, pero lleva mas parámetros
+//     const cVar = oHtml.value.trim();
+//     const patron = /^[0-9]+$/;
 
-    if (cVar === "") {
-        if (lValida) {
-            mandaMensaje(oHtml.title + ": debe contener información");
-            FocoEnObjeto(oHtml);
-            return false;
-        }
-        return true; // vacío, pero no obligatorio
-    }
+//     if (cVar === "") {
+//         if (lValida) {
+//             mandaMensaje(oHtml.title + ": debe contener información");
+//             FocoEnObjeto(oHtml);
+//             return false;
+//         }
+//         return true; // vacío, pero no obligatorio
+//     }
 
-    if (!patron.test(cVar)) {
-        mandaMensaje(oHtml.title + ": solo puede llevar números");
-        FocoEnObjeto(oHtml);
-        return false;
-    }
+//     if (!patron.test(cVar)) {
+//         mandaMensaje(oHtml.title + ": solo puede llevar números");
+//         FocoEnObjeto(oHtml);
+//         return false;
+//     }
 
-    return true;
-};
+//     return true;
+// };
 // __________________________________________________________________________________
 const tieneValorObjeto = (oHtml) => {
     try {
@@ -2318,6 +2411,26 @@ function generarPaginador(totalPaginas, aParametros) {
         crearBoton("Último", totalPaginas);
     }
 }
+// __________________________________________________________________________________
+function light_Title(id) { // Cambia la clase de la etiqueta, si el value del objeto id tiene valor,  utilizado en el onchange 
+    const input = document.getElementById(id);
+    const p     = document.querySelector(`label[for="${id}"]`);
 
+    if (!input || !p) return;
 
+    if (input.value !== "") {
+        p.classList.add("titles-filled");
+    } else {
+        p.classList.remove("titles-filled");
+    }
+}
+// __________________________________________________________________________________
+function cambiaMaxLength(cIdHtml, objDetona) {
+    const objHtml = document.getElementById(cIdHtml);
+
+    if (objHtml && objDetona) {
+        const max = objDetona.selectedOptions[0].dataset.max; // ← aquí
+        objHtml.maxLength = max; // si lo quieres usar así
+    }
+}
 // __________________________________________________________________________________

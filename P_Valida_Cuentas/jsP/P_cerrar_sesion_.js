@@ -3,7 +3,7 @@ var tiempoUltimaActividad;
 
 function cerrarSesion() {
     // cerrar sesión en el servidor
-    fetch("P_Cuenta00_salir.php")
+    fetch("P_Cuentas00_Salir.php")
         .finally(() => {
             // redirigir al login
             window.location.href = "index.html";

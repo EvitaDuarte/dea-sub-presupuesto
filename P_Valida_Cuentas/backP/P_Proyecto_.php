@@ -33,7 +33,8 @@
 	    	break;
 	    }
 	}catch(Exception $ex){
-		$regreso["error"] = $ex->getMessage();
+		$regreso["error"]	= $ex->getMessage();
+		$regreso["mensaje"]	= "Se encontro una inconsistencia en proyectos";
 	}
 	header_remove('x-powered-by');							 // remueve el header
 	header('Content-type: application/json; charset=utf-8'); // valores en formato JSON caracteres UTF-8

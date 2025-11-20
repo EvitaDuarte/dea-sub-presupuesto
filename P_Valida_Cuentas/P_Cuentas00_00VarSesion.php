@@ -19,7 +19,7 @@
     
 
     if(!isset($_SESSION['ValCtasClave'])){
-        header("Location: P_Cuenta00_salir.php"); //exit;
+        header("Location: P_Cuentas00_Salir.php"); //exit;
     }else{
         // Se recuperan variables de sesion
         $usrClave     = $_SESSION['ValCtasClave'];

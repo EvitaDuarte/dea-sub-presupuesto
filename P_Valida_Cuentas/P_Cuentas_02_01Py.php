@@ -27,12 +27,12 @@
                                     <div class="caja_captura0">
                                         <label for="clvpy" class="lbl_txt">Proyecto</label>
                                         <input type="text" name="clvpy" id="clvpy"   
-                                        onkeyup="this.title=this.value;" title="Clave de Proyecto">
+                                        onkeyup="this.value = this.value.toUpperCase();" title="Clave de Proyecto" onblur="validaValor(this);" data-exp='soloLetrasNumeros' data-valida="false">
                                     </div>
                                     <div class="caja_captura">
                                         <label for="despy" class="lbl_txt">Nombre</label>
                                         <input type="text" name="despy" id="despy"   
-                                        onkeyup="this.title=this.value;" title="Nombre Proyecto">
+                                        onkeyup="this.value = this.value.toUpperCase();" title="Nombre Proyecto" onblur="validaValor(this);" data-exp="soloLetras">
                                     </div>
                                     <div class="caja_captura0">
                                         <label for="geografico" class="lbl_txt">Geográfico</label>
