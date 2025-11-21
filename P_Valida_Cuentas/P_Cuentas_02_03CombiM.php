@@ -90,11 +90,9 @@
                                 <section class="seccion_caja" id="busqueda">
                                     <div class="caja_captura0">
                                         <label for="selOpe" class="lbl_txt">Operación</label>
-                                        <select id="selOpe" name="selOpe" title="No Reg">
+                                        <select id="selOpe" name="selOpe" title="Operación" onclick="generaSalida();">
                                             <option value="">Seleccione</option>
-                                            <option value="Copiar">Copiar</option>
                                             <option value="Excel">Excel</option>
-                                            <option value="CSV">CSV</option>
                                             <option value="PDF">PDF</option>
                                         </select>
                                     </div>
@@ -123,7 +121,8 @@
                                     </div>
                                     <div class="caja_captura3">
                                         <label for="txtBuscar" class="lbl_txt">Valor</label>
-                                        <input type="text" id="txtBuscar" name="txtBuscar"  maxlength="7" 
+                                        <!-- Segun la IA colocando un diferente name asegura que no compartan valores previamente capturados en diferentes pantallas -->
+                                        <input type="text" id="txtBuscar" name="txtBuscar_"  maxlength="7" 
                                         onkeyup="this.value = this.value.toUpperCase();" title="Valor a Buscar" onblur="validaValor(this);" data-exp='soloLetrasNumerosSinEspacios' data-valida="false">
                                     </div>
                                     <div class="form-field-button_" id="grpBotones">

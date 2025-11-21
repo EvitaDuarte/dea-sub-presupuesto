@@ -831,31 +831,6 @@ function validaTablas(string $cTabla): bool {
 }
 
 // _________________________________________________________________________________
-function validaWhereSecMal(string $whereSec): bool {
-    $whereSec = trim($whereSec); // No hay que convertirlo a mayusculas
-
-    // Si está vacío, es válido
-    if ($whereSec === '') {
-        return true;
-    }
-
-    // Divide por AND/OR (insensible a mayúsculas, con espacios) /i hace que el regex ignore si es AND, and, And, etc.
-    $condiciones = preg_split('/\s+(AND|OR)\s+/i', $whereSec);
-	$regex 		 = '/^([a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*\s*' .
-	               '(=|!=|<|<=|>|>=|LIKE|IS)\s*' .
-	               '(NULL|\'[^\']*\'|\d+|\?[0-9]*|:[a-zA-Z_][a-zA-Z0-9_]*)$/i';
-    // Ejemplo válido: b.tipo = 'C', a.id = b.id, campo IS NULL, campo LIKE 'X%'	               
-    foreach ($condiciones as $condicion) {
-        $condicion = trim($condicion);
-
-        if (!preg_match($regex, $condicion)) {
-            throw new Exception("Condición inválida en WHERE secundario: [$condicion]");
-            return false;
-        }
-    }
-
-    return true;
-}
 // _________________________________________________________________________________
 function validaWhereSec(string $whereSec): bool {
     $whereSec = trim($whereSec);
@@ -900,6 +875,130 @@ function validaWhereSec(string $whereSec): bool {
 }
 
 // _________________________________________________________________________________
+function validaWhereSegura(string $where): bool
+{
+    $where = trim($where);
+
+    if ($where === '') {
+        return true;
+    }
+
+    // --- 0) Prohibir palabras peligrosas explícitamente ---
+    // Evita que Veracode marque CWE-89 aunque el usuario lo intente.
+    $prohibidas = [
+        'SELECT','INSERT','UPDATE','DELETE','DROP','TRUNCATE',
+        'ALTER','CREATE','EXEC','UNION',';','--','#','/*','*/'
+    ];
+
+    foreach ($prohibidas as $p) {
+        if (stripos($where, $p) !== false) {
+            throw new Exception("Palabra peligrosa detectada: $p");
+        }
+    }
+
+    // --- 1) Normalizar espacios ---
+    $w = preg_replace('/\s+/', ' ', $where);
+
+    // --- 2) Lista extendida de tokens válidos ---
+	$pattern = '~
+	    (\() |                    # apertura de paréntesis
+	    (\)) |                    # cierre de paréntesis
+	    \bAND\b | \bOR\b |        # operadores lógicos
+	    \bNOT\b |                  # NOT
+	    \bIS\b\s+\bNOT\b |         # IS NOT
+	    \bIS\b |                   # IS
+	    \bIN\b |                   # IN
+	    \bBETWEEN\b |              # BETWEEN
+	    \bLIKE\b |                 # LIKE
+	    <= | >= | <> | != | = | < | > |   # operadores comparativos
+	    \'[^\']*\' |               # strings entre comillas simples
+	    \d+(\.\d+)? |              # números enteros o decimales
+	    NULL\b |                   # NULL
+	    \?[0-9]* |                 # placeholder ?
+	    :[a-zA-Z_][a-zA-Z0-9_]* | # placeholder :param
+	    `[a-zA-Z_][a-zA-Z0-9_]*` |# campo entre backticks
+	    [a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?  # campo o tabla.campo
+	~ix';
+
+    preg_match_all($pattern, $w, $matches);
+    $tokens = $matches[0];
+
+    // --- 3) Validación de que NO existan tokens desconocidos ---
+    $recon = preg_replace('/\s+/', ' ', implode(' ', $tokens));
+    if ($recon !== $w) {
+        throw new Exception("WHERE contiene tokens no permitidos.");
+    }
+
+    // --- 4) Validación sintáctica (state machine) ---
+    $espera = 'EXPR';
+    $pila = 0;
+
+    for ($i = 0; $i < count($tokens); $i++) {
+        $tok = strtoupper($tokens[$i]);
+
+        switch ($espera) {
+
+            case 'EXPR':
+                if ($tok === '(') {
+                    $pila++;
+                }
+                elseif (preg_match('/^[A-Z_]/i', $tok) || preg_match('/^\`/', $tok)) {
+                    $espera = 'OPERADOR';
+                }
+                else {
+                    throw new Exception("Se esperaba campo o '(' en [$tok]");
+                }
+                break;
+
+            case 'OPERADOR':
+                if (in_array($tok, ['=','!=','<>','<','>','<=','>=','LIKE','BETWEEN','IN','IS','IS NOT','NOT'])) {
+                    $espera = 'VALOR';
+                } else {
+                    throw new Exception("Se esperaba operador en [$tok]");
+                }
+                break;
+
+            case 'VALOR':
+                if (
+                    preg_match('/^(\'[^\']*\'|\d+(\.\d+)?|NULL|\?[0-9]*|:[A-Z_][A-Z0-9_]*|\`[A-Z_][A-Z0-9_]*\`)$/i', $tok)
+                ) {
+                    $espera = 'LOGICO';
+                }
+                elseif ($tok === '(') {
+                    $pila++;
+                }
+                else {
+                    throw new Exception("Valor inválido en [$tok]");
+                }
+                break;
+
+            case 'LOGICO':
+                if (in_array($tok, ['AND','OR'])) {
+                    $espera = 'EXPR';
+                }
+                elseif ($tok === ')') {
+                    if ($pila <= 0) throw new Exception("Paréntesis ')' sin abrir");
+                    $pila--;
+                }
+                else {
+                    throw new Exception("Se esperaba AND/OR o ')' después de valor. Token: [$tok]");
+                }
+                break;
+        }
+    }
+
+    if ($pila > 0) {
+        throw new Exception("Paréntesis sin cerrar.");
+    }
+
+    if ($espera === 'OPERADOR' || $espera === 'VALOR') {
+        throw new Exception("Expresión incompleta en WHERE.");
+    }
+
+    return true;
+}
+
+// _________________________________________________________________________________
 function validaCampo($cCampo){
 	if ( trim($cCampo)=="" ){
 		return true;
@@ -931,29 +1030,6 @@ function sanitizaCapturaUsuario(string $campo): string {
     return trim($campo);
 }
 // _________________________________________________________________________________
-function validaJoinMal(string $join): bool {
-	if (trim($join)==""){
-		return true;
-	}
-    // 1. Rechaza si contiene palabras peligrosas
-    $prohibidas = ['--', ';', 'DROP', 'DELETE', 'INSERT', 'UPDATE', 'TRUNCATE'];
-    foreach ($prohibidas as $palabra) {
-        if (stripos($join, $palabra) !== false) {
-            throw new Exception("JOIN inválido: contiene '$palabra'");
-            return false; // En teoría esta linea ya no se ejecutaría
-        }
-    }
-
-    // 2. Solo permite caracteres seguros
-    // Letras, números, puntos, guión bajo, espacios, operadores, paréntesis, comillas
-    if (!preg_match('/^[a-zA-Z0-9_\.=><!\s\'"\(\)\-]+(AND|OR)?[a-zA-Z0-9_\.=><!\s\'"\(\)\-]*$/i', $join)) {
-        throw new Exception("JOIN inválido: contiene caracteres no permitidos $join");
-        return false;
-    }
-
-    // 3. Validación básica pasada
-    return true;
-}
 // _________________________________________________________________________________
 function validaJoin(string $join): bool {
 	if (trim($join) === "") {

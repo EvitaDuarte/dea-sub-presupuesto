@@ -45,12 +45,16 @@ async function procesarRespuesta__(vRes) {
 		case "cargar_PtoAuto":
 			cargaCombinaciones(); // llama a buscaYPagina
 		break;
+		// ______________________________
+		case "genera_Salida":
+		break;
+		// ______________________________
 	}
 
 }
 // __________________________REGRESOS DE PHP _____________________________________
 async function procesarError__(vRes) {		
-	loader('none');llenaCombos(vRes)
+	loader('none');
 	cOpcion = vRes.parametros.opcion;
 	switch(cOpcion){
 		// ______________________________
@@ -60,6 +64,9 @@ async function procesarError__(vRes) {
 		// ______________________________
 		case "cargaCatalogos":
 			
+		break;
+		// ______________________________
+		case "genera_Salida":
 		break;
 		// ______________________________
 	}
@@ -100,7 +107,7 @@ const cargaCombinaciones=(cPagina=1)=>{
 				        { nombre: "a.usuario_id", tipo: "C" },
 				        { nombre: "a.horafecha" , tipo: "C" }
 		    		  ],
-    	scroll      : ["despy"],
+    	scroll      : [],
     	maxscroll   : 90,
     	orden       : ["ORDER BY a.clvcos ASC, a.clvai ASC, a.clvscta ASC, a.clvpp ASC, a.clvspg ASC, a.clvpy ASC "],
     	registros   : cRegistros,              	// número de registros por página
@@ -185,5 +192,38 @@ function cargarPtoAuto(){
 		conectayEjecutaPost(aParametros,cPhp);
 
 	});
+}
+// ________________________________________________________________________
+const generaSalida=()=>{
+	let cVal		= valorDeObjeto("selOpe",false);
+	let campoBus	= valorDeObjeto("aCamSel",false);
+	let valSel 		= valorDeObjeto("txtBuscar",false);
+
+	if (cVal && cVal!==""){
+		let cWhere = construirWhere(); // Darle mayor peso a la selección de combos
+		if (cWhere===""){ // como pueden chocar ya que aCamSel tiene los mismos parametros de busqueda que los combos, 
+			// solo ver si txtBuscar tiene información
+			
+			if (campoBus && campoBus!==""){
+				
+				if (valSel && valSel!==""){
+					cWhere = " " + campoBus + " = '" + valSel + "' ";
+				}
+			}
+		}else{
+			if (campoBus==="a.activo"){ // es la única que no esta en los combos superiores
+				if (valSel && valSel!=="" && (valSel==="S" || valSel==="N" ) ){
+					cWhere = cWhere + " and " +campoBus + " = '" + valSel + "' ";
+				}
+			}
+
+		}
+		aParametros = {
+			opcion	: "genera_Salida",
+			salida	: cVal,
+			where	: cWhere
+		}
+		conectayEjecutaPost(aParametros,cPhp);
+	}
 }
 // ________________________________________________________________________

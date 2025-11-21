@@ -2018,9 +2018,13 @@ const fechaDDMMYY = (cId)=>{
 function escapeHTML(str) {
     return str
         .replace(/&/g, "&amp;")
+        .replace(/</g, " menor ó ")
         .replace(/</g, "&lt;")
+        .replace(/>/g, " mayor ó ")
         .replace(/>/g, "&gt;")
+        .replace(/"/g, "``")
         .replace(/"/g, "&quot;")
+        .replace(/'/g, "`")
         .replace(/'/g, "&#39;");
 }
 // __________________________________________________________________________________
@@ -2429,8 +2433,55 @@ function cambiaMaxLength(cIdHtml, objDetona) {
     const objHtml = document.getElementById(cIdHtml);
 
     if (objHtml && objDetona) {
-        const max = objDetona.selectedOptions[0].dataset.max; // ← aquí
-        objHtml.maxLength = max; // si lo quieres usar así
+        const max = objDetona.selectedOptions[0].dataset.max;   // ← aquí
+        objHtml.maxLength   = max;                              // si lo quieres usar así
+        limpiarValorObjetoxId(cIdHtml);
+    }
+}
+// __________________________________________________________________________________
+function limpiarValorObjetoxId(id) {
+    const el = document.getElementById(id);
+
+    if (!el) {
+        console.warn(`Elemento con id "${id}" no encontrado.`);
+        return;
+    }
+
+    switch (el.tagName) {
+
+        case "INPUT":
+            switch (el.type) {
+                case "text":
+                case "number":
+                case "date":
+                case "email":
+                case "password":
+                case "search":
+                case "tel":
+                case "url":
+                    el.value = "";
+                    break;
+
+                case "checkbox":
+                case "radio":
+                    el.checked = false;
+                    break;
+
+                default:
+                    console.warn(`Tipo de input no manejado: ${el.type}`);
+            }
+            break;
+
+        case "SELECT":
+            el.selectedIndex = 0;   // vuelve a la primera opción
+            break;
+
+        case "TEXTAREA":
+            el.value = "";
+            break;
+
+        default:
+            console.warn(`Elemento no manejado: ${el.tagName}`);
     }
 }
 // __________________________________________________________________________________

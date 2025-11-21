@@ -27,6 +27,10 @@
 	    		cargar_PtoAuto($param,$regreso);
 	    	break;
 	    	//___________________________________
+	    	case "genera_Salida":
+	    		cargar_P_Salida($regreso);
+	    	break;
+	    	//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en combinaciones";
 	    	break;
@@ -71,6 +75,32 @@ function cargar_PtoAuto($param,&$r){
 	$r["success"] = true;
 
 }	
+// ____________________________________________________________________________________________________________
+function cargar_P_Salida(&$r){
+	$cSalida =	$r["parametros"]["salida"];
+	$cWhere  = $r["parametros"]["where"];
+	if ($cWhere!==""){
+		if (!validaWhereSec($cWhere)){
+			$r["mensaje"] = "Se detecto problemas en el where";
+			return false;
+		}
+		$cWhere = " where " . $cWhere ;
+	}
+
+	$sql = "select clvcos,clvai,clvscta,clvpp,clvspg,clvpy from combinaciones " . $cWhere;
+	$res = ejecutaSQL_($sql);
+	$r["resultados"] = $res; 
+
+	if ( count($res)>0){
+		if ($cSalida==="Excel"){
+			require_once("Xls/X_Combi_02_03_.php");
+			xls_Combi($res,$r);
+		}elseif($cSalida==="Pdf"){
+			require_once("Pdf/F_Combi_02_03_.php");
+		}
+	}
+
+}
 // ____________________________________________________________________________________________________________
 
 ?>
