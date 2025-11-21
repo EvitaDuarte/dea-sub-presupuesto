@@ -1090,5 +1090,29 @@ function aOpcionesWs($url){
 	);
 }
 // _________________________________________________________________________________
+function no_existe_indice($table, $index, $schema = 'public') {
+    global $conn_pdo;
+
+    $sql = "
+        SELECT 1
+        FROM pg_indexes
+        WHERE schemaname = :schema
+          AND tablename = :table
+          AND indexname = :index
+        LIMIT 1
+    ";
+
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->execute([
+        ':schema' => $schema,
+        ':table'  => $table,
+        ':index'  => $index
+    ]);
+
+    // Si existe al menos un registro → el índice existe
+    return $stmt->rowCount() == 0;   // true = no existe
+}
+
+// _________________________________________________________________________________
 
 ?>

@@ -39,7 +39,11 @@ async function procesarRespuesta__(vRes) {
 		// ______________________________
 		case "cargaCatalogos":
 			llenaCombos(vRes);
-			cargaCombinaciones();
+			cargaCombinaciones(); // llama a buscaYPagina
+		break;
+		// ______________________________
+		case "cargar_PtoAuto":
+			cargaCombinaciones(); // llama a buscaYPagina
 		break;
 	}
 

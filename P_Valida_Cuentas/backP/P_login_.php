@@ -104,7 +104,7 @@ function validaCredenciales(&$validador){
 					$_SESSION['ValCtasNC']			= $v_Datos[10]; // Nombre completo(Empezando por apellidos)
 					$_SESSION["ValCtasPuesto"]		= $v_Datos[11];
 					$_SESSION["ValCtasEsquema"]		= $rol;
-					$_SESSION['ValCtasTituloS']		= "Sistema de Operación Bancaria Web";
+					$_SESSION['ValCtasTituloS']		= "Sistema de Validación de Cuentas";
 					$_SESSION["ValCtasError"]		= "";
 					$_SESSION['tiempo']				= time();
 					$_SESSION['alias']				= $alias;
