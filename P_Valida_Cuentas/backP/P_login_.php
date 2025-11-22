@@ -23,6 +23,10 @@
 	$_SESSION['fpdf']	= "../../tools/php/fpdf/mc_table.php";
     $_SESSION['_Mail_'] = "../../tools/php/enviaCorreo.php";
     $_SESSION['xls']	= '../../tools/PhpSpreadsheet-master/vendor/autoload.php';
+    $_SESSION['vendor']	= "../../tools/vendor/autoload.php";
+    $_SESSION['mpdf']	= "../../tools/vendor/mpdf/";
+    $_SESSION["logo"]	= "../assetsF/img/ine_logo_pdf.jpg";
+
 	// _______________________________________
 	require_once("P_rutinas_.php");
 	$validador = array('success' => false , 'mensaje' => array()  ,  'resultados' => array(),  'parametros' => array() , 'paso' => array() ); 

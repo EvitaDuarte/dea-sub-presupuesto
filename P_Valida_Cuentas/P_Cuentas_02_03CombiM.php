@@ -90,10 +90,10 @@
                                 <section class="seccion_caja" id="busqueda">
                                     <div class="caja_captura0">
                                         <label for="selOpe" class="lbl_txt">Operación</label>
-                                        <select id="selOpe" name="selOpe" title="Operación" onclick="generaSalida();">
+                                        <select id="selOpe" name="selOpe" title="Operación" onchange="generaSalida();">
                                             <option value="">Seleccione</option>
                                             <option value="Excel">Excel</option>
-                                            <option value="PDF">PDF</option>
+                                            <option value="Pdf">PDF</option>
                                         </select>
                                     </div>
                                     <div class="caja_captura0">

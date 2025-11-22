@@ -27,44 +27,44 @@ function generarXLS(string $archivoSalida, array $headers, array $rows): void{
 
     // --- 3) Guardar archivo ---
     $writer = new Xls($spreadsheet);
-    $writer->save($archivoSalida);
+    $writer->save("../salidas/".$archivoSalida);
 }
 
 // ____________________________________________________________________________
-function descargarXLS(string $filename, array $headers, array $rows): void {
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
+// function descargarXLS(string $filename, array $headers, array $rows): void { // Lo descarga en el navagador pero con caracteres raros
+//     $spreadsheet = new Spreadsheet();
+//     $sheet = $spreadsheet->getActiveSheet();
 
-    // Encabezados
-    $colLetter = 'A';
-    foreach ($headers as $header) {
-        $sheet->setCellValue($colLetter . '1', $header);
-        $colLetter++;
-    }
+//     // Encabezados
+//     $colLetter = 'A';
+//     foreach ($headers as $header) {
+//         $sheet->setCellValue($colLetter . '1', $header);
+//         $colLetter++;
+//     }
 
-    // Datos
-    $rowNum = 2;
-    foreach ($rows as $row) {
-        $colLetter = 'A';
-        foreach ($row as $value) {
-            $sheet->setCellValue($colLetter . $rowNum, $value);
-            $colLetter++;
-        }
-        $rowNum++;
-    }
+//     // Datos
+//     $rowNum = 2;
+//     foreach ($rows as $row) {
+//         $colLetter = 'A';
+//         foreach ($row as $value) {
+//             $sheet->setCellValue($colLetter . $rowNum, $value);
+//             $colLetter++;
+//         }
+//         $rowNum++;
+//     }
 
-    // Limpiar buffer antes de enviar
-    if (ob_get_length()) {
-        ob_end_clean();
-    }
+//     // Limpiar buffer antes de enviar
+//     if (ob_get_length()) {
+//         ob_end_clean();
+//     }
 
-    // Encabezados HTTP
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=\"{$filename}\"");
-    header("Cache-Control: max-age=0");
+//     // Encabezados HTTP
+//     header("Content-Type: application/vnd.ms-excel");
+//     header("Content-Disposition: attachment; filename=\"{$filename}\"");
+//     header("Cache-Control: max-age=0");
 
-    $writer = new Xls($spreadsheet);
-    $writer->save("php://output");
-    exit;
-}
+//     $writer = new Xls($spreadsheet);
+//     $writer->save("php://output");
+//     exit;
+// }
 ?>

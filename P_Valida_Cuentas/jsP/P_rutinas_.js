@@ -2018,14 +2018,19 @@ const fechaDDMMYY = (cId)=>{
 function escapeHTML(str) {
     return str
         .replace(/&/g, "&amp;")
-        .replace(/</g, " menor ó ")
         .replace(/</g, "&lt;")
-        .replace(/>/g, " mayor ó ")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "``")
         .replace(/"/g, "&quot;")
-        .replace(/'/g, "`")
         .replace(/'/g, "&#39;");
+}
+// __________________________________________________________________________________
+function escapeHTMLespacios(str) {
+    return str
+        .replace(/&/g, " ")
+        .replace(/</g, " ")
+        .replace(/>/g, " ")
+        .replace(/"/g, " ")
+        .replace(/'/g, " ");
 }
 // __________________________________________________________________________________
 function limpiaInputFile(cId) {
@@ -2077,7 +2082,7 @@ function mandaMensaje(cMensaje) {
     dialogMessage = document.querySelector('#dialogMessage');
 
     // Escapa el HTML malicioso
-    let mensajeSeguro = escapeHTML(cMensaje);
+    let mensajeSeguro = escapeHTMLespacios(cMensaje);
 
     // Si deseas permitir <br>, puedes convertir '\n' a '<br>' aquí
     mensajeSeguro = mensajeSeguro.replace(/\n/g, "<br>");

@@ -61,6 +61,9 @@ function traeCatalogos($param,&$r,$soloId=true){
 		$sql ="select clvpy as clave " . ($soloId?"" : ",despy as descrpcion ") . " from proyectos order by clvpy asc";
 		$r["cata"]["pys"] = ejecutaSQL_($sql);	
 
+		$sql = "select DISTINCT  tipour as clave from precombi order by tipour asc ";
+		$r["cata"]["tipos"] = ejecutaSQL_($sql);
+
 		$r["success"] = true;
 
 	}catch(Exception $ex){

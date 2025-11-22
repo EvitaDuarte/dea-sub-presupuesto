@@ -6,8 +6,12 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 // _________________________________________________
 function xls_Combi($detalle,&$r){
-	$heads =["UR","AI","SCTA","PP","SPG","PY"];
-	generarXLS("prueba.xls", $heads,  $detalle);
+	$heads	 = ["UR","AI","SCTA","PP","SPG","PY"];
+	$cSalida = ipRepo("R_02_03",".xls");
+	generarXLS($cSalida, $heads,  $detalle);
+	$r["mensaje"]	= "reporte generado";
+	$r["success"]	= true;
+	$r["salida"]	= $cSalida;
 
 }
 // _________________________________________________

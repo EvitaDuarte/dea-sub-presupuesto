@@ -269,11 +269,12 @@ function customErrorHandler($errno, $errstr, $errfile, $errline) {
     return false;
 }
 // _____________________________________________________________________________
-function ipRepo($cNombre=""){
+function ipRepo($cNombre="",$cExt=".pdf"){
 	$ip 	= calcula_Ip(); // $_SERVER['REMOTE_ADDR'];
-	$cArch	= "R_" . str_replace(".", "", $ip) . ".pdf";
+	$cIp	= str_replace(".", "", $ip);
+	$cArch	= "R_" . $cIp . $cExt;
 	if ($cNombre!=""){
-		$cArch = ($cNombre ."_" . str_replace(".", "", $ip) . ".pdf");
+		$cArch = ($cNombre ."_" . $cIp . $cExt);
 	}
 	return $cArch;
 }

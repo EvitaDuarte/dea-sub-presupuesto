@@ -48,30 +48,38 @@ global $conn_pdo;
 		$sql	= "select clvpy, despy, geografico, activo from proyectos where clvpy=:clvpy";
 		$val	= ejecutaSQL_($sql,[":clvpy"=>$cPy]);
 		$lNuevo = empty($val); // true, No esta dado de alta en PostgreSql
+		if (!$lNuevo){
+			$r["pyPostgreSql"] = $val[0];
+		}else{
+			$r["pyPostgreSql"] = ["clvpy"=>$cPy,"despy"=>$cDes,"geografico"=>$cGeo,"activo"=>$cActivo];
+		}
 		// ____________________________________________________
 		$url	= trim( getCampo("select urlpy as salida from soap where activo='S' ") );
 		if ($url==""){
-			$r["mensaje"] = "No esta definida una url activa de Pys SIGA";
+			$r["mensaje"] = "No esta definida en la configuración soap una url activa de Pys SIGA";
 			return false;
 		}
 		//_________________________________________________________________________
 		$soap = new SoapClient($url, aOpcionesWs($url));	//var_ dump($aCtas);
-		$r["pyPostgreSql"] = $val[0];
+		
 		// ________________________________________________________________________
 		$valSiga = obtenPySiga($soap,$cPy,$r);
-		if ($r["estatus"]==="ok"){
+		if ($r["estatus"]==="ok"){ // Elproyecto si esta en el SIGA, por lo tanto se debe de actualizar en postgreSQL
 			$r["pySiga"]["geografico"] = $r["pyPostgreSql"]["geografico"];
-		}
-		$objPy = new Proyecto($conn_pdo);
-		$objPy->cargaDatos($r["pySiga"]);
-		$ope = $objPy->actualizaPy($lNuevo);
-		if ($ope["ok"]){
-			$r["success"]	= true;
-			$r["mensaje"]	= "todo ok";
-			$r["ope"]		= $ope;
+			$objPy = new Proyecto($conn_pdo);
+			$objPy->cargaDatos($r["pySiga"]);
+			$ope = $objPy->actualizaPy($lNuevo);
+			if ($ope["ok"]){
+				$r["success"]	= true;
+				$r["mensaje"]	= "todo ok";
+				$r["ope"]		= $ope;
+			}else{
+				$r["mensaje"] = $ope["error"];
+			}
 		}else{
-			$r["mensaje"] = $ope["error"];
+			$r["mensaje"] ="El proyecto solicitado, no se encuentra presente en el SIGA";
 		}
+
 	}catch(SoapFault $fault){
 		$r["mensaje"]	= "No se logró la conexión con el SIGA";
 		$r["error"]		= "Falla Conexión SIGA: Código: {$fault->faultcode}, Descripción: {$fault->faultstring})";

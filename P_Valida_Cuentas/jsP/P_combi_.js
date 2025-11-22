@@ -47,6 +47,9 @@ async function procesarRespuesta__(vRes) {
 		break;
 		// ______________________________
 		case "genera_Salida":
+			limpiarValorObjetoxId("selOpe");
+			cSalida = vRes.salida;
+			abrePdf("salidas/"+cSalida);
 		break;
 		// ______________________________
 	}
@@ -67,6 +70,7 @@ async function procesarError__(vRes) {
 		break;
 		// ______________________________
 		case "genera_Salida":
+			limpiarValorObjetoxId("selOpe");
 		break;
 		// ______________________________
 	}
