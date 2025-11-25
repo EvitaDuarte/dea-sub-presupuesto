@@ -21,6 +21,7 @@ window.onload = function () {		// Función que se ejecuta al cargar la página H
 
 	switch(cHtml){
 		case "P_Cuentas_02_04GenCombi.php":
+			altaCampoProcesar("precombi","procesar","char","1","N","public");	// Quitar cuando el campo procesar ya este en producción
 			cargaCatalogos();
 		break;
 	}
@@ -42,6 +43,9 @@ async function procesarRespuesta__(vRes) {
 			cargaPreCombi(); // llama a buscaYPagina
 		break;
 		// ______________________________
+		case "agregarCombi":
+			cargaPreCombi(); // llama a buscaYPagina
+		break;
 		// ______________________________
 		case "genera_Salida":
 			limpiarValorObjetoxId("selOpe");
@@ -59,11 +63,12 @@ async function procesarError__(vRes) {
 	switch(cOpcion){
 		// ______________________________
 		case "buscaYPagina":
-			
 		break;
 		// ______________________________
 		case "cargaCatalogos":
-			
+		break;
+		// ______________________________
+		case "agregarCombi":
 		break;
 		// ______________________________
 		case "genera_Salida":
@@ -93,7 +98,8 @@ function cargaPreCombi(cPagina=1){
 				        { nombre: "a.clvpp"  	, tipo: "C" },
 				        { nombre: "a.clvspg"  	, tipo: "C" },
 				        { nombre: "a.clvpy"  	, tipo: "C" },
-				        { nombre: "a.geografico", tipo: "C" }
+				        { nombre: "a.geografico", tipo: "C" },
+				        { nombre: "a.procesar"  , tipo: "C" }
 		    		  ],
     	scroll      : [],
     	maxscroll   : 90,
@@ -187,4 +193,39 @@ const Salida_preCombi=()=>{
 		conectayEjecutaPost(aParametros,cPhp);
 	}
 }
+// ________________________________________________________________________
+async function agregarCombi(){
+	let aIdHmtl = ["tipoUr","cveAi","cveScta","cvePp","cveSpg","cvePy","geografico"];
+	let aMap 	= revisaValores(aIdHmtl);
+	if (aMap===null){
+		return false;
+	}
+	if (aMap.get("geografico")=="SI" && aMap.get("tipoUr")=="JL/JD"){
+		await esperaRespuesta(`¿El proyecto va a ser para los 32 estados?`).then((respuesta) => {
+			aMap.set("cvePy", aMap.get("cvePy").substring(0, 6) + "?");
+		});
+	}
+	aDatos = {
+		opcion	: "agregarCombi",
+		aVal	: Object.fromEntries(aMap)
+	}
+	conectayEjecutaPost(aDatos,cPhp);
+}
+// ________________________________________________________________________
+function generaUrCombi(){
+	let aIdHmtl = ["UrIni","UrFin"];
+	let aMap 	= revisaValores(aIdHmtl);
+	if (aMap===null){
+		return false;
+	}
+	esperaRespuesta(`¿Desea generar el proceso de generar combinaciones de ${aMap.get("UrIni")} a  ${aMap.get("UrFin")}?`).then((respuesta) => {
+		aParametros = {
+			opcion	: "generaUrCombi",
+			urIni	: aMap.get("UrIni"),
+			urFin	: aMap.get("urFin")
+		}
+		conectayEjecutaPost(aDatos,cPhp);
+	});
+}
+// ________________________________________________________________________
 // ________________________________________________________________________

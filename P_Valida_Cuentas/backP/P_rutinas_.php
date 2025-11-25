@@ -92,7 +92,7 @@ function ejecutaSQL_P($sql,$params,$conexion){	// Regresa un arreglo
     return $resultados;
 }*/
 // _____________________________________________________________________________
-function  actualizaSql($sql,$params=[]){ // Update, Insert, Delete
+function actualizaSql($sql,$params=[]){ // Update, Insert, Delete
 	global $conn_pdo;// Si no se lo pongo me manda error en el $sql 
 	$regreso	= null;
 	$stmt 		= $conn_pdo->prepare($sql); // Prepara el SQL
@@ -1191,5 +1191,44 @@ function no_existe_indice($table, $index, $schema = 'public') {
 }
 
 // _________________________________________________________________________________
+function no_existe_campo($tabla,$campo,$tipo,$longitud,$esquema = 'public'){
+	$sql	= "SELECT column_name FROM information_schema.columns WHERE table_schema = :esquema AND table_name = :tabla AND column_name = :campo";
+	$aPar	= [":esquema"=>$esquema,":tabla"=>$tabla,":campo"=>$campo];
+	$aRen	= ejecutaSQL_($sql,$aPar);
+	if (count($aRen)==0){
+		// sanitizar ante posibles inyecciones
+		$tabla	 = validarIdentificador($tabla);
+		$esquema = validarIdentificador($esquema);
+		$campo	 = validarIdentificador($campo);
 
+		$tiposConLongitud = ['CHAR', 'VARCHAR', 'NUMERIC', 'DECIMAL'];// Solo estos tipos llevan longitud 
+
+		if (strtoupper($tipo) === "VARCHAR") {
+		    $tipoSQL = $longitud ? "VARCHAR($longitud)" : "VARCHAR";
+		} elseif (in_array(strtoupper($tipo), ['CHAR','NUMERIC','DECIMAL'])) {
+		    $tipoSQL = "$tipo($longitud)";
+		} else {
+		    $tipoSQL = $tipo;
+		}
+		try{
+			$sql = "ALTER TABLE ". $esquema . "." . $tabla . " ADD COLUMN " . $campo . " " . $tipoSQL . " ";
+			actualizaSql($sql);
+			return "Adicionado";
+		}catch(Exception $e){
+			throw new Exception("Inconsistencia al adicionar campo $sql [ $campo $tipo $longitud $esquema ] ");
+			return "Error"; // No debe de llegar aquí por que el throw la mando al catch siguiente mas proximo
+		}
+	}
+	return "Existe"; // $sql $tabla $esquema $campo $aRen[0]";
+}
+// _________________________________________________________________________________
+function validarIdentificador($identificador) {
+    // Permitir solo letras, números y guion bajo
+    if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $identificador)) {
+        return $identificador;
+    } else {
+        throw new Exception("Identificador inválido: $identificador");
+    }
+}
+// _________________________________________________________________________________
 ?>

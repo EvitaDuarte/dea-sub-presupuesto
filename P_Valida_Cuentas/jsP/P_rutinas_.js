@@ -42,6 +42,7 @@ const expresiones = {
     soloLetrasNumerosGuion      : { regex: /^[A-Za-z0-9\- ]+$/                                          , mensaje : "solo puede llevar Letras, Números y guion"},
     soloLetrasNumeros           : { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ ]+$/                                , mensaje : "solo puede llevar Letras, Números y espacios"},
     soloLetrasNumerosSinEspacios: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ]+$/                                 , mensaje : "solo puede llevar Letras, Números sin espacios"},
+    soloLetrasNumerosDiagoSinEsp: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\/]+$/                               , mensaje : "solo puede llevar Letras, Números, Diagonal sin espacios"},
     exclusivoLetras             : { regex: /^[a-zA-Z]+$/                                                , mensaje : "solo puede llevar Letras, sin espacios"},
     exclusivoUR                 : { regex: /^[A-Za-z]{2}\d{2}$/                                         , mensaje : "Por favor, ingresa dos letras seguidas de dos números. para UR"}
 };
@@ -2488,5 +2489,31 @@ function limpiarValorObjetoxId(id) {
         default:
             console.warn(`Elemento no manejado: ${el.tagName}`);
     }
+}
+// __________________________________________________________________________________
+function revisaValores(aIdsHtml){
+    let aMap = new Map();
+
+    for (const cId of aIdsHtml) { // No se puede usar foreach, ya que el return no detiene un forEach
+        cVal = valorDeObjeto(cId);
+        if (cVal===null){
+            return null;
+        }
+        aMap.set(cId,cVal);
+    };
+    return aMap;
+}
+// __________________________________________________________________________________
+function altaCampoProcesar(cTabla,cCampo,cTipo,cLong,cValUpdate,cEsquema){
+    aVal = {
+        opcion  : "altaCampo",
+        tabla   : cTabla, 
+        campo   : cCampo, 
+        tipo    : cTipo, 
+        long    : cLong, 
+        valUp   : cValUpdate,
+        esquema : cEsquema
+    }
+    conectayEjecutaPost(aVal,"U_Dbu_.php");
 }
 // __________________________________________________________________________________

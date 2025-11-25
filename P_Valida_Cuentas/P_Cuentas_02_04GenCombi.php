@@ -25,11 +25,11 @@
                                 <section class="seccion_caja" id="sec1">
                                     <div class="caja_captura">
                                         <label for="UrIni" class="lbl_txt">Ur Ini</label>
-                                        <select name="UrIni" id="UrIni"  onchange="light_Title('UrIni');" data-field="unidad_id"></select>
+                                        <select name="UrIni" id="UrIni"  onchange="light_Title('UrIni');" data-field="unidad_id" title="Ur inicial"></select>
                                     </div>
                                     <div class="caja_captura">
                                         <label for="UrFin" class="lbl_txt">Ur Fin</label>
-                                        <select name="UrFin" id="UrFin"  onchange="light_Title('UrFin');" data-field="unidad_id"></select>
+                                        <select name="UrFin" id="UrFin"  onchange="light_Title('UrFin');" data-field="unidad_id" title="Ur Final"></select>
                                     </div>
                                     <div class="caja_captura">
                                     </div>
@@ -45,27 +45,27 @@
                                 <section class="seccion_caja" id="sec2">
                                     <div class="caja_captura">
                                         <label for="tipoUr" class="lbl_txt">Tipo Ur</label>
-                                        <select name="tipoUr" id="tipoUr"  onchange="light_Title('tipoUr');" data-campo="tipour"></select>
+                                        <select name="tipoUr" id="tipoUr"  onchange="light_Title('tipoUr');" data-campo="tipour" title="Tipo Ur"></select>
                                     </div>
                                     <div class="caja_captura">
                                         <label for="cveAi" class="lbl_txt">AI</label>
-                                        <select name="cveAi" id="cveAi"  onchange="light_Title('cveAi');" data-campo="clvai"></select>
+                                        <select name="cveAi" id="cveAi"  onchange="light_Title('cveAi');" data-campo="clvai" title="Actividad Institucional"></select>
                                     </div>
                                     <div class="caja_captura">
                                         <label for="cveScta" class="lbl_txt">SubCta</label>
-                                        <select name="cveScta" id="cveScta" onchange="light_Title('cveScta');" data-campo="clvscta"></select>
+                                        <select name="cveScta" id="cveScta" onchange="light_Title('cveScta');" data-campo="clvscta" title="Subcuenta"></select>
                                     </div>
                                     <div class="caja_captura">
                                         <label for="cvePp" class="lbl_txt">PP</label>
-                                        <select name="cvePp" id="cvePp"  onchange="light_Title('cvePp');" data-campo="clvpp"></select>
+                                        <select name="cvePp" id="cvePp"  onchange="light_Title('cvePp');" data-campo="clvpp" title="Programa presupuestario"></select>
                                     </div>
                                     <div class="caja_captura">
                                         <label for="cveSpg" class="lbl_txt">Subprograma</label>
-                                        <select name="cveSpg" id="cveSpg"  onchange="light_Title('cveSpg');" data-campo="clvspg"></select>
+                                        <select name="cveSpg" id="cveSpg"  onchange="light_Title('cveSpg');" data-campo="clvspg" title="Subprograma"></select>
                                     </div>
                                     <div class="caja_captura">
                                         <label for="cvePy" class="lbl_txt">Proyecto</label>
-                                        <select name="cvePy" id="cvePy"  onchange="light_Title('cvePy');" data-campo="clvpy"></select>
+                                        <select name="cvePy" id="cvePy"  onchange="light_Title('cvePy');" data-campo="clvpy" title="Proyecto"></select>
                                     </div>
                                     <div class="caja_captura">
                                         <label for="geografico" class="lbl_txt">Geográfico</label>
@@ -79,7 +79,7 @@
                                     </div>
                                     <div class="form-field-button_" id="grpBotones">
                                         <a class="btn_1 efecto" onclick="agregarCombi()" id="btnAgregaCombi"> 
-                                            <span>Agregar Combinación</span>
+                                            <span>Agregar Combinación...</span>
                                         </a>
                                     </div>
                                 </section>
@@ -117,7 +117,7 @@
                                         <label for="aCamSel" class="lbl_txt">Celda</label>
                                         <select id="aCamSel" name="aCamSel" onchange="cambiaMaxLength('txtBuscar',this);">
                                             <option data-max = "7" value="">-- Todos --</option>
-                                            <option data-max = "4" value="a.clvcos">Tipo</option>
+                                            <option data-max = "5" value="a.tipour">Tipo</option>
                                             <option data-max = "3" value="a.clvai">AI</option>
                                             <option data-max = "5" value="a.clvscta">Scta</option>
                                             <option data-max = "4" value="a.clvpp">PP</option>
@@ -130,7 +130,7 @@
                                         <label for="txtBuscar" class="lbl_txt">Valor</label>
                                         <!-- Segun la IA colocando un diferente name asegura que no compartan valores previamente capturados en diferentes pantallas -->
                                         <input type="text" id="txtBuscar" name="txtBuscar_"  maxlength="7" 
-                                        onkeyup="this.value = this.value.toUpperCase();" title="Valor a Buscar" onblur="validaValor(this);" data-exp='soloLetrasNumerosSinEspacios' data-valida="false">
+                                        onkeyup="this.value = this.value.toUpperCase();" title="Valor a Buscar" onblur="validaValor(this);" data-exp='soloLetrasNumerosDiagoSinEsp' data-valida="false">
                                     </div>
                                     <div class="form-field-button_" id="grpBotones">
                                         <a class="btn_1 efecto" onclick="cargaPreCombi(1);"> 
@@ -152,6 +152,7 @@
                                                 <th>SPG</th>
                                                 <th>PY</th>
                                                 <th>Geo</th>
+                                                <th>Procesar</th>
                                             </tr>
                                         </thead>
                                         <tbody id="cuerpo">
