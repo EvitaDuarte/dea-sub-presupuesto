@@ -74,6 +74,12 @@ async function procesarRespuesta__(vRes) {
 		case "PyVerificaSiga":
 			cargaCatalogoProyectos(gPagina);
 		break;
+		// ______________________________
+		case "Proyectos_Salida":
+			limpiarValorObjetoxId("selOpe");
+			cSalida = vRes.salida;
+			abrePdf("salidas/"+cSalida);
+		break;
 	}
 
 }
@@ -85,6 +91,11 @@ async function procesarError__(vRes) {
 		case "buscaYPagina":
 			
 		break;
+		// ________________________
+		case "Proyectos_Salida":
+			limpiarValorObjetoxId("selOpe");
+		break;
+		// ________________________
 	}
 }
 // _______________________FUNCIONES GENERALES ____________________________________
@@ -110,5 +121,17 @@ const actualizaProyecto=()=>{
 
 	});
 	
+}
+// _______________________________________________________________________________
+function Salida_Proyectos(){
+	let cWhere	= whereCampoBusqueda("aCamSel","txtBuscar");
+	let cSalida	= valorDeObjeto("selOpe",false);
+
+	aParametros = {
+			opcion	: "Proyectos_Salida",
+			salida	: cSalida,
+			where	: cWhere
+	}
+	conectayEjecutaPost(aParametros,cPhp);
 }
 // _______________________________________________________________________________

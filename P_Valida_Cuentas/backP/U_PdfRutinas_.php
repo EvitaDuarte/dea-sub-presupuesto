@@ -17,7 +17,12 @@ function generarReportePDF(
     ]);
 
     // ==== Construir encabezado superior (header) ====
+    $titulosPrin = ["Dirección Ejecutiva de Administración","Subdirección de Presupuesto"];
+    //$titulosPrin = array_merge($titulosPrin, $titulosReporte);
     $tituloCentral = "";
+    foreach ($titulosPrin as $t) {
+        $tituloCentral .= "<div style='text-align:center; font-size:14px; font-weight:bold;'>$t</div>";
+    }
     foreach ($titulosReporte as $t) {
         $tituloCentral .= "<div style='text-align:center; font-size:14px; font-weight:bold;'>$t</div>";
     }
@@ -31,10 +36,10 @@ function generarReportePDF(
                 <td style='text-align:center;' rowspan='3'>
                     $tituloCentral
                 </td>
-                <td style='text-align:right;'>Fecha: $fecha</td>
+                <td style='text-align:right;'>Fecha : $fecha</td>
             </tr>
             <tr>
-                <td style='text-align:right;'>Hora: $hora</td>
+                <td style='text-align:right;'>Hora : $hora</td>
             </tr>
             <tr>
                 <td style='text-align:right;'>Página: {PAGENO} de {nbpg}</td>

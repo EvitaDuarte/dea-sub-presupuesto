@@ -17,10 +17,10 @@
                             <li id="li-drop" onClick="Enviar('P_Cuentas_02_03CombiM.php');" 	data-esquema="ADM,CON,PTO"><a>Combinaciones Válidas</a></li> 
                             <li id="li-drop" onClick="Enviar('P_Cuentas_02_04GenCombi.php');"	data-esquema="ADM,CON,PTO"><a>Generar Combinaciones</a></li> 
 
-                        	<li id="li-drop" onClick="Enviar('Cuentas_02_05Usuarios.php');"		data-esquema="ADM"><a>Usuarios</a></li>
-                        	<li id="li-drop" onClick="Enviar('Cuentas_02_06Unidades.php');"		data-esquema="ADM"><a>Unidades</a></li>
-                        	<li id="li-drop" onClick="Enviar('Cuentas_02_07UrPpSpg.php') ;"		data-esquema="ADM"><a>Ur-PP-Spg</a></li>  
-                        	<li id="li-drop" onClick="Enviar('Cuentas_02_08Configura.php') ;"	data-esquema="ADM"><a>Correos</a></li>
+                        	<li id="li-drop" onClick="Enviar('P_Cuentas_02_05Usuarios.php');"	data-esquema="ADM"><a>Usuarios</a></li>
+                        	<li id="li-drop" onClick="Enviar('P_Cuentas_02_06Unidades.php');"	data-esquema="ADM"><a>Unidades</a></li>
+                        	<li id="li-drop" onClick="Enviar('P_Cuentas_02_07UrPpSpg.php') ;"	data-esquema="ADM"><a>Ur-PP-Spg</a></li>  
+                        	<li id="li-drop" onClick="Enviar('P_Cuentas_02_08Configura.php') ;"	data-esquema="ADM"><a>Correos</a></li>
                     	</ul>
                 	</li>
 

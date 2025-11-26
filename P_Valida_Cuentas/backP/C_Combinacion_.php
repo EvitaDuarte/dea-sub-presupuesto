@@ -34,7 +34,7 @@ public function cargaDatos($aDatos){
 public function actualiza(){
 	$aPar = [];
 	$sql  = "select clvcos from public.combinaciones where clvcos=:clvcos and clvai=:clvai and clvscta=:clvscta and clvpp=:clvpp and clvspg=:clvspg and clvpy=:clvpy";
-	$aPar = [":clvcos"=>$this->clvcos, ":clvai"=>$this->clvai, ":clvscta"=>$this->clvscta, ":clvpp"=>$this->clvpp, ":clvspg"=>$this->clvspg, ":clvpy"=>$this->clvpy, ":activo"=>$this->activo];
+	$aPar = [":clvcos"=>$this->clvcos, ":clvai"=>$this->clvai, ":clvscta"=>$this->clvscta, ":clvpp"=>$this->clvpp, ":clvspg"=>$this->clvspg, ":clvpy"=>$this->clvpy];
 	$aRen = ejecutaSQL_($sql,$aPar);
 
 	if (count($aRen)==0){
@@ -43,6 +43,7 @@ public function actualiza(){
 		$aPar = [":clvcos"=>$this->clvcos, ":clvai"=>$this->clvai, ":clvscta"=>$this->clvscta, ":clvpp"=>$this->clvpp, ":clvspg"=>$this->clvspg, ":clvpy"=>$this->clvpy, ":activo"=>$this->activo, ":usuario_id"=>$this->usuario, ":horafecha"=>$this->horafecha];
 	}else{
 		$sql  = "update public.combinaciones set activo=:activo where clvcos=:clvcos and clvai=:clvai and clvscta=:clvscta and clvpp=:clvpp and clvspg=:clvspg and clvpy=:clvpy" ;
+		$aPar = [":clvcos"=>$this->clvcos, ":clvai"=>$this->clvai, ":clvscta"=>$this->clvscta, ":clvpp"=>$this->clvpp, ":clvspg"=>$this->clvspg, ":clvpy"=>$this->clvpy, ":activo"=>$this->activo];
 	}
 	$ren = actualizaSql($sql,$aPar);
 	return $ren;

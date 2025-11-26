@@ -58,6 +58,14 @@
                                 </section>
                                 <section class="seccion_caja" id="busqueda">
                                     <div class="caja_captura0">
+                                        <label for="selOpe" class="lbl_txt">Operación</label>
+                                        <select id="selOpe" name="selOpe" title="Operación" onchange="Salida_Proyectos();">
+                                            <option value="">Seleccione</option>
+                                            <option value="Excel">Excel</option>
+                                            <option value="Pdf">PDF</option>
+                                        </select>
+                                    </div>
+                                    <div class="caja_captura0">
                                         <label for="selNumReg" class="lbl_txt">No.Reg</label>
                                         <select id="selNumReg" name="selNumReg" title="No Reg">
                                             <option value=15>15</option>
@@ -71,10 +79,10 @@
                                         <label for="aCamSel" class="lbl_txt">Celda</label>
                                         <select id="aCamSel" name="aCamSel">
                                             <option value="">-- Todos --</option>
-                                            <option value="a.clvpy">Proyecto</option>
-                                            <option value="a.despy">Nombre</option>
-                                            <option value="a.geografico">Geografico</option>
-                                            <option value="a.activo">Activo</option>
+                                            <option data-tipo="C" value="a.clvpy"       >Proyecto</option>
+                                            <option data-tipo="C" value="a.despy"       >Nombre</option>
+                                            <option data-tipo="C" value="a.geografico"  >Geografico</option>
+                                            <option data-tipo="B" value="a.activo"      >Activo</option>
                                         </select>
                                     </div>
                                     <div class="caja_captura3">

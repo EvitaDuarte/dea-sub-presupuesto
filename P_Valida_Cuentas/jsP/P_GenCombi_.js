@@ -167,7 +167,7 @@ const Salida_preCombi=()=>{
 	let valSel 		= valorDeObjeto("txtBuscar",false);
 
 	if (cVal && cVal!==""){
-		let cWhere = construir_Where1(); // Darle mayor peso a la selección de combos
+		let cWhere = construir_Where1(); // Darle mayor peso a la selección de combos de la parte de arriba
 		if (cWhere===""){ // como pueden chocar ya que aCamSel tiene los mismos parametros de busqueda que los combos, 
 			// solo ver si txtBuscar tiene información
 			
@@ -222,9 +222,10 @@ function generaUrCombi(){
 		aParametros = {
 			opcion	: "generaUrCombi",
 			urIni	: aMap.get("UrIni"),
-			urFin	: aMap.get("urFin")
+			urFin	: aMap.get("UrFin")
 		}
-		conectayEjecutaPost(aDatos,cPhp);
+		loader('flex');
+		conectayEjecutaPost(aParametros,cPhp);
 	});
 }
 // ________________________________________________________________________

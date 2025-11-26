@@ -46,7 +46,7 @@ async function procesarRespuesta__(vRes) {
 			cargaCombinaciones(); // llama a buscaYPagina
 		break;
 		// ______________________________
-		case "genera_Salida":
+		case "genera_Salida0":
 			limpiarValorObjetoxId("selOpe");
 			cSalida = vRes.salida;
 			abrePdf("salidas/"+cSalida);
@@ -198,7 +198,7 @@ function cargarPtoAuto(){
 	});
 }
 // ________________________________________________________________________
-const generaSalida=()=>{
+function genera_Salida0(){
 	let cVal		= valorDeObjeto("selOpe",false);
 	let campoBus	= valorDeObjeto("aCamSel",false);
 	let valSel 		= valorDeObjeto("txtBuscar",false);
@@ -223,7 +223,7 @@ const generaSalida=()=>{
 
 		}
 		aParametros = {
-			opcion	: "genera_Salida",
+			opcion	: "genera_Salida0",
 			salida	: cVal,
 			where	: cWhere
 		}

@@ -79,38 +79,74 @@ function agregar_Combi($p,&$r){
 }
 // ____________________________________________________________________________________________________________
 function generaUr_Combi($p,&$r){
-	$oUr	= new Urs(); 
-	$oCombi = new Combinacion();
+	global $conn_pdo;
+	$oUr	= new Urs(null); 
+	$oCombi = new Combinacion(null);
 	$cUrIni = $p["urIni"]; $cUrFin = $p["urFin"];
 	$cCampo = "unidad_digito";
 	$cFecha = date("Y-m-d H:i");
 	$nRen	= 0;
+	try{
+		$conn_pdo->beginTransaction();
 
-	$aUrs = $oUr->traeUrCampo($cUrIni,$cUrFin,$cCampo);
+		$aUrs = $oUr->traeUrCampo($cUrIni,$cUrFin,$cCampo);
 
-	foreach($aUrs as $Ur){
-		$cUr	= $Ur["unidad_id"];
-		$cDig	= $Ur[$cCampo];
-		$cTipo	= "JL/JD";
-		if ( substr($cUr,0,2)=="OF"){
-			$cTipo = $cUr;
-		}
-		$sql = "select tipour, clvai,clvscta,clvpp,clvspg,clvpy,geografico from public.precombi where procesar='S' and tipour=:tipo";
-		$aPre= ejecutaSQL_($sql,[":tipo"=>$cTipo]);
-
-		if (count($aPre)>0){ // por cada Ur debe recorrer las preCombi habilitadas
-			$cPy = $aPre["clvpy"];
-			if (substr($cPy, -1)=="?"){
-				$cPy  = substr($cPy,0,6) . $cDig;
+		foreach($aUrs as $Ur){
+			$cUr	= $Ur["unidad_id"];
+			$cDig	= $Ur[$cCampo];
+			$cTipo	= "JL/JD";
+			if ( substr($cUr,0,2)=="OF"){
+				$cTipo = $cUr;
 			}
-			$aDatos = [":clvcos"=>$cUr, ":clvai"=>$aPre["clvai"], ":clvscta"=>$aPre["clvscta"], ":clvpp"=>$aPre["clvpp"], ":clvspg"=>$aPre["clvspg"], ":clvpy"=>$cPy, ":activo"=>'S', ":usuario_id"=>$r["idUsu"], ":horafecha"=>$cFecha];
-			$oCombi->cargaDatos($aDatos);
-			$ren += $oCombi->actualiza();
+			$sql = "select tipour, clvai,clvscta,clvpp,clvspg,clvpy,geografico from public.precombi where procesar='S' and tipour=:tipo";
+			$aPre= ejecutaSQL_($sql,[":tipo"=>$cTipo]);
+
+			if (count($aPre)>0){ // por cada Ur debe recorrer las preCombi habilitadas
+				foreach($aPre as $preC)
+				$cPy = $preC["clvpy"];
+				if (substr($cPy, -1)=="?"){
+					$cPy  = substr($cPy,0,6) . $cDig;
+				}
+				$aDatos = ["clvcos"=>$cUr, "clvai"=>$preC["clvai"], "clvscta"=>$preC["clvscta"], "clvpp"=>$preC["clvpp"], "clvspg"=>$preC["clvspg"], "clvpy"=>$cPy, "activo"=>'S', "usuario"=>$r["idUsu"], "horafecha"=>$cFecha];
+				$oCombi->cargaDatos($aDatos);
+				$nRen += $oCombi->actualiza();
+			}
+		}
+		$conn_pdo->commit();
+		$r["mensaje"] = "Se actualizaron $nRen combinaciones";
+		$r["success"] = true;
+	}catch(Exception $e){
+		$conn_pdo->rollBack();
+		$r["sql"] = "$sql ";
+		$r["exepción"] = "Error generaUr_Combi " . $e->getMessage();
+	}
+
+}
+// ____________________________________________________________________________________________________________ 
+function cargar_P_Salida_1(&$r){
+	$cSalida = $r["parametros"]["salida"];
+	$cWhere  = $r["parametros"]["where"];
+	if ($cWhere!==""){
+		if (!validaWhereSec($cWhere)){
+			$r["mensaje"] = "Se detecto problemas en el where";
+			return false;
+		}
+		$cWhere = " where " . $cWhere ;
+	}
+	// debe llevar el alias precombi a
+	$sql = "select tipour,clvai,clvscta,clvpp,clvspg,clvpy,geografico,procesar from precombi a " . $cWhere;
+	$res = ejecutaSQL_($sql);
+	$r["resultados"] = $res; 
+
+	if ( count($res)>0){
+		if ($cSalida==="Excel"){
+			require_once("Xls/X_GenCombi_02_04_.php");
+			xls_PreCombi($res,$r);
+		}elseif($cSalida==="Pdf"){
+			require_once("Pdf/F_GenCombi_02_04_.php");
+			pdf_PreCombi($res,$r);
 		}
 	}
-	$r["mensaje"] = "Se actualizaron $ren combinaciones";
-	$r["success"] = true;
-
 }
 // ____________________________________________________________________________________________________________ 
 ?>

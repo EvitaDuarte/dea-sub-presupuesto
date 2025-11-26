@@ -47,7 +47,9 @@ class ReportePDFConCSS{
 
         // Títulos centrados
         $tituloCentral = "";
-        foreach ($this->titulosReporte as $t) {
+        $titulosIne = ["Dirección Ejecutiva de Administración","Subdirección de Presupuesto"];
+        $titulosIne = array_merge($titulosIne, $this->titulosReporte );
+        foreach ($titulosIne as $t) {
             $tituloCentral .= "<div class='titulo-reporte'>$t</div>";
         }
 

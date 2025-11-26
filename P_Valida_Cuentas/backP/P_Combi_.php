@@ -27,8 +27,8 @@
 	    		cargar_PtoAuto($param,$regreso);
 	    	break;
 	    	//___________________________________
-	    	case "genera_Salida":
-	    		cargar_P_Salida($regreso);
+	    	case "genera_Salida0":
+	    		cargar_P_Salida0($regreso);
 	    	break;
 	    	//___________________________________
 	    	default:
@@ -79,11 +79,11 @@ function cargar_PtoAuto($param,&$r){
 	}catch(Exception $e){
 		$r["mensaje"] = "Se levanto una excepción.. avise a informática";
 		$r["error"]   = "Excepción en la base de datos " . $e->getMessage();
-		$conn_pdo->rollBack();
+		$conexion->rollBack();
 	}
 }	
 // ____________________________________________________________________________________________________________
-function cargar_P_Salida(&$r){
+function cargar_P_Salida0(&$r){
 	$cSalida =	$r["parametros"]["salida"];
 	$cWhere  = $r["parametros"]["where"];
 	if ($cWhere!==""){
@@ -93,8 +93,8 @@ function cargar_P_Salida(&$r){
 		}
 		$cWhere = " where " . $cWhere ;
 	}
-
-	$sql = "select clvcos,clvai,clvscta,clvpp,clvspg,clvpy from combinaciones " . $cWhere;
+	// debe de llevar el alias combinaciones a , ya que el where así los lleva a.clvcos='AG01'
+	$sql = "select clvcos,clvai,clvscta,clvpp,clvspg,clvpy from combinaciones a " . $cWhere;
 	$res = ejecutaSQL_($sql);
 	$r["resultados"] = $res; 
 

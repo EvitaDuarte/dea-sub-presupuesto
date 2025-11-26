@@ -32,6 +32,7 @@ const expresiones = {
     letrasNumerosSeparadores    : { regex: /^[A-Za-záéíóúñÑÁÉÍÓÚ0-9.\-_,\/\s]+$/                        , mensaje : "solo puede llevar letras, números, punto, -, _, / y espacios" },
     soloLetrasNumerosEspacios   : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s]*$/                 , mensaje : "solo puede llevar letras, números y espacios"},
     soloDominio                 : { regex: /^[a-z]+\.[a-z]+$/                                           , mensaje : "solo debe ser el formato nombre.apellido en minúsculas"}, 
+    soloCorreoIne               : { regex: /^[a-z]+(?:\.[a-z]+)@ine\.mx$/                               , mensaje : "solo debe ser nombre.apellido@ine.mx en minúsculas"}, 
     soloNumeros                 : { regex: /^[0-9]+$/                                                   , mensaje : "solo puede llevar números"},
     soloUr                      : { regex: /^[a-zA-Z]{2}[a-zA-Z0-9]{2}$/                                , mensaje : "solo puede tener dos letras iniciales y letras y números en los dos últimos caracteres"},
     soloImportes                : { regex: /^-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/   , mensaje : "solo puede llevar números,comas,punto decimal"},
@@ -2516,4 +2517,48 @@ function altaCampoProcesar(cTabla,cCampo,cTipo,cLong,cValUpdate,cEsquema){
     }
     conectayEjecutaPost(aVal,"U_Dbu_.php");
 }
+// __________________________________________________________________________________
+// function whereCampoBusqueda(aCamSel,txtBuscar){
+//     campoBus = valorDeObjeto(aCamSel,false);    // Aquí estan definidas los campos de busqueda
+//     valSel   = valorDeObjeto(txtBuscar,false);  // Aquí el valor que se quiere buscar o filtrar
+//     cWhere   = "";
+//     if (campoBus && campoBus!==""){
+//         if (valSel && valSel!==""){
+//             cWhere = " " + campoBus + " = '" + valSel + "' "; // campoBus lleva un alias , así que la tabla de postgresql tambien debe llevarlo
+//         }
+//     }
+//     return cWhere;
+// }
+// __________________________________________________________________________________
+function whereCampoBusqueda(idSelect, idTxtBuscar) {
+
+    // Obtener el <select> y la opción seleccionada
+    let sel = document.getElementById(idSelect);
+    let opt = sel.options[sel.selectedIndex];
+
+    let campoBus = opt.value;             // ej: "a.despy"
+    let tipo     = opt.dataset.tipo;          // ej: "C" o "B"
+    let valSel   = document.getElementById(idTxtBuscar).value.trim();
+
+    let cWhere = "";
+
+    if (campoBus !== "" && valSel !== "") {
+
+        if (tipo === "C") {
+            // Para cadenas usar LIKE
+            cWhere = ` ${campoBus} LIKE '%${valSel}%' `;
+        }
+        else if (tipo === "B") {
+            // Para booleano mantener igualdad
+            cWhere = ` ${campoBus} = '${valSel}' `;
+        }
+        else {
+            // Tipo desconocido → default
+            cWhere = ` ${campoBus} = '${valSel}' `;
+        }
+    }
+
+    return cWhere;
+}
+
 // __________________________________________________________________________________

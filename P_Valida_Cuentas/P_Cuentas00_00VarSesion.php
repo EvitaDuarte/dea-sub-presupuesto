@@ -13,7 +13,7 @@
             $_SESSION['tiempo'] = time();
         }
     }else{
-        header("Location: P_Cuenta00_home.php");exit;
+        header("Location: P_Cuentas00_home.php");exit;
     }
 
     

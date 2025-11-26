@@ -28,6 +28,10 @@
 	    		VerificaSoapPy($param,$regreso);
 	    	break;
 	    	//___________________________________
+	    	case "Proyectos_Salida":
+	    		Proyectos_Salida($regreso);
+	    	break;
+	    	//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en proyectos";
 	    	break;
@@ -108,6 +112,32 @@ function obtenPySiga($soap,$cPy,&$r){
 	}
 }
 // ____________________________________________________________________________
+function Proyectos_Salida(&$r){
+	$cSalida = $r["parametros"]["salida"];
+	$cWhere  = $r["parametros"]["where"];
+	if ($cWhere!==""){
+		if (!validaWhereSec($cWhere)){
+			$r["mensaje"] = "Se detecto problemas en el where";
+			return false;
+		}
+		$cWhere = " where " . $cWhere ;
+	}
+	// debe llevar el alias precombi a
+	$sql = "select clvpy,despy,geografico, CASE  WHEN activo THEN 'SI' ELSE 'NO' END AS activo from proyectos a " . $cWhere;
+	$res = ejecutaSQL_($sql);
+	$r["resultados"] = $res; 
+
+	if ( count($res)>0){
+		if ($cSalida==="Excel"){
+			require_once("Xls/X_CatPy_.php");
+			xls_CatPy($res,$r);
+		}elseif($cSalida==="Pdf"){
+			require_once("Pdf/F_CatPy_.php");
+			pdf_CatPy($res,$r);
+		}
+	}
+
+}
 // ____________________________________________________________________________
 // ____________________________________________________________________________
 // ____________________________________________________________________________

@@ -17,7 +17,7 @@ require_once "C_Pdf_2_.php";
 
 // _____________________________________________
 function pdf_Combi($detalle,&$r){
-	$titulos = ["Dirección Ejecutiva de Administración","Subdirección de Presupuesto","Combinaciones permitidas"];
+	$titulos = ["Combinaciones permitidas"];
 //	clvcos,clvai,clvscta,clvpp,clvspg,clvpy
 	$encabezados = ["UR", "AI", "SCTA", "PP" , "SPG", "PY"];
 
