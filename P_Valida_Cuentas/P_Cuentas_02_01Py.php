@@ -77,17 +77,17 @@
                                     </div>
                                     <div class="caja_captura0">
                                         <label for="aCamSel" class="lbl_txt">Celda</label>
-                                        <select id="aCamSel" name="aCamSel">
+                                        <select id="aCamSel" name="aCamSel" onchange="cambiaMaxLength('txtBuscar',this);">
                                             <option value="">-- Todos --</option>
-                                            <option data-tipo="C" value="a.clvpy"       >Proyecto</option>
-                                            <option data-tipo="C" value="a.despy"       >Nombre</option>
-                                            <option data-tipo="C" value="a.geografico"  >Geografico</option>
-                                            <option data-tipo="B" value="a.activo"      >Activo</option>
+                                            <option data-tipo="C" data-max = "7"  value="a.clvpy"       >Proyecto</option>
+                                            <option data-tipo="C" data-max = "99" value="a.despy"       >Nombre</option>
+                                            <option data-tipo="C" data-max = "2"  value="a.geografico"  >Geografico</option>
+                                            <option data-tipo="B" data-max = "2"  value="a.activo"      >Activo</option>
                                         </select>
                                     </div>
                                     <div class="caja_captura3">
                                         <label for="txtBuscar" class="lbl_txt">Valor</label>
-                                        <input type="text" id="txtBuscar" name="txtBuscar"  
+                                        <input type="text" id="txtBuscar" name="txtBuscarPy"  
                                         onkeyup="this.title=this.value;" title="Valor a Buscar">
                                     </div>
                                     <div class="form-field-button_" id="grpBotones">

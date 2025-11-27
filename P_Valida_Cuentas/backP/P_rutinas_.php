@@ -1231,4 +1231,36 @@ function validarIdentificador($identificador) {
     }
 }
 // _________________________________________________________________________________
+function valida_LdapUsu(&$r){
+	$username		= $r["parametros"]["idUsu"];
+	$r["mensaje"]	= "No se encontraron datos del Usuario [$username] en el LDap"; // Asumo que no se encuentra
+	
+	if($connect = @ldap_connect('ldap://autenticacion.ife.org.mx')){					  	// Conectar al servidor Ldap
+		if(($bind = @ldap_bind($connect)) == true){											// Autentificar al usuario
+			$res_id   = ldap_search( $connect, "ou=people,dc=ife.org.mx", "uid=$username");
+			$entry_id = ldap_first_entry($connect, $res_id);
+			
+			if($entry_id){																	// Se encontraron datos
+				$r["lDap"] = array( 											// Se recuperan para JS
+					'uid'		=>ldap_get_values($connect, $entry_id, "uid")[0] ,
+					"mail"		=>ldap_get_values($connect, $entry_id, "mail")[0] ,
+					"apellidos"	=>ldap_get_values($connect, $entry_id, "sn")[0] ,
+					"nombres"	=>ldap_get_values($connect, $entry_id, "givenname")[0],
+					"adscrip"	=>ldap_get_values($connect, $entry_id, "ou")[0],
+					"curp"		=>ldap_get_values($connect, $entry_id, "curp")[0],
+					"nombre"	=>ldap_get_values($connect, $entry_id, "cn")[0],
+					"puesto"	=>ldap_get_values($connect, $entry_id, "personalTitle")[0],
+					"ur"		=>getURAdscripcion(
+								ldap_get_values($connect, $entry_id, "idEstado")[0], 
+								ldap_get_values($connect, $entry_id, "idDistrito")[0],
+								ldap_get_values($connect, $entry_id, "ou")[0])
+				);
+				$r["mensaje"] = "";//"Se encontraron datos del Usuario en el LDap";
+				$r["success"] = true;
+			}
+		}
+	}
+	@ldap_close($connect);
+}
+// _________________________________________________________________________________
 ?>

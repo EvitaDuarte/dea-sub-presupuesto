@@ -31,6 +31,7 @@ const expresiones = {
     soloLetras                  : { regex: /^[A-Za-záéíñóúÁÉÍÓÚüÜÑ\s\.]+$/                              , mensaje : "solo puede llevar letras y espacios" },
     letrasNumerosSeparadores    : { regex: /^[A-Za-záéíóúñÑÁÉÍÓÚ0-9.\-_,\/\s]+$/                        , mensaje : "solo puede llevar letras, números, punto, -, _, / y espacios" },
     soloLetrasNumerosEspacios   : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s]*$/                 , mensaje : "solo puede llevar letras, números y espacios"},
+    soloLetrasNumerosComasEspa  : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s,]*$/                , mensaje : "solo puede llevar letras, números y comas"},
     soloDominio                 : { regex: /^[a-z]+\.[a-z]+$/                                           , mensaje : "solo debe ser el formato nombre.apellido en minúsculas"}, 
     soloCorreoIne               : { regex: /^[a-z]+(?:\.[a-z]+)@ine\.mx$/                               , mensaje : "solo debe ser nombre.apellido@ine.mx en minúsculas"}, 
     soloNumeros                 : { regex: /^[0-9]+$/                                                   , mensaje : "solo puede llevar números"},
@@ -2561,4 +2562,8 @@ function whereCampoBusqueda(idSelect, idTxtBuscar) {
     return cWhere;
 }
 
+// __________________________________________________________________________________
+function asignaValorXId(cId,cValor){
+    document.getElementById(cId).value = cValor;
+}
 // __________________________________________________________________________________

@@ -46,10 +46,23 @@ async function procesarRespuesta__(vRes) {
 			cargarUsuarios(); // llama a buscaYPagina
 		break;
 		// ______________________________
-		case "genera_Salida":
+		case "Usuarios_Salida":
 			limpiarValorObjetoxId("selOpe");
 			cSalida = vRes.salida;
 			abrePdf("salidas/"+cSalida);
+		break;
+		// ______________________________
+		case "validaLdapUsu":
+			refrescaDatosUsuario(vRes.lDap);
+		break;
+		// ______________________________
+		case "actualizaUsuario":
+			cargarUsuarios();
+		break;
+		// ______________________________
+		case "cambiaStatusUsuario":
+			asignaValorXId("estatus",vRes.estatus);
+			cargarUsuarios();
 		break;
 		// ______________________________
 	}
@@ -67,10 +80,16 @@ async function procesarError__(vRes) {
 		case 'CatalogosUsuarios':
 		break;
 		// ______________________________
-		case "genera_Salida":
+		case "Usuarios_Salida":
 			limpiarValorObjetoxId("selOpe");
 		break;
 		// ______________________________
+		case "validaLdapUsu":
+			refrescaDatosUsuario(vRes.lDap);
+		break;
+		// ______________________________
+		default:
+		break;
 	}
 }
 // _______________________FUNCIONES GENERALES _____________________________
@@ -124,6 +143,97 @@ function llenaCombosUsuarios(vRes){
 	llenaComboCveDes(document.getElementById("esquema_id"),vRes.esquemas);
 }
 // ________________________________________________________________________
+function Salida_Usuarios(){
+	let cWhere	= whereCampoBusqueda("aCamSel","txtBuscar");
+	let cSalida	= valorDeObjeto("selOpe",false);
+
+	aParametros = {
+			opcion	: "Usuarios_Salida",
+			salida	: cSalida,
+			where	: cWhere
+	}
+	conectayEjecutaPost(aParametros,cPhp);
+}
 // ________________________________________________________________________
+function validaLdap(oUsu) {
+	cUsu = oUsu.value.trim();
+	if (cUsu!==""){
+		aParametros ={
+			opcion	: "validaLdapUsu",
+			idUsu	: cUsu
+		}
+		conectayEjecutaPost(aParametros,cPhp);
+	}else{
+		// Nada que hacer, igual el osoario solo anda navegando
+	}
+}
 // ________________________________________________________________________
+function refrescaDatosUsuario(aLDap){
+	asignaValorXId("nombre_completo",aLDap.nombre);
+	asignaValorXId("correo"			,aLDap.mail);
+	asignaValorXId("unidad_id"		,aLDap.ur);
+	asignaValorXId("unidad_inicio"	,aLDap.ur);
+	asignaValorXId("unidad_fin"		,aLDap.ur);
+	asignaValorXId("estatus"		,aLDap.estatus);
+	asignaValorXId("esquema_id"		,aLDap.esquema_id);
+	asignaValorXId("listaurs"		,aLDap.listaurs);
+
+
+}
+// ________________________________________________________________________
+function agregaUsuario(){
+	cNombre = valorDeObjeto("nombre_completo",false);
+	
+	if (cNombre===null){
+		mandaMensaje("Se requiere datos del usuario a actualizar");
+		return false;
+	}
+	aIdHtml = ["correo","unidad_id","unidad_inicio","unidad_fin","estatus","esquema_id"];
+	for(i=0;i<aIdHtml.length;i++){ // el foreach no se detiene con un return
+		cVal = valorDeObjeto(aIdHtml[i]);
+		if (cVal==null){
+			return false; // Valor de Objeto manda mensaje si no hay captura
+		}
+	}
+	cUsuId  = valorDeObjeto("usuario_id",false);
+	esperaRespuesta(`Desea actualizar la información del usuario ${cUsuId} `).then((respuesta) => {
+		aParametros ={
+			opcion			: "actualizaUsuario", 
+			usuario_id		: valorDeObjeto("usuario_id",false),
+			nombre_completo	: valorDeObjeto("nombre_completo",false),
+			correo			: valorDeObjeto("correo",false),
+			unidad_id		: valorDeObjeto("unidad_id",false),
+			unidad_inicio	: valorDeObjeto("unidad_inicio",false),
+			unidad_fin		: valorDeObjeto("unidad_fin",false),
+			estatus			: valorDeObjeto("estatus",false),
+			esquema_id		: valorDeObjeto("esquema_id",false),
+			listaurs		: valorDeObjeto("listaurs",false)
+		};
+		conectayEjecutaPost(aParametros,cPhp);
+	});
+}
+// ________________________________________________________________________
+function inactivaUsuario(){
+	cNombre = valorDeObjeto("nombre_completo",false);
+	cUsuId  = valorDeObjeto("usuario_id",false);
+	cActivo = valorDeObjeto("estatus",false)
+	if (cNombre===null || cActivo===null || cActivo===null){
+		mandaMensaje("Se requiere datos del usuario para cambiar su estatus");
+		return false;
+	}
+	if (cActivo=="ACTIVO"){
+		cActivo = "INACTIVO";
+	}else{
+		cActivo = "ACTIVO";
+	}
+	cMen = `¿Desea pasar al estado ${cActivo} al usuario ${cUsuId}?`;
+	esperaRespuesta(cMen).then((respuesta) => {
+		aParametros = {
+			opcion		: "cambiaStatusUsuario",
+			usuario_id	: cUsuId,
+			estatus		: cActivo
+		};
+		conectayEjecutaPost(aParametros,cPhp);
+	});
+}
 // ________________________________________________________________________

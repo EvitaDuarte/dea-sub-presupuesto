@@ -25,7 +25,7 @@
                                     <div class="caja_captura0">
                                         <label for="usuario_id" class="lbl_txt">Usuario</label>
                                         <input type="text" name="usuario_id" id="usuario_id" maxlength="60"  
-                                        onkeyup="this.value = this.value.toLowerCase();" title="Clave de Usuario" onblur="validaValor(this);validaLdap();" data-exp='soloDominio' data-valida="false">
+                                        onkeyup="this.value = this.value.toLowerCase();" title="Clave de Usuario" onblur="validaValor(this);validaLdap(this);" data-exp='soloDominio' data-valida="false">
                                     </div>
                                     <div class="caja_captura3">
                                         <label for="nombre_completo" class="lbl_txt">Nombre</label>
@@ -54,11 +54,11 @@
                                     <div class="caja_captura0">
                                         <label for="listaurs" class="lbl_txt">Lista URs</label>
                                         <input type="text" name="listaurs" id="listaurs" maxlength="200"   
-                                        onkeyup="this.value = this.value.toUpperCase();" title="Lista Urs" onblur="validaValor(this);" data-exp='soloLetras' data-valida="false">
+                                        onkeyup="this.value = this.value.toUpperCase();" title="Lista Urs" onblur="validaValor(this);" data-exp='soloLetrasNumerosComasEspa' data-valida="false">
                                     </div>
                                     <div class="caja_captura">
                                         <label for="estatus" class="lbl_txt">Estatus</label>
-                                        <select name="estatus" id="estatus"  data-field="Estatus" title="Estatus">
+                                        <select name="estatus" id="estatus"  data-field="estatus" title="Estatus">
                                             <option value="">Seleccione</option>
                                             <option value="ACTIVO">ACTIVO</option>
                                             <option value="INACTIVO">INACTIVO</option>
@@ -79,8 +79,8 @@
                                     <div class="caja_captura">
                                     </div>
                                     <div class="form-field-button_" id="grpBotones">
-                                        <a class="btn_1 efecto" onclick="EliminaUsuario()" id="btnEliminaUsuario"> 
-                                            <span>Eliminar usuario</span>
+                                        <a class="btn_1 efecto" onclick="inactivaUsuario()" id="btnEstatusUsuario"> 
+                                            <span>Cambia Estatus</span>
                                         </a>
                                     </div>
                                 </section>
@@ -98,7 +98,7 @@
                                 <section class="seccion_caja" id="busqueda">
                                     <div class="caja_captura0">
                                         <label for="selOpe" class="lbl_txt">Operación</label>
-                                        <select id="selOpe" name="selOpe" title="Operación" onchange="Salida_Usuario();">
+                                        <select id="selOpe" name="selOpe" title="Operación" onchange="Salida_Usuarios();">
                                             <option value="">Seleccione</option>
                                             <option value="Excel">Excel</option>
                                             <option value="Pdf">PDF</option>
@@ -118,19 +118,19 @@
                                         <label for="aCamSel" class="lbl_txt">Celda</label>
                                         <select id="aCamSel" name="aCamSel" onchange="cambiaMaxLength('txtBuscar',this);">
                                             <option data-max = "40" value="">-- Todos --</option>
-                                            <option data-max = "30" value="a.usuario_id">Usuario</option>
-                                            <option data-max = "50" value="a.nombre_completo">Nombre</option>
-                                            <option data-max = "30" value="a.correo">Correo</option>
-                                            <option data-max = "8" value="a.estatus">Estatus</option>
-                                            <option data-max = "20" value="b.esquema">Esquema</option>
-                                            <option data-max = "4" value="a.unidad_id">UR</option>
+                                            <option data-tipo="C"  data-max = "30" value="a.usuario_id">Usuario</option>
+                                            <option data-tipo="C"  data-max = "50" value="a.nombre_completo">Nombre</option>
+                                            <option data-tipo="C"  data-max = "30" value="a.correo">Correo</option>
+                                            <option data-tipo="C"  data-max = "8" value="a.estatus">Estatus</option>
+                                            <option data-tipo="C"  data-max = "20" value="b.esquema">Esquema</option>
+                                            <option data-tipo="C4" data-max = "4" value="a.unidad_id">UR</option>
                                         </select>
                                     </div>
                                     <div class="caja_captura3">
                                         <label for="txtBuscar" class="lbl_txt">Valor</label>
                                         <!-- Segun la IA colocando un diferente name asegura que no compartan valores previamente capturados en diferentes pantallas -->
                                         <input type="text" id="txtBuscar" name="txtBuscarUsu"  maxlength="40" 
-                                        onkeyup="this.value = this.value.toUpperCase();" title="Valor a Buscar" onblur="validaValor(this);" data-exp='letrasNumerosSeparadores' data-valida="false">
+                                        title="Valor a Buscar" onblur="validaValor(this);" data-exp='letrasNumerosSeparadores' data-valida="false">
                                     </div>
                                     <div class="form-field-button_" id="grpBotones">
                                         <a class="btn_1 efecto" onclick="cargarUsuarios(1);"> 
