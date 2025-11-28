@@ -31,7 +31,7 @@ public function traeUrCampo($cUrIni,$cUrFin,$cCampo){
 		$cUrIni = $cUr;
 	}
 	if (in_array(strtolower($cCampo), ["unidad_desc","unidad_digito"])) {
-		$sql = "select unidad_id," . $cCampo . " from public.unidades where unidad_id>=:urini and unidad_id<=:urfin and activo='S' ";
+		$sql = "select unidad_id," . $cCampo . " from public.unidades where unidad_id>=:urini and unidad_id<=:urfin and activo='S'  order by unidad_id ";
 		$reg = ejecutaSQL_($sql,[":urini"=>$cUrIni,":urfin"=>$cUrFin]);
 		return $reg;
 	}else{
@@ -39,11 +39,56 @@ public function traeUrCampo($cUrIni,$cUrFin,$cCampo){
 	}
 }
 //	__________________________________________________________________________________________
-public function traeUrs(){
-	$sql = "select unidad_id,unidad_desc,unidad_digito from public.unidades where activo='S' ";
+public function traeUrs(){ // Solo trae las activas
+	$sql = "select unidad_id,unidad_desc,unidad_digito from public.unidades where activo='S' order by unidad_id ";
 	$reg = ejecutaSQL_($sql);
 	return $reg;
 }
 //	__________________________________________________________________________________________
+public function traeUnidades(){ // también trae las inactivas , por si hay que cambiar su estatus
+	$sql = "select unidad_id,unidad_desc,unidad_digito,activo from public.unidades order by unidad_id ";
+	$reg = ejecutaSQL_($sql);
+	return $reg;
+}
+//	_________________________________________________________________________________________
+public function noExisteUr($cUr){
+	$sql = "select unidad_desc from public.unidades where unidad_id=:unidad_id ";
+	$aUr = ejecutaSQL_($sql,[":unidad_id"=>$cUr]);
+	if (count($aUr)>0){
+		return false;	// Existe el usuario
+	}
+	return true; 		// No existe el usuario
+}
+//	_________________________________________________________________________________________
+public function cambiaActivoUr($cUr,$cSta){
+	try{
+		$sql = "update public.unidades set activo=:activo where unidad_id=:unidad_id";
+		$ren = actualizaSql($sql,[":activo"=>$cSta,":unidad_id"=>$cUr]);
+		if ($ren>0){
+			return [
+				"resultado"	=> "ok",
+				"error"		=> "",
+				"sql"		=> "",
+				"para"		=> ""
+			];
+		}else{
+			return[
+				"resultado"	=> "mal",
+				"error"		=> "No se realizó la actualización",
+				"sql"		=> $sql,
+				"para"		=> "Ur:$cUr , Activo:$cSta"
+			];
+		}
+	}catch(Exception $e){
+		return [
+			"resultado"	=> "exepción",
+			"error"		=> $e->getMessage(),
+			"sql"		=> $sql,
+			"para"		=> "Ur:$cUr , Activo:$cSta"
+		];
+	}
+
+}
+//	_________________________________________________________________________________________
 }
 ?>

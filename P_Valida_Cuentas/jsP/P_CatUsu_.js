@@ -197,19 +197,21 @@ function agregaUsuario(){
 	}
 	cUsuId  = valorDeObjeto("usuario_id",false);
 	esperaRespuesta(`Desea actualizar la información del usuario ${cUsuId} `).then((respuesta) => {
-		aParametros ={
-			opcion			: "actualizaUsuario", 
-			usuario_id		: valorDeObjeto("usuario_id",false),
-			nombre_completo	: valorDeObjeto("nombre_completo",false),
-			correo			: valorDeObjeto("correo",false),
-			unidad_id		: valorDeObjeto("unidad_id",false),
-			unidad_inicio	: valorDeObjeto("unidad_inicio",false),
-			unidad_fin		: valorDeObjeto("unidad_fin",false),
-			estatus			: valorDeObjeto("estatus",false),
-			esquema_id		: valorDeObjeto("esquema_id",false),
-			listaurs		: valorDeObjeto("listaurs",false)
-		};
-		conectayEjecutaPost(aParametros,cPhp);
+		if(respuesta){
+			aParametros ={
+				opcion			: "actualizaUsuario", 
+				usuario_id		: valorDeObjeto("usuario_id",false),
+				nombre_completo	: valorDeObjeto("nombre_completo",false),
+				correo			: valorDeObjeto("correo",false),
+				unidad_id		: valorDeObjeto("unidad_id",false),
+				unidad_inicio	: valorDeObjeto("unidad_inicio",false),
+				unidad_fin		: valorDeObjeto("unidad_fin",false),
+				estatus			: valorDeObjeto("estatus",false),
+				esquema_id		: valorDeObjeto("esquema_id",false),
+				listaurs		: valorDeObjeto("listaurs",false)
+			};
+			conectayEjecutaPost(aParametros,cPhp);
+		}
 	});
 }
 // ________________________________________________________________________
@@ -228,12 +230,14 @@ function inactivaUsuario(){
 	}
 	cMen = `¿Desea pasar al estado ${cActivo} al usuario ${cUsuId}?`;
 	esperaRespuesta(cMen).then((respuesta) => {
-		aParametros = {
-			opcion		: "cambiaStatusUsuario",
-			usuario_id	: cUsuId,
-			estatus		: cActivo
-		};
-		conectayEjecutaPost(aParametros,cPhp);
+		if(respuesta){
+			aParametros = {
+				opcion		: "cambiaStatusUsuario",
+				usuario_id	: cUsuId,
+				estatus		: cActivo
+			};
+			conectayEjecutaPost(aParametros,cPhp);
+		}
 	});
 }
 // ________________________________________________________________________

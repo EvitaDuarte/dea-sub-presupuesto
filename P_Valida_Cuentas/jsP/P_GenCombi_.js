@@ -202,7 +202,9 @@ async function agregarCombi(){
 	}
 	if (aMap.get("geografico")=="SI" && aMap.get("tipoUr")=="JL/JD"){
 		await esperaRespuesta(`¿El proyecto va a ser para los 32 estados?`).then((respuesta) => {
-			aMap.set("cvePy", aMap.get("cvePy").substring(0, 6) + "?");
+			if (respuesta){
+				aMap.set("cvePy", aMap.get("cvePy").substring(0, 6) + "?");
+			}
 		});
 	}
 	aDatos = {
@@ -219,13 +221,15 @@ function generaUrCombi(){
 		return false;
 	}
 	esperaRespuesta(`¿Desea generar el proceso de generar combinaciones de ${aMap.get("UrIni")} a  ${aMap.get("UrFin")}?`).then((respuesta) => {
-		aParametros = {
-			opcion	: "generaUrCombi",
-			urIni	: aMap.get("UrIni"),
-			urFin	: aMap.get("UrFin")
+		if(respuesta){
+			aParametros = {
+				opcion	: "generaUrCombi",
+				urIni	: aMap.get("UrIni"),
+				urFin	: aMap.get("UrFin")
+			}
+			loader('flex');
+			conectayEjecutaPost(aParametros,cPhp);
 		}
-		loader('flex');
-		conectayEjecutaPost(aParametros,cPhp);
 	});
 }
 // ________________________________________________________________________

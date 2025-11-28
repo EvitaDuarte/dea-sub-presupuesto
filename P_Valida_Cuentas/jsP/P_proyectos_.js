@@ -110,14 +110,16 @@ const actualizaProyecto=()=>{
 		return false;
 	}
 	esperaRespuesta(`Desea revisar el proyecto ${cPy} en SIGA`).then((respuesta) => {
-		aDatos = {
-			opcion		: "PyVerificaSiga",
-			idPy		: cPy,
-			nombre		: cDesPy,
-			geografico	: cGeo,
-			activo		: cActivo
-		};
-		conectayEjecutaPost(aDatos,cPhp);
+		if (respuesta){
+			aDatos = {
+				opcion		: "PyVerificaSiga",
+				idPy		: cPy,
+				nombre		: cDesPy,
+				geografico	: cGeo,
+				activo		: cActivo
+			};
+			conectayEjecutaPost(aDatos,cPhp);
+		}
 
 	});
 	

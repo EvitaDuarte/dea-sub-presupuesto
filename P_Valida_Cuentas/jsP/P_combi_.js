@@ -190,11 +190,12 @@ function filtro(campo, vIni, vFin, esPrimero) {
 // ________________________________________________________________________
 function cargarPtoAuto(){
 	esperaRespuesta(`¿Desea integrar Ur-Scta-Ai-Pp-Spg-Py del Autorizado a las combinaciones válidas?`).then((respuesta) => {
-		aParametros = {
-			opcion		: "cargar_PtoAuto",
-		};
-		conectayEjecutaPost(aParametros,cPhp);
-
+		if (respuesta){
+			aParametros = {
+				opcion		: "cargar_PtoAuto",
+			};
+			conectayEjecutaPost(aParametros,cPhp);
+		}
 	});
 }
 // ________________________________________________________________________
