@@ -53,9 +53,17 @@ async function procesarRespuesta__(vRes) {
 			abrePdf("salidas/"+cSalida);
 		break;
 		// ______________________________
+		case "actualizaUrPpSpg":
+			cargaUrPpSpg();
+		break;
 		// ______________________________
-
+		case "eliminaUrPpSpg":
+			cargaUrPpSpg();
+		break;
 		// ______________________________
+		case "cargaDelAutorizado":
+			cargaUrPpSpg();
+		break;
 		// ______________________________
 	}
 
@@ -131,19 +139,62 @@ let cSalida	= valorDeObjeto("selOpe",false);
 }
 // ____________________________________________________
 function adiciona_UrPpSpg(){
-	cUr  = valorDeObjeto("tur");
-	cPp	 = valorDeObjeto("pp");
-	cSpg = valorDeObjeto("spg");
-	cSta = valorDeObjeto("activo");
-	if( cUr==null || cPp==null || cSpg==null || cSta==null){
+	vUr  = valorDeObjeto("tur");
+	vPp	 = valorDeObjeto("pp");
+	vSpg = valorDeObjeto("spg");
+	vSta = valorDeObjeto("activo");
+	if( vUr==null || vPp==null || vSpg==null || vSta==null){
 		mandaMensaje("Se requiere los valores de Ur, PP, Spg y Activo");
 		return false;
 	}
-	esperaRespuesta(`¿Desea actualizar la información  ${cUr}-${cPp}-${cSpg}-${cSta} ?`).then((respuesta) => {
+	esperaRespuesta(`¿Desea actualizar la información de ${vUr}-${vPp}-${vSpg}-${vSta} ?`).then((respuesta) => {
 		if(respuesta){
-			mandaMensaje("SI")
+			aParametros ={
+				opcion	: "actualizaUrPpSpg",
+				tur		: vUr,
+				pp		: vPp,
+				spg		: vSpg,
+				activo	: vSta
+			}
+			conectayEjecutaPost(aParametros,cPhp);
 		}else{
-			mandaMensaje("NO")
+
+		}
+	});
+}
+// ____________________________________________________
+function eliminar_UrPpSpg(){
+	vUr  = valorDeObjeto("tur");
+	vPp	 = valorDeObjeto("pp");
+	vSpg = valorDeObjeto("spg");
+	vSta = valorDeObjeto("activo");
+	if( vUr==null || vPp==null || vSpg==null || vSta==null){
+		mandaMensaje("Se requiere los valores de Ur, PP, Spg");
+		return false;
+	}
+	esperaRespuesta(`¿Desea eliminar la combinación ${vUr}-${vPp}-${vSpg}-${vSta} ?`).then((respuesta) => {
+		if(respuesta){
+			aParametros ={
+				opcion	: "eliminaUrPpSpg",
+				tur		: vUr,
+				pp		: vPp,
+				spg		: vSpg,
+				activo	: vSta
+			}
+			conectayEjecutaPost(aParametros,cPhp);
+		}else{
+
+		}
+	});
+}
+// ____________________________________________________
+function autorizado_UrPpSpg(){
+	esperaRespuesta('¿Desea integrar Ur-Pp-Spg del Autorizado a las Ur-Pp-Spg válidas?').then((respuesta) => {
+		if (respuesta){
+			aParametros = {
+				opcion: "cargaDelAutorizado"
+			}
+			conectayEjecutaPost(aParametros,cPhp);
 		}
 	});
 }

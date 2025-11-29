@@ -54,8 +54,14 @@
                                     </div>
                                     <div class="caja_captura0"></div>
                                     <div class="form-field-button_" id="grpBotones1">
-                                        <a class="btn_1 efecto" onclick="actualiza_UrPpSpg();"> 
+                                        <a class="btn_1 efecto" onclick="autorizado_UrPpSpg();"> 
                                             <span>Actualizar del Autorizado</span>
+                                        </a>
+                                    </div>
+                                    <div class="caja_captura0"></div>
+                                    <div class="form-field-button_" id="grpBotones">
+                                        <a class="btn_1 efecto" onclick="eliminar_UrPpSpg();"> 
+                                            <span>Eliminar</span>
                                         </a>
                                     </div>
                                 </section> 

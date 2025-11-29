@@ -13,6 +13,7 @@ error_reporting(E_ALL);
 	require_once($_SESSION['conW']);
 	require_once("P_rutinas_.php");
 	require_once("M_Catalogos_.php");
+	require_once("Pdo/C_UrPpSpg_.php");
 	try{
 		$idUsuario  = $_SESSION['ValCtasClave'];
 	    $param	 	= json_decode(file_get_contents("php://input"), true);
@@ -29,7 +30,13 @@ error_reporting(E_ALL);
 	    		UrPpSpg_Salida($regreso);
 	    	break;
 	    	//___________________________________
+	    	case "actualizaUrPpSpg":
+	    		actualizaUrPpSpg($param,$regreso);
+	    	break;
 	    	//___________________________________
+	    	case "eliminaUrPpSpg":
+	    		eliminaUrPpSpg($param,$regreso);
+	    	break;
 	    	//___________________________________
 	    	//___________________________________
 	    	default:
@@ -80,7 +87,31 @@ function UrPpSpg_Salida(&$r){
 	}
 }
 // ___________________________________________________
+function actualizaUrPpSpg($p,&$r){
+	$oUrPpSpg = new UrPpSpg();
+	$oUrPpSpg->cargaDatos($p); // para que funcione deben coincidir las variables JS con las variables declaradas en cargaDatos
+	$nRen = $oUrPpSpg->actualizaUrPpSpg();
+	if ($nRen>0){
+		$cW 		  = $oUrPpSpg->get("dummy");
+		$r["mensaje"] = "Se $cW la información solicitada";
+		$r["success"] = true;
+	}else{
+		$r["mensaje"] = "!! No se logro actalizar la información solicitada !!";
+	}
+}
 // ___________________________________________________
+function eliminaUrPpSpg($p,&$r){
+	$oUrPpSpg = new UrPpSpg();
+	$oUrPpSpg->cargaDatos($p);
+	$lRes = $oUrPpSpg->elimina_UrPpSpg();
+	$cW   = $oUrPpSpg->get("dummy");
+	if ($lRes){
+		$r["success"] = true;
+		$r["mensaje"] = $cW;
+	}else{
+		$r["mensaje"] = $cW;
+	}
+}
 // ___________________________________________________
 // ___________________________________________________
 
