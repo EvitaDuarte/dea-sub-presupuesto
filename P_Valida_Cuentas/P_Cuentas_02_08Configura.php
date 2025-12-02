@@ -14,56 +14,36 @@
         <link rel="stylesheet" href="assetsF/css/seccion.css?v=<?=$version?>">
     </head>
     <body>
-        <form name="frmUrPpSpg" id="frmUrPpSpg" method="post" enctype="multipart/form-data">
+        <form name="frmConfigura" id="frmConfigura" method="post" enctype="multipart/form-data">
             <div id="main_container">    
                 <?php include('P_Cuentas00_MenuPrincipal.php'); // Incluye el menú principal?>
                 <section class="datos-personales2">
-                    <h2 class="titleM">Ur-Pp-Spg Válidos</h2>
+                    <h2 class="titleM">Configuración</h2>
                     <div class="container-data">
                         <div class="data-form">
                             <div class="wrapper">
                                 <section class="seccion_caja" id="sec1">
                                     <div class="caja_captura">
-                                        <label for="tur" class="lbl_txt">UR</label>
-                                        <select name="tur" id="tur"  onchange="light_Title('tur');" data-field="tur" title="Centro de Costo"></select>
+                                        <label for="nombre" class="lbl_txt">Nombre</label>
+                                        <select name="nombre" id="nombre"  onchange="ConfiguracambiaValor();" data-field="nombre" title="Nombre"></select>
                                     </div>
-                                    <div class="caja_captura">
-                                        <label for="pp" class="lbl_txt">PP</label>
-                                        <select name="pp" id="pp"  onchange="light_Title('pp');" data-campo="pp" title="Programa presupuestario"></select>
-                                    </div>
-                                    <div class="caja_captura">
-                                        <label for="spg" class="lbl_txt">Subprograma</label>
-                                        <select name="spg" id="spg"  onchange="light_Title('spg');" data-campo="spg" title="Subprograma"></select>
-                                    </div>
-                                    <div class="caja_captura">
-                                        <label for="activo" class="lbl_txt">Activo</label>
-                                        <select id="activo" name="activo"  title="Activo">
-                                            <option value=''>Seleccione</option>
-                                            <option value='SI'>SI</option>
-                                            <option value='NO'>NO</option>
-                                        </select>
+                                    <div class="caja_captura3">
+                                        <label for="valor" class="lbl_txt">Valor</label>
+                                        <!-- Segun la IA colocando un diferente name asegura que no compartan valores previamente capturados en diferentes pantallas -->
+                                        <input type="text" id="valor" name="valor"  maxlength="200" 
+                                        title="Valor de Nombre" onblur="validaValor(this);" data-exp='soloLetrasNumerosDiagoSinEsp' data-valida="false">
                                     </div>
                                 </section>
                                 <section class="seccion_caja" id="sec2">
                                 </section>
                                 <section class="seccion_caja" id="botones">
+                                    <div class="caja_captura0"></div>
                                     <div class="form-field-button_" id="grpBotones">
-                                        <a class="btn_1 efecto" onclick="adiciona_UrPpSpg();"> 
+                                        <a class="btn_1 efecto" onclick="ConfiguraActualiza();"> 
                                             <span>Actualizar</span>
                                         </a>
                                     </div>
                                     <div class="caja_captura0"></div>
-                                    <div class="form-field-button_" id="grpBotones1">
-                                        <a class="btn_1 efecto" onclick="autorizado_UrPpSpg();"> 
-                                            <span>Actualizar del Autorizado</span>
-                                        </a>
-                                    </div>
-                                    <div class="caja_captura0"></div>
-                                    <div class="form-field-button_" id="grpBotones2">
-                                        <a class="btn_1 efecto" onclick="eliminar_UrPpSpg();"> 
-                                            <span>Eliminar</span>
-                                        </a>
-                                    </div>
                                 </section> 
                                 <section class="seccion_caja" id="busqueda">
                                     <div class="caja_captura0">
@@ -80,29 +60,26 @@
                                             <option value=15>15</option>
                                             <option value=30>30</option>
                                             <option value=60>60</option>
-                                            <option value=100>100</option>
-                                            <option value=200>200</option>
                                         </select>
                                     </div>
                                     <div class="caja_captura0">
                                         <label for="aCamSel" class="lbl_txt">Celda</label>
                                         <select id="aCamSel" name="aCamSel" onchange="cambiaMaxLength('txtBuscar',this);">
-                                            <option data-max = "4" value="">-- Todos --</option>
-                                            <option data-max = "4" value="a.tur">Ur</option>
-                                            <option data-max = "4" value="a.pp">PP</option>
-                                            <option data-max = "3" value="a.spg">Spg</option>
-                                            <option data-max = "2" value="a.activo">Activo</option>
-                                            <option data-max = "10" value="a.activo">Fecha</option>
+                                            <option data-max = "200"    value="">-- Todos --</option>
+                                            <option data-max = "4"      value="a.id">Id</option>
+                                            <option data-max = "40"     value="a.nombre">Nombre</option>
+                                            <option data-max = "200"    value="a.valor">Valor</option>
+                                            <option data-max = "40"     value="a.tipo">Tipo</option>
                                         </select>
                                     </div>
                                     <div class="caja_captura3">
                                         <label for="txtBuscar" class="lbl_txt">Valor</label>
                                         <!-- Segun la IA colocando un diferente name asegura que no compartan valores previamente capturados en diferentes pantallas -->
-                                        <input type="text" id="txtBuscar" name="txtUrPpSpg"  maxlength="4" 
-                                        onkeyup="this.value = this.value.toUpperCase();" title="Valor a Buscar" onblur="validaValor(this);" data-exp='soloLetrasNumerosDiagoSinEsp' data-valida="false">
+                                        <input type="text" id="txtBuscar" name="txtConfigura"  maxlength="4" 
+                                        title="Valor a Buscar" onblur="validaValor(this);" data-exp='soloLetrasNumerosDiagoSinEsp' data-valida="false">
                                     </div>
                                     <div class="form-field-button_" id="grpBotones">
-                                        <a class="btn_1 efecto" onclick="cargaUrPpSpg(1);"> 
+                                        <a class="btn_1 efecto" onclick="ConfiguraCarga(1);"> 
                                             <span>Buscar</span>
                                         </a>
                                     </div>
@@ -114,10 +91,10 @@
                                     <table class="tablex" id="tblUrPpSpg">
                                         <thead>
                                             <tr>
-                                                <th>Ur</th>
-                                                <th>PP</th>
-                                                <th>SPG</th>
-                                                <th>ACTIVO</th>
+                                                <th>Id</th>
+                                                <th>Nombre</th>
+                                                <th>Valor</th>
+                                                <th>Tipo</th>
                                                 <th>Fecha</th>
                                             </tr>
                                         </thead>

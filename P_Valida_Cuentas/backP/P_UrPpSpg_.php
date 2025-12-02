@@ -38,6 +38,9 @@ error_reporting(E_ALL);
 	    		eliminaUrPpSpg($param,$regreso);
 	    	break;
 	    	//___________________________________
+	    	case "cargaDelAutorizado":
+	    		cargaDelAutorizado($param,$regreso);
+	    	break;
 	    	//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Ur Pp Spg";
@@ -90,7 +93,7 @@ function UrPpSpg_Salida(&$r){
 function actualizaUrPpSpg($p,&$r){
 	$oUrPpSpg = new UrPpSpg();
 	$oUrPpSpg->cargaDatos($p); // para que funcione deben coincidir las variables JS con las variables declaradas en cargaDatos
-	$nRen = $oUrPpSpg->actualizaUrPpSpg();
+	$nRen = $oUrPpSpg->actualiza_UrPpSpg();
 	if ($nRen>0){
 		$cW 		  = $oUrPpSpg->get("dummy");
 		$r["mensaje"] = "Se $cW la información solicitada";
@@ -113,6 +116,26 @@ function eliminaUrPpSpg($p,&$r){
 	}
 }
 // ___________________________________________________
+function cargaDelAutorizado($p,&$r){
+	global $conn_pdo;
+	try{
+		$oUrPpSpg	= new UrPpSpg();
+		$aRen		= $oUrPpSpg->traeUrPpSpgAuto();
+		if (count($aRen)>0){
+			$conn_pdo->beginTransaction();
+			$nRen = $oUrPpSpg->actualizaAutoUrPpSpg($aRen);
+			$conn_pdo->commit();
+			$r["success"] = true;
+			$r["mensaje"] = "Se actualizaron $nRen combinaciones UR-PP-SPG ";
+			return true;
+		}
+	}catch(Exception $e){
+		$r["error"]   = $e->getMessage();
+		$r["mensaje"] = "Se encontraron inconsistencias carga UR-PP-SPG del autorizado";
+		$conn_pdo->rollBack();
+		return false;
+	}
+}
 // ___________________________________________________
 
 

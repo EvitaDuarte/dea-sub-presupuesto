@@ -105,7 +105,8 @@ function cargaUrPpSpg(cPagina=1){
 				        { nombre: "a.tur"		, tipo: "C" },
 				        { nombre: "a.pp"		, tipo: "C" },
 				        { nombre: "a.spg"		, tipo: "C" },
-				        { nombre: "a.activo"	, tipo: "C" }
+				        { nombre: "a.activo"	, tipo: "C" },
+				        { nombre: "a.fecha"		, tipo: "C" }
 		    		  ],
     	scroll      : [],
     	maxscroll   : 90,
@@ -191,6 +192,7 @@ function eliminar_UrPpSpg(){
 function autorizado_UrPpSpg(){
 	esperaRespuesta('¿Desea integrar Ur-Pp-Spg del Autorizado a las Ur-Pp-Spg válidas?').then((respuesta) => {
 		if (respuesta){
+			loader('flex');
 			aParametros = {
 				opcion: "cargaDelAutorizado"
 			}

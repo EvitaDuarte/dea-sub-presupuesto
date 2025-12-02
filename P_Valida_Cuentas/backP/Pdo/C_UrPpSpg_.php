@@ -42,7 +42,7 @@ public function noExisteUrPpSpg($cUr,$cPp,$cSpg){
 	return true; 		// No Existe
 }
 //	__________________________________________________________________________________________
-public function actualizaUrPpSpg(){
+public function actualiza_UrPpSpg(){
 	if ( $this->noExisteUrPpSpg($this->tur,$this->pp,$this->spg) ){
 		$sql1 = "insert into public.v_ur_pp_spg (tur,pp,spg,activo) values( " .
 				":tur , :pp, :spg, :activo )";
@@ -77,24 +77,25 @@ public function elimina_UrPpSpg(){
 }
 // __________________________________________________
 public function traeUrPpSpgAuto(){
-	$sql1 = "select 'AGZS' as tur, clvpp as pp , clvspg as spg, 'S' as activo ".
+	$sql1 = "select 'AGZS' as tur, clvpp as pp , clvspg as spg, 'SI' as activo ".
 			" from ptoautorizado where substring(clvcos,1,2)!='OF' group by clvcos, clvpp,clvspg ".
 			" union ". 
-			"select clvcos as tur, clvpp as pp, clvspg as spg, 'S' as activo ".
+			"select clvcos as tur, clvpp as pp, clvspg as spg, 'SI' as activo ".
 			" from ptoautorizado where substring(clvcos,1,2)='OF'  group by clvcos, clvpp,clvspg ".
 			"order by tur,pp,spg";
 	$aVal = ejecutaSQL_($sql1);
 	return $aVal;	
 }
 // __________________________________________________
-public function actualizaUrPpSpgAuto($aReg){
+public function actualizaAutoUrPpSpg($aReg){
 	$nRen = 0;
 	foreach ($aReg as $reg ) {
-		$this->tur = $reg["tur"]; $this->pp = $reg["pp"]; $this->spg = $reg["spg"];
+		$this->tur = $reg["tur"]; $this->pp = $reg["pp"]; $this->spg = $reg["spg"]; $this->activo = 'SI';
 		if ($this->noExisteUrPpSpg($this->tur,$this->pp,$this->spg)){
-			$nRen += $this->actualizaUrPpSpg();
+			$nRen += $this->actualiza_UrPpSpg();
 		}
 	}
+	return $nRen;
 }
 // __________________________________________________
 public function get($prop) {
