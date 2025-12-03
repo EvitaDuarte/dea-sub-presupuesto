@@ -44,11 +44,15 @@ const expresiones = {
     soloLetrasNumerosGuion      : { regex: /^[A-Za-z0-9\- ]+$/                                          , mensaje : "solo puede llevar Letras, Números y guion"},
     soloLetrasNumeros           : { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ ]+$/                                , mensaje : "solo puede llevar Letras, Números y espacios"},
     soloLetrasNumerosSinEspacios: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ]+$/                                 , mensaje : "solo puede llevar Letras, Números sin espacios"},
-    solopassword                : {regex : /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/    , mensaje : "contraseña de 8 caracteres, un número, una mayúscula"},
+    soloPassword                : {regex : /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/    , mensaje : "contraseña de 8 caracteres, un número, una mayúscula"},
     soloLetrasNumerosDiagoSinEsp: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\/]+$/                               , mensaje : "solo puede llevar Letras, Números, Diagonal sin espacios"},
     exclusivoLetras             : { regex: /^[a-zA-Z]+$/                                                , mensaje : "solo puede llevar Letras, sin espacios"},
     exclusivoUR                 : { regex: /^[A-Za-z]{2}\d{2}$/                                         , mensaje : "Por favor, ingresa dos letras seguidas de dos números. para UR"}
 };
+// ______________________________________________________________________________
+function regresaExpresiones(){
+    return Object.keys(expresiones);
+}
 // ______________________________________________________________________________
 function validaValor(inputHTML) {
 
@@ -2284,7 +2288,7 @@ function pintarTablaHTML(idTabla, registros, aParametros) {
     });
 }
 // __________________________________________________________________________________
-function pintarTablaHTMLEscucha(idTabla, registros, aParametros, aIdsHtml = []) {
+function pintarTablaHTMLEscucha(idTabla, registros, aParametros, aIdsHtml = [] , nombreFuncionExterna = null) {
     const cTabla = document.getElementById(idTabla).getElementsByTagName('tbody')[0];
     limpiaTabla(cTabla);
 
@@ -2355,8 +2359,13 @@ function pintarTablaHTMLEscucha(idTabla, registros, aParametros, aIdsHtml = []) 
                     input.value = valor;
                 }
             });
+            // --- Ejecutar función externa por nombre ---
+            if (typeof nombreFuncionExterna === "function") {
+                nombreFuncionExterna(registros[rowIndex], rowIndex);
+            }
         });
     });
+
 }
 
 // __________________________________________________________________________________
@@ -2566,5 +2575,49 @@ function whereCampoBusqueda(idSelect, idTxtBuscar) {
 // __________________________________________________________________________________
 function asignaValorXId(cId,cValor){
     document.getElementById(cId).value = cValor;
+}
+// __________________________________________________________________________________
+// ______________________________________________
+function llenaComboPropiedades(idSel,aCombo,cValor=""){ // llena un HTML Select (combobox) a partir del arreglo aCombo
+    select = document.getElementById(idSel);
+    // Limpiar opciones previas si las hay
+    select.innerHTML = "";
+
+    // Opción por defecto
+    const opcionDefault     = document.createElement("option");
+    opcionDefault.text      = "Seleccione ...";
+    opcionDefault.value     = "";
+    select.appendChild(opcionDefault);
+
+    // Recorre el arreglo y crea opciones
+    for (var i = 0; i < aCombo.length; i++) {
+        aVal         = aCombo[i];
+        var opcion   = document.createElement("option");
+        opcion.text  = aCombo[i].trim();  // Texto visible de la opción
+        opcion.value = aCombo[i].trim(); // Valor de la opción (puede ser diferente del texto visible)
+        select.appendChild(opcion); // Agrega la opción al select
+    }
+    // Selecciona el valor según cValor
+    if (cValor === "1" && select.options.length > 0) {
+        select.value = select.options[1].value; // Primer valor
+    } else if (cValor === "U" && select.options.length > 0) {
+        select.value = select.options[select.options.length - 1].value; // Último valor
+    }
+}
+// __________________________________________________________________________________
+function alternaVisibilidad(cId,cModo='block'){
+
+    const element = document.getElementById(cId);
+    
+    if (element.style.display === "none" || getComputedStyle(element).display === "none") {
+        element.style.display = cModo;  // block o "flex", "inline", según necesites
+    }else{
+        element.style.display = "none";
+    }
+}
+// __________________________________________________________________________________
+function alternaHabilitado(cId){
+    const element       = document.getElementById(cId);
+    element.disabled    = !element.disabled;
 }
 // __________________________________________________________________________________

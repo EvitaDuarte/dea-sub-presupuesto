@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+    </head>
+
+
+<style>
+.combo-container {
+    position: relative;
+    width: 200px;
+    font-family: sans-serif;
+}
+
+.combo-input {
+    width: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+.combo-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 25px;
+    height: 100%;
+    cursor: pointer;
+    border-left: 1px solid #aaa;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.combo-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    border: 1px solid #aaa;
+    background: white;
+    max-height: 120px;
+    overflow-y: auto;
+    display: none;
+    z-index: 100;
+}
+
+.combo-item {
+    padding: 6px;
+    cursor: pointer;
+}
+
+.combo-item:hover {
+    background: #cce4ff;
+}
+</style>
+
+<div class="combo-container">
+    <input type="text" id="comboInput" class="combo-input" autocomplete="off">
+    <div class="combo-button" onclick="toggleCombo()">▼</div>
+    <div class="combo-dropdown" id="comboDropdown"></div>
+</div>
+
+<script>
+let comboItems = ["Opción 1", "Opción 2", "Opción 3"];
+
+function renderItems() {
+    const dropdown = document.getElementById("comboDropdown");
+    dropdown.innerHTML = "";
+
+    comboItems.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "combo-item";
+        div.textContent = item;
+        div.onclick = () => {
+            document.getElementById("comboInput").value = item;
+            closeCombo();
+        };
+        dropdown.appendChild(div);
+    });
+}
+
+function toggleCombo() {
+    const dropdown = document.getElementById("comboDropdown");
+    dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+}
+
+function closeCombo() {
+    document.getElementById("comboDropdown").style.display = "none";
+}
+
+// Agregar item nuevo automáticamente
+document.getElementById("comboInput").addEventListener("blur", () => {
+    const value = document.getElementById("comboInput").value.trim();
+    if (value && !comboItems.includes(value)) {
+        comboItems.push(value);
+        renderItems();
+    }
+});
+
+// Inicializar lista
+renderItems();
+
+// Cerrar si se hace click afuera
+document.addEventListener("click", function(e) {
+    if (!document.querySelector(".combo-container").contains(e.target)) {
+        closeCombo();
+    }
+});
+</script>
+</html>

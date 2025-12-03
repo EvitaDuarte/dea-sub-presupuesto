@@ -4,7 +4,7 @@
         <?php
             require_once("P_Cuentas00_00VarSesion.php"); // Pone disponible las variables de sesión
         ?>
-        <meta charset="uft-8" />
+        <meta charset="UTF-8" />
         <title><?=$v_TituloS?></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="script-principal" content="Usuarios_.js">
@@ -23,37 +23,63 @@
                         <div class="data-form">
                             <div class="wrapper">
                                 <section class="seccion_caja" id="sec1">
-                                    <div class="caja_captura">
-                                        <label for="nombre" class="lbl_txt">Nombre</label>
-                                        <select name="nombre" id="nombre"  onchange="ConfiguracambiaValor();" data-field="nombre" title="Nombre"></select>
+                                    <div class="caja_captura0">
+                                        <label for="id" class="lbl_txt">Id</label>
+                                        <!-- Segun la IA colocando un diferente name asegura que no compartan valores previamente capturados en diferentes pantallas -->
+                                        <input type="text" id="id" name="idConfigura"  maxlength="3" disabled 
+                                        title="Consecutivo" onblur="validaValor(this);" data-exp='soloNumeros' data-valida="false">
+                                    </div>
+                                    <div class="caja_captura3">
+                                        <label for="nombre" class="lbl_txt">Nombre</label> 
+                                        <input type="text" id="nombre" name="nombreConfigura"  maxlength="200"  disabled 
+                                        title="Nombre" onblur="validaValor(this);" data-exp='soloLetras' data-valida="false">
                                     </div>
                                     <div class="caja_captura3">
                                         <label for="valor" class="lbl_txt">Valor</label>
                                         <!-- Segun la IA colocando un diferente name asegura que no compartan valores previamente capturados en diferentes pantallas -->
-                                        <input type="text" id="valor" name="valor"  maxlength="200" 
+                                        <input type="text" id="valor" name="valorConfigura"  maxlength="200" 
                                         title="Valor de Nombre" onblur="validaValor(this);" data-exp='soloLetrasNumerosDiagoSinEsp' data-valida="false">
                                     </div>
-                                </section>
-                                <section class="seccion_caja" id="sec2">
+                                    <div class="caja_captura">
+                                        <label for="tipo" class="lbl_txt">Tipo</label>
+                                        <select id="tipo" name="tipo" data-field="tipo" title="Tipos Válidos"></select>
+                                    </div>
                                 </section>
                                 <section class="seccion_caja" id="botones">
                                     <div class="caja_captura0"></div>
-                                    <div class="form-field-button_" id="grpBotones">
-                                        <a class="btn_1 efecto" onclick="ConfiguraActualiza();"> 
-                                            <span>Actualizar</span>
-                                        </a>
+                                    <div class="caja_captura" id="divActualiza">
+                                        <div class="form-field-button_" >
+                                            <a class="btn_1 efecto" onclick="ConfiguraActualiza();"> 
+                                                <span>Actualizar</span>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div class="caja_captura0"></div>
+                                     <div class="caja_captura0"></div>
+                                    <div class="caja_captura" id="divAdiciona" style="display: none;">
+                                        <div class="form-field-button_">
+                                            <a class="btn_1 efecto" onclick="ConfiguraAdicionar();"> 
+                                                <span>Adicionar</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                   <div class="caja_captura0"></div>
+                                    <div class="caja_captura" id="divNuevo">
+                                        <div class="form-field-button_" >
+                                            <a class="btn_1 efecto" onclick="ConfiguraNuevo();"> 
+                                                <span>Nuevo</span>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </section> 
                                 <section class="seccion_caja" id="busqueda">
-                                    <div class="caja_captura0">
+                            <!--        <div class="caja_captura0">
                                         <label for="selOpe" class="lbl_txt">Operación</label>
                                         <select id="selOpe" name="selOpe" title="Operación" onchange="Salida_UrPpSpg();">
                                             <option value="">Seleccione</option>
                                             <option value="Excel">Excel</option>
                                             <option value="Pdf">PDF</option>
                                         </select>
-                                    </div>
+                                    </div> -->
                                     <div class="caja_captura0">
                                         <label for="selNumReg" class="lbl_txt">No.Reg</label>
                                         <select id="selNumReg" name="selNumReg" title="No Reg">
@@ -88,7 +114,7 @@
                                     <div id="paginador"></div>
                                 </section>
                                 <div class="tabla-con-cuadricula">
-                                    <table class="tablex" id="tblUrPpSpg">
+                                    <table class="tablex" id="tblConfigura">
                                         <thead>
                                             <tr>
                                                 <th>Id</th>
@@ -140,6 +166,6 @@
         <script src="jsP/P_backspace_.js?v=<?php echo filemtime('jsP/P_backspace_.js'); ?>"></script>
         <script src="jsP/P_cerrar_sesion_.js?v=<?php  echo filemtime('jsP/P_cerrar_sesion_.js'); ?>"></script>
         <script src="jsP/P_rutinas_.js?v=<?php  echo filemtime('jsP/P_rutinas_.js'); ?>"></script>
-        <script src="jsP/P_UrPpSpg_.js?v=<?php echo filemtime('jsP/P_UrPpSpg_.js'); ?>"></script>
+        <script src="jsP/P_Configura_.js?v=<?php echo filemtime('jsP/P_Configura_.js'); ?>"></script>
     </body>
 </html>
