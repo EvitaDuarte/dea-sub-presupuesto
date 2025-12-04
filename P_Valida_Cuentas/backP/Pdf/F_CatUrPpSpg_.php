@@ -1,6 +1,6 @@
 <?php
 require_once $_SESSION['vendor'];
-require_once "C_Pdf_2_.php";
+require_once "Pdo/C_Pdf_2_.php";
 
 function pdf_CatUrPpSpg($detalle,&$r){
 	$titulos	 = ["Catálogo Ur-Pp-Spg"];

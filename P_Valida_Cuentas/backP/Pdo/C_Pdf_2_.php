@@ -207,8 +207,8 @@ class ReportePDFConCSS{
 
 /* Ejemplo de uso
 
-require_once "vendor/autoload.php";
-require_once "C_Pdf_2_.php";
+//require_once "vendor/autoload.php";
+//require_once "C_Pdf_2_.php";
 
 $titulos = ["Reporte General", "Sucursal Centro"];
 

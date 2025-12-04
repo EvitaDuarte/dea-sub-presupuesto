@@ -686,4 +686,33 @@ Azul oscuro - rgb (15,26,47) - 0F1A2F
     color: white;
 }
 
+/* ________________________________________________________________ */
+.plus-icon {
+  width: 28px;      /* tamaño del icono */
+  height: 28px;
+  position: relative;
+  display: inline-block;
+  margin-right: 10px;
+}
 
+.plus-icon::before,
+.plus-icon::after {
+  content: "";
+  position: absolute;
+  background: #555; /* color del icono (modifícalo) */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 2px; /* opcional: bordes suaves */
+}
+
+.plus-icon::before {
+  width: 3px;      /* grosor de la línea vertical */
+  height: 80%;     /* largo */
+}
+
+.plus-icon::after {
+  width: 80%;      /* largo */
+  height: 3px;     /* grosor de la línea horizontal */
+}
+/* ________________________________________________________________ */

@@ -1427,40 +1427,75 @@ function validaFecha(dFecha,cIdFecha,lHoy){
     return true
 }
 // _______________________________________________
-function efectoBotones(cOpc){
-    /* Se agrega un escucha para cuando se carga el archivo CSV */
-    document.addEventListener('DOMContentLoaded', function () {
-        var input1_file = document.getElementById('ArchivoCarga_file');
-        var input_icon  = document.getElementById('input_icon');     // Para cambiar el icono
-        var input_text  = document.getElementById('input_text');     // Para cambiar el texto del boton
-        var inputLabel  = document.getElementById('lblCarga');   
+function efectoBotones(fnAccion = null) {
 
-        input1_file.addEventListener('change', function (e) {       // Escucha el evento change
-            name_file = input1_file.files[0].name;
-            var full_name = "";
+    var input1_file = document.getElementById('ArchivoCarga_file');
+    var input_icon  = document.getElementById('input_icon');
+    var input_text  = document.getElementById('input_text');
+    var inputLabel  = document.getElementById('lblCarga');
 
-            if (name_file.length >= 12) {                           // Nombres muy largos
-                full_name = name_file;
-                name_file = name_file.substring(0, 14) + ".."; 
-            } else {
-                full_name = "";
-            }
+    if (!input1_file) {
+        console.warn("No existe #ArchivoCarga_file en el DOM.");
+        return;
+    }
 
-            if (name_file !== "") {
-                input_icon.innerHTML = "done_all";                  // Cambia el icono
-                input_text.innerHTML = name_file;                   // Guarda el nombre
-                inputLabel.setAttribute('title', full_name);        // Guarda toda la ruta ?
-                if (cOpc=="Buzon"){
-                    cargaArchivoCsv()
-                }else if(cOpc=="BuzonXls"){
-                    cargaArchivoXls()
-                }else if(cOpc==""){
+    input1_file.addEventListener('change', function () {
 
-                }
-            }
-        });
+        let name_file = input1_file.files[0].name;
+        let full_name = "";
+
+        if (name_file.length >= 12) {
+            full_name = name_file;
+            name_file = name_file.substring(0, 14) + "..";
+        }
+
+        input_icon.innerHTML = "done_all";
+        input_text.innerHTML = name_file;
+        inputLabel.setAttribute('title', full_name);
+
+        // 🟦 Ejecuta la función si fue enviada
+        if (typeof fnAccion === "function") {
+            fnAccion();
+        }
     });
 }
+
+
+// _______________________________________________
+// function efectoBotones(cOpc){
+//     /* Se agrega un escucha para cuando se carga el archivo CSV */
+//     document.addEventListener('DOMContentLoaded', function () {
+//         var input1_file = document.getElementById('ArchivoCarga_file');
+//         var input_icon  = document.getElementById('input_icon');     // Para cambiar el icono
+//         var input_text  = document.getElementById('input_text');     // Para cambiar el texto del boton
+//         var inputLabel  = document.getElementById('lblCarga');   
+// console.log("escucha");
+//         input1_file.addEventListener('change', function (e) {       // Escucha el evento change
+//             name_file = input1_file.files[0].name;
+//             var full_name = "";
+
+//             if (name_file.length >= 12) {                           // Nombres muy largos
+//                 full_name = name_file;
+//                 name_file = name_file.substring(0, 14) + ".."; 
+//             } else {
+//                 full_name = "";
+//             }
+
+//             if (name_file !== "") {
+//                 input_icon.innerHTML = "done_all";                  // Cambia el icono
+//                 input_text.innerHTML = name_file;                   // Guarda el nombre
+//                 inputLabel.setAttribute('title', full_name);        // Guarda toda la ruta ?
+//                 if (cOpc=="CargaEstructuras"){
+//                     CargaValidar('NO')
+//                 }else if(cOpc=="BuzonXls"){
+//                     //cargaArchivoXls()
+//                 }else if(cOpc==""){
+
+//                 }
+//             }
+//         });
+//     });
+// }
 // __________________________________________________________________________________________________________
 function ponArchivoCarga(){
     var input_icon  = document.getElementById('input_icon');     // Para cambiar el icono
@@ -2621,3 +2656,153 @@ function alternaHabilitado(cId){
     element.disabled    = !element.disabled;
 }
 // __________________________________________________________________________________
+async function leerExcelDesdeInput(idInput, headerEsperado = null, reglasColumnas = null, agregarColExtra = false) {
+    return new Promise((resolve) => {
+
+        const input = document.getElementById(idInput); // lee del input file
+        if (!input) {
+            mandaMensaje("Input no encontrado:"+ idInput);
+            return resolve(null);
+        }
+
+        const archivo = input.files[0];
+        if (!archivo) {
+            mandaMensaje("Debe seleccionar primero un archivo XLS/XLSX.");
+            return resolve(null);
+        }
+
+        const lector = new FileReader();
+
+        lector.onload = function(e) {
+            try {
+                const contenido = new Uint8Array(e.target.result);
+
+                const workbook  = XLSX.read(contenido, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet     = workbook.Sheets[sheetName];
+
+                let filas = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                if (filas.length === 0) {
+                    mandaMensaje("El archivo  de Excel está vacío.");
+                    return resolve(null);
+                }
+
+                // 1) Validar si trae encabezado
+                if (Array.isArray(headerEsperado) && headerEsperado.length > 0) {
+                    const encabezado = filas[0];
+                    let coincide = true;
+
+                    for (let i = 0; i < headerEsperado.length; i++) {
+                        if (encabezado[i] !== headerEsperado[i]) {
+                            coincide = false;
+                            break;
+                        }
+                    }
+
+                    if (coincide) filas.shift(); // Quita el encabezado
+                }
+
+                // 2) Validar columnas
+                if (Array.isArray(reglasColumnas)) {
+
+                    const totalColumnas = reglasColumnas.length;
+
+                    const regLetras    = /^[A-Za-z]+$/;
+                    const regNumeros   = /^[0-9]+$/;
+                    const regLetrasNum = /^[A-Za-z0-9]+$/;
+
+                    for (let r = 0; r < filas.length; r++) {
+                        const fila = filas[r];
+
+                        for (let c = 0; c < totalColumnas; c++) {
+
+                            const regla = reglasColumnas[c];
+                            const valor = (fila[c] ?? "").toString().trim();
+
+                            if (valor === "") {
+                                mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Está vacía.`);
+                                return resolve(null);
+                            }
+
+                            switch (regla) {
+                                case "SL":
+                                    if (!regLetras.test(valor)) {
+                                        mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Solo letras.`);
+                                        return resolve(null);
+                                    }
+                                    break;
+                                case "SN":
+                                    if (!regNumeros.test(valor)) {
+                                        mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Solo números.`);
+                                        return resolve(null);
+                                    }
+                                    break;
+                                case "SLN":
+                                    if (!regLetrasNum.test(valor)) {
+                                        mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Solo letras y números.`);
+                                        return resolve(null);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                // 3) Agregar columna extra vacía si se pidió
+                if (agregarColExtra) {
+                    for (let i = 0; i < filas.length; i++) {
+                        filas[i].push(""); // ← consesin valor 
+                    }
+                }
+
+                return resolve(filas);
+
+            } catch (err) {
+                mandaMensaje("Error leyendo Excel: " + err);
+                resolve(null);
+            }
+        };
+
+        lector.onerror = () => resolve(null);
+
+        lector.readAsArrayBuffer(archivo);
+    });
+}
+
+// ___________________________________________________________
+function poblarTablaCargaEstructuras(datos,cMensajeError="NO PERMITIDO") {
+    const cuerpo = document.getElementById("cuerpo");
+
+    if (!cuerpo) {
+        console.warn("No se encontró el tbody con id='cuerpo'");
+        return;
+    }
+
+    // Limpia contenido previo
+    cuerpo.innerHTML = "";
+
+    // Recorre cada fila del arreglo
+    datos.forEach(fila => {
+
+        const tr = document.createElement("tr");
+
+        // Cada elemento de la fila se transforma en un <td>
+        fila.forEach(celda => {
+            const td = document.createElement("td");
+
+            // Si la celda contiene mensaje de error, marcarla visualmente
+            if (typeof celda === "string" && celda.toUpperCase().includes(cMensajeError)) {
+                td.style.color = "red";
+                td.style.fontWeight = "bold";
+            }
+
+            td.textContent = celda;
+            tr.appendChild(td);
+        });
+
+        cuerpo.appendChild(tr);
+    });
+}
+
+// ___________________________________________________________

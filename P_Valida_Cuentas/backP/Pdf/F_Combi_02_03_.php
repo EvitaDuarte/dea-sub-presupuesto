@@ -13,7 +13,7 @@ if ( !isset($_SESSION['ValCtasClave'])){
 }
 
 require_once $_SESSION['vendor'];
-require_once "C_Pdf_2_.php";
+require_once "Pdo/C_Pdf_2_.php";
 
 // _____________________________________________
 function pdf_Combi($detalle,&$r){

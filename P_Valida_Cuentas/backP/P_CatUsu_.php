@@ -13,7 +13,7 @@
 	require_once($_SESSION['conW']);
 	require_once("P_rutinas_.php");
 	require_once("M_Catalogos_.php");
-	require_once("C_Usuarios_.php");
+	require_once("Pdo/C_Usuarios_.php");
 	try{
 		$idUsuario  = $_SESSION['ValCtasClave'];
 	    $param	 	= json_decode(file_get_contents("php://input"), true);

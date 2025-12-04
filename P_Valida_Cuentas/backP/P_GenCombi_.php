@@ -12,8 +12,8 @@
 	}
 	require_once($_SESSION['conW']);
 	require_once("P_rutinas_.php");
-	require_once("C_Urs_.php");
-	require_once("C_Combinacion_.php");
+	require_once("Pdo/C_Urs_.php");
+	require_once("Pdo/C_Combinacion_.php");
 	try{
 		$idUsuario  = $_SESSION['ValCtasClave'];
 	    $param	 	= json_decode(file_get_contents("php://input"), true);

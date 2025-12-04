@@ -12,7 +12,7 @@
 	}
 	require_once($_SESSION['conW']);
 	require_once("P_rutinas_.php");
-	require_once("C_Proyecto_.php");
+	require_once("Pdo/C_Proyecto_.php");
 
 	try{
 	    // ──────────────────────────────────────────

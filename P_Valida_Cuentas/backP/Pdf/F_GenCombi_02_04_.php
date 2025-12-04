@@ -1,6 +1,6 @@
 <?php
 require_once $_SESSION['vendor'];
-require_once "C_Pdf_2_.php";
+require_once "Pdo/C_Pdf_2_.php";
 
 // _____________________________________________
 function pdf_PreCombi($detalle,&$r){
