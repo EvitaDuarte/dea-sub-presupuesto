@@ -2656,12 +2656,131 @@ function alternaHabilitado(cId){
     element.disabled    = !element.disabled;
 }
 // __________________________________________________________________________________
-async function leerExcelDesdeInput(idInput, headerEsperado = null, reglasColumnas = null, agregarColExtra = false) {
+// async function leerExcelDesdeInput(idInput, headerEsperado = null, reglasColumnas = null, agregarColExtra = false) {
+//     return new Promise((resolve) => {
+
+//         const input = document.getElementById(idInput); // lee del input file
+//         if (!input) {
+//             mandaMensaje("Input no encontrado:"+ idInput);
+//             return resolve(null);
+//         }
+
+//         const archivo = input.files[0];
+//         if (!archivo) {
+//             mandaMensaje("Debe seleccionar primero un archivo XLS/XLSX.");
+//             return resolve(null);
+//         }
+
+//         const lector = new FileReader();
+
+//         lector.onload = function(e) {
+//             try {
+//                 const contenido = new Uint8Array(e.target.result);
+
+//                 const workbook  = XLSX.read(contenido, { type: 'array' });
+//                 const sheetName = workbook.SheetNames[0];
+//                 const sheet     = workbook.Sheets[sheetName];
+
+//                 let filas = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+//                 if (filas.length === 0) {
+//                     mandaMensaje("El archivo  de Excel está vacío.");
+//                     return resolve(null);
+//                 }
+
+//                 // 1) Validar si trae encabezado
+//                 if (Array.isArray(headerEsperado) && headerEsperado.length > 0) {
+//                     const encabezado = filas[0];
+//                     let coincide = true;
+
+//                     for (let i = 0; i < headerEsperado.length; i++) {
+//                         if (encabezado[i] !== headerEsperado[i]) {
+//                             coincide = false;
+//                             break;
+//                         }
+//                     }
+
+//                     if (coincide) filas.shift(); // Quita el encabezado
+//                 }
+
+//                 // 2) Validar columnas
+//                 if (Array.isArray(reglasColumnas)) {
+
+//                     const totalColumnas = reglasColumnas.length;
+
+//                     const regLetras    = /^[A-Za-z]+$/;
+//                     const regNumeros   = /^[0-9]+$/;
+//                     const regLetrasNum = /^[A-Za-z0-9]+$/;
+
+//                     for (let r = 0; r < filas.length; r++) {
+//                         const fila = filas[r];
+
+//                         for (let c = 0; c < totalColumnas; c++) {
+
+//                             const regla = reglasColumnas[c];
+//                             const valor = (fila[c] ?? "").toString().trim();
+
+//                             if (valor === "") {
+//                                 mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Está vacía.`);
+//                                 return resolve(null);
+//                             }
+
+//                             switch (regla) {
+//                                 case "SL":
+//                                     if (!regLetras.test(valor)) {
+//                                         mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Solo letras.`);
+//                                         return resolve(null);
+//                                     }
+//                                     break;
+//                                 case "SN":
+//                                     if (!regNumeros.test(valor)) {
+//                                         mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Solo números.`);
+//                                         return resolve(null);
+//                                     }
+//                                     break;
+//                                 case "SLN":
+//                                     if (!regLetrasNum.test(valor)) {
+//                                         mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Solo letras y números.`);
+//                                         return resolve(null);
+//                                     }
+//                                     break;
+//                             }
+//                         }
+//                     }
+//                 }
+
+//                 // 3) Agregar columna extra vacía si se pidió
+//                 if (agregarColExtra) {
+//                     for (let i = 0; i < filas.length; i++) {
+//                         filas[i].push(""); // ← consesin valor 
+//                     }
+//                 }
+
+//                 return resolve(filas);
+
+//             } catch (err) {
+//                 mandaMensaje("Error leyendo Excel: " + err);
+//                 resolve(null);
+//             }
+//         };
+
+//         lector.onerror = () => resolve(null);
+
+//         lector.readAsArrayBuffer(archivo);
+//     });
+// }
+// ___________________________________________________________
+async function leerExcelDesdeInput(idInput,headerEsperado = null,   // Ej. ["A","B","C"]
+    reglasColumnas = null,   // Ej. ["SL","SN","SLN"]
+    agregarColExtra = false, // true/false
+    numColumnas = null       // Ej. 9
+) {
+
     return new Promise((resolve) => {
 
-        const input = document.getElementById(idInput); // lee del input file
+        const input = document.getElementById(idInput);
         if (!input) {
-            mandaMensaje("Input no encontrado:"+ idInput);
+            mandaMensaje("Input no encontrado: " + idInput);
             return resolve(null);
         }
 
@@ -2676,19 +2795,37 @@ async function leerExcelDesdeInput(idInput, headerEsperado = null, reglasColumna
         lector.onload = function(e) {
             try {
                 const contenido = new Uint8Array(e.target.result);
-
-                const workbook  = XLSX.read(contenido, { type: 'array' });
+                const workbook  = XLSX.read(contenido, { type: "array" });
                 const sheetName = workbook.SheetNames[0];
                 const sheet     = workbook.Sheets[sheetName];
 
                 let filas = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
                 if (filas.length === 0) {
-                    mandaMensaje("El archivo  de Excel está vacío.");
+                    mandaMensaje("El archivo de Excel está vacío.");
                     return resolve(null);
                 }
 
-                // 1) Validar si trae encabezado
+                // -----------------------------------------------------
+                // 1) FILTRAR FILAS VACÍAS
+                // -----------------------------------------------------
+                filas = filas.filter(fila => {
+                    if (!Array.isArray(fila)) return false;
+                    return fila.some(celda =>
+                        celda !== null &&
+                        celda !== undefined &&
+                        String(celda).trim() !== ""
+                    );
+                });
+
+                if (filas.length === 0) {
+                    mandaMensaje("Todas las filas del archivo están vacías.");
+                    return resolve(null);
+                }
+
+                // -----------------------------------------------------
+                // 2) VALIDAR ENCABEZADO (si se pide)
+                // -----------------------------------------------------
                 if (Array.isArray(headerEsperado) && headerEsperado.length > 0) {
                     const encabezado = filas[0];
                     let coincide = true;
@@ -2700,31 +2837,65 @@ async function leerExcelDesdeInput(idInput, headerEsperado = null, reglasColumna
                         }
                     }
 
-                    if (coincide) filas.shift(); // Quita el encabezado
+                    if (coincide) {
+                        filas.shift(); // Quitar encabezado
+                    }
                 }
 
-                // 2) Validar columnas
+                // -----------------------------------------------------
+                // 3) NORMALIZAR AL NÚMERO DE COLUMNAS
+                // -----------------------------------------------------
+                if (numColumnas !== null) {
+                    filas = filas.map((fila) => {
+                        // recortar columnas de más
+                        if (fila.length > numColumnas) {
+                            fila = fila.slice(0, numColumnas);
+                        }
+
+                        // rellenar columnas faltantes
+                        if (fila.length < numColumnas) {
+                            fila = [...fila, ...Array(numColumnas - fila.length).fill("")];
+                        }
+
+                        return fila;
+                    });
+                }
+
+                // -----------------------------------------------------
+                // 4) VALIDACIÓN DE COLUMNAS
+                // -----------------------------------------------------
                 if (Array.isArray(reglasColumnas)) {
 
                     const totalColumnas = reglasColumnas.length;
+
+                    // Validar que filas tengan el número exacto
+                    for (let i = 0; i < filas.length; i++) {
+                        if (filas[i].length !== totalColumnas) {
+                            mandaMensaje(
+                                `Fila ${i + 1}: número incorrecto de columnas `
+                                + `(${filas[i].length} en lugar de ${totalColumnas}).`
+                            );
+                            return resolve(null);
+                        }
+                    }
 
                     const regLetras    = /^[A-Za-z]+$/;
                     const regNumeros   = /^[0-9]+$/;
                     const regLetrasNum = /^[A-Za-z0-9]+$/;
 
                     for (let r = 0; r < filas.length; r++) {
-                        const fila = filas[r];
-
                         for (let c = 0; c < totalColumnas; c++) {
 
                             const regla = reglasColumnas[c];
-                            const valor = (fila[c] ?? "").toString().trim();
+                            const valor = (filas[r][c] ?? "").toString().trim();
 
+                            // celda vacía
                             if (valor === "") {
                                 mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Está vacía.`);
                                 return resolve(null);
                             }
 
+                            // validar según reglas
                             switch (regla) {
                                 case "SL":
                                     if (!regLetras.test(valor)) {
@@ -2732,12 +2903,14 @@ async function leerExcelDesdeInput(idInput, headerEsperado = null, reglasColumna
                                         return resolve(null);
                                     }
                                     break;
+
                                 case "SN":
                                     if (!regNumeros.test(valor)) {
                                         mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Solo números.`);
                                         return resolve(null);
                                     }
                                     break;
+
                                 case "SLN":
                                     if (!regLetrasNum.test(valor)) {
                                         mandaMensaje(`Fila ${r+1}, Columna ${c+1}: Solo letras y números.`);
@@ -2749,10 +2922,12 @@ async function leerExcelDesdeInput(idInput, headerEsperado = null, reglasColumna
                     }
                 }
 
-                // 3) Agregar columna extra vacía si se pidió
+                // -----------------------------------------------------
+                // 5) OPCIÓN DE AGREGAR COLUMNA EXTRA
+                // -----------------------------------------------------
                 if (agregarColExtra) {
                     for (let i = 0; i < filas.length; i++) {
-                        filas[i].push(""); // ← consesin valor 
+                        filas[i].push("");
                     }
                 }
 
@@ -2765,7 +2940,6 @@ async function leerExcelDesdeInput(idInput, headerEsperado = null, reglasColumna
         };
 
         lector.onerror = () => resolve(null);
-
         lector.readAsArrayBuffer(archivo);
     });
 }

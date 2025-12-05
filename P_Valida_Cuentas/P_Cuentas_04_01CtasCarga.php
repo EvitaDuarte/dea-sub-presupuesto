@@ -19,7 +19,7 @@
             <div id="main_container">    
                 <?php include('P_Cuentas00_MenuPrincipal.php'); // Incluye el menú principal?>
                 <section class="datos-personales2">
-                    <h2 class="titleM">Carga de Información Excel</h2>
+                    <h2 class="titleM">Carga Estructuras desde Excel</h2>
                     <div class="container-data">
                         <div class="data-form">
                             <div class="wrapper">

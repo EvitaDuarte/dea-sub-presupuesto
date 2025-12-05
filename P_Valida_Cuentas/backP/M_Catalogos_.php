@@ -5,7 +5,9 @@
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 // _______________________________  
-
+//define("VALIDA"		, "Estructura Válida");
+// define("XREVISAR"	, "Estructura a revisar");
+// define("YAEXISTE"	, "Ya existe combinación en siga -----");
 class metodos{
 	//  ______________________________________________________________________________
 	public static function trae_Id_unidades(){
@@ -70,9 +72,9 @@ class metodos{
 		return count($aRen)>0;	// true si existe y esta activa
 	}
 	//  ___________________________________________________________________
-	public static function validaCuentaMayor($cta,$ptda,$scta){
-		$sql1 = "select compramenor,ordencompra,contactamay from partidas where partida=:ptda'  ";
-		$aRen = ejecutaSQL($sql,[":ptda"=>$ptda]);
+	public static function valida_CuentaMayor($cta,$ptda,$scta){
+		$sql1 = "select compramenor,ordencompra,contactamay from partidas where partida=:ptda ";
+		$aRen = ejecutaSQL_($sql1,[":ptda"=>$ptda]);
 		if (count($aRen)>0){
 			if ($scta=="00000"){
 				if ( ( trim($cta)==$aRen[0]["compramenor"] ) or (trim($cta)==$aRen[0]["ordencompra"] )  ){
@@ -113,18 +115,18 @@ class metodos{
 		);
 	}
 	//  ___________________________________________________________________
-	public static function validaUrPpSpg($ur,$ai,$pp,$spg){
+	public static function valida_UrPpSpg($ur,$ai,$pp,$spg){
 		$tipo  = substr($ur,0,2);
 		$tipo  = ($tipo=="OF") ? $ur : "AGZS";
 		$sql1  = "select tur, pp, spg from v_ur_pp_spg where tur=:tipo and pp=:pp and spg=:spg ";
-		$aRen  = ejecutaSQL($sql1,[":tipo"=>$tipo,":pp"=>$pp,":spg"=>$spg]);
+		$aRen  = ejecutaSQL_($sql1,[":tipo"=>$tipo,":pp"=>$pp,":spg"=>$spg]);
 		if (count($aRen)>0){
 			return true;
 		}else{
 			if (substr($ur,0,2)=="OF"){
 				$tipo  = "OFCE";	// Hay combinaciones que son para todas las OF y asi estan etiquetadas en la tabla $v_ur_pp_spg
 				$sql1  = "select tur, pp, spg from v_ur_pp_spg where tur=:tipo and pp=:pp and spg=:spg ";
-				$aRen  = ejecutaSQL($sql1, [":tipo"=>$tipo,":pp"=>$pp,":spg"=>$spg] );
+				$aRen  = ejecutaSQL_($sql1, [":tipo"=>$tipo,":pp"=>$pp,":spg"=>$spg] );
 				if (count($aRen)>0){
 					return true;
 				}
@@ -133,12 +135,12 @@ class metodos{
 		return false;
 	}
 	//  ___________________________________________________________________
-	public static function validaProyectoUr($py,$ur,&$vDigito){
+	public static function valida_ProyectoUr($py,$ur,&$vDigito){
 		$vDig  = substr($py,-1,1); $py = substr($py,0,6);  
 		// Buscar en las precombi el proyecto a 6 posiciones
 		$sql = "select clvpy from precombi where left(clvpy,6)='$py' and geografico='SI' "; 
 		// var_ dump("Sql=$sql vDig=$vDig Py=$py");
-		if ( ejecutaSQL($sql)!=null ){ // Si es geográfico
+		if ( ejecutaSQL_($sql)!=null ){ // Si es geográfico
 			$vDigito = getCampo("select unidad_digito as salida from unidades where unidad_id='" . $ur. "' ");
 			return ( $vDig==$vDigito );
 		}else{ // No esta, no es geografico
@@ -146,8 +148,55 @@ class metodos{
 		}
 	} 
 	//  ___________________________________________________________________
+	public static function valida_PySiga($vPy,$soap,$validaPy){
+		$lRegresa = false;
+
+		if ($validaPy=="N"){ // EN el PHP 5 validaPy trae true o false. Aqúi se toma lo que esta en la tabla soap
+			return true;	
+		}
+
+		try{
+			$params  = Array("PROYECTO"=> $vPy);		// PROYECTO se definio en el WS
+			$aPy     = json_decode(json_encode($soap->consultaProyectos($params)),true); 
+			if (isset($aPy["proyectos"])){
+				if ( count($aPy["proyectos"]) > 0 ){ // Se encontró el proyecto
+					$lRegresa = true;
+				}
+			}
+		}catch(Exception $fault) {
+			$cError = "Falla Conexión SIGA verificaPySiga: (Código: {$fault->faultcode}, Descripción: {$fault->faultstring})";
+	    	throw new Exception($cError);
+		}
+		return $lRegresa;
+	}
 	//  ___________________________________________________________________
+	public static function valida_Combinacion($cUr,$cAi,$cScta,$cPp,$cSpg,$cPy){
+		$sql1 = "select clvcos,clvai,clvscta,clvpp,clvspg,clvpy from combinaciones where " . 
+			   "clvcos=:ur and clvai=:ai and clvscta=:scta and clvpp=:pp and clvspg=:spg and clvpy=:py " ;
+		$aRen = ejecutaSQL_($sql1,[":ur"=>$cUr,":ai"=>$cAi,":scta"=>$cScta,":pp"=>$cPp,":spg"=>$cSpg,":py"=>$cPy]);
+		return count($aRen)>0;
+	}
 	//  ___________________________________________________________________
+	public static function solicitada_Anteriormente($ine,$ur,$cta,$scta,$ai,$pp,$spg,$py,$ptda,&$cEdo){
+		$sql = "";
+		for ($i=0;$i<=1;$i++){
+			if ($i==0){
+				$sql   = "select (noenvio || '_' || estado ) as salida from epvalidas  ";
+			}else{
+				$sql   = "select (noenvio || '_' || estado ) as salida from epinvalidas  "; 
+			}
+			$where = " where ine=:ine and clvcos=:ur and mayor=:cta and subcuenta=:scta and clvai=:ai and clvpp=:pp and ".
+					 " clvspg=:spg and clvpy=:py and clvpar=:ptda";
+			$param = [":ine"=>$ine,":ur"=>$ur,":cta"=>$cta,":scta"=>$scta,":ai"=>$ai,":pp"=>$pp,":spg"=>$spg,":py"=>$py,":ptda"=>$ptda];
+			$sql1  = $sql . $where;
+			$val   = getCampo($sql1,$param);
+			if ($val!=""){ // Ya existe
+				$cEdo = $val;
+				return true;
+			}
+		}
+		return false;
+	}
 	//  ___________________________________________________________________
 	//  ___________________________________________________________________
 	//  ___________________________________________________________________

@@ -50,12 +50,11 @@ async function procesarRespuesta__(vRes) {
 			gUrLis		= vRes.urLis;
 			gUrlCtas	= vRes.urlCtas;
 			gUrlPys		= vRes.urlPys;
-			gValidaPY	= vRes.validaPY;
-			//console.log(` ${gUrIni} ${gUrFin} ${gUrLis} `);
+			gValidaPY	= vRes.validaPy;
 		break;
 		// ______________________________
 		case "validarCarga":
-			poblarTablaCargaEstructuras(vRes.aXls,"NO PERMITIDO");
+			poblarTablaCargaEstructuras(vRes.aXls,"NP");
 		break;
 		// ______________________________
 
@@ -92,25 +91,31 @@ async function procesarError__(vRes) {
 async function CargaValidar(cWs){
 	// Leer y guardar en un arreglo el contenido del archivo XLS
 	lColExtra	= true;
+	numColumnas = 9; // No se incluye la Columna extra para el Estado
 	aEnca   	= ["INE","UR","CUENTA"]; // alguno de los posibles encabezados
 	//              INE    UR     CUENTA  SCTA    AI     PP    SPG    PY      PTDA
 	aReglas 	= ["SL" , "SLN" , "SN" , "SLN" , "SN" , "SLN", "SN" , "SLN" , "SN" ]; // SoloLetras, SoloLetrasNumeros, SoloNumeros
 
-	aXls		= await leerExcelDesdeInput("ArchivoCarga_file", aEnca, aReglas , lColExtra);
-	if (aXls==null){
+	aXlsOri		= await leerExcelDesdeInput("ArchivoCarga_file", aEnca, aReglas , lColExtra,numColumnas);
+	if (aXlsOri==null){
 		return false;
 	}
+	// Quitar duplicados
+	const aXls = Array.from(
+	  new Set(aXlsOri.map(row => JSON.stringify(row)))
+	).map(row => JSON.parse(row));
+	// - Verificar rango de URS permitidos
 	aXls.forEach((xls) => {
 		cUr	 = xls[1]; // la Ur
 		$lOk = false;
 		if ( (cUr>=gUrIni && cUr<=gUrFin) || ( gUrLis && gUrLis.split(",").includes(cUr) ) ){
 
 		}else{
-			xls[9] = `Rango de Urs no permitido ${cUr} -> { [${gUrIni}, ${gUrFin}]  ${gUrLis} } `;
+			xls[9] = `NP Rango de Urs no permitido ${cUr} -> { [${gUrIni}, ${gUrFin}]  ${gUrLis} } `;
 		}
 	});
 	//console.log("Arreglo XLS",aXls);
-	poblarTablaCargaEstructuras(aXls,"NO PERMITIDO");
+	poblarTablaCargaEstructuras(aXls,"NP");
 
 	aParametros = {
 		opcion	: "validarCarga",
@@ -120,6 +125,7 @@ async function CargaValidar(cWs){
 		validaPY: gValidaPY,
 		cWs		: cWs
 	}
+	//console.log(aParametros);
 	conectayEjecutaPost(aParametros,cPhp)
 }
 // ________________________________________________________________________
