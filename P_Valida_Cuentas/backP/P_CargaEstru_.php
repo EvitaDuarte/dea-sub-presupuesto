@@ -6,6 +6,7 @@
 	define("XREVISAR"	, "Estructura a revisar");
 	define("YAEXISTE"	, "Ya existe combinación en siga -----");
 	define("IDXEDO"		, 9);
+	define("SCTACONTA"	, "99999");
 	date_default_timezone_set('America/Mexico_City');
 	if (session_status() === PHP_SESSION_NONE) {
 	    session_start();
@@ -17,11 +18,13 @@
 	require_once($_SESSION['conW']);
 	require_once("P_rutinas_.php");
 	require_once("M_Catalogos_.php");
+	require_once("Pdo/C_Estructuras_.php"); // Clase para manejar insert update a epvalidas y epinvalidas(a revisar)
 	try{
 		$idUsuario  = $_SESSION['ValCtasClave'];
+		$urUsu		= $_SESSION['ValCtasUrUsu']; // Revisar trae un 1 , en lugar de la UR
 	    $param	 	= json_decode(file_get_contents("php://input"), true);
 	    $cOpc		= $param["opcion"];
-	    $regreso	= array('success' => false , 'mensaje' => '' , 'idUsu'=>$idUsuario , 'parametros'=>$param );
+	    $regreso	= array('success' => false , 'mensaje' => '' , 'idUsu'=>$idUsuario ,'parametros'=>$param );
 
 
 	    switch ($cOpc){
@@ -41,7 +44,9 @@
 	    		valida_Siga($param,$regreso);
 	    	break;
 			//___________________________________
-
+	    	case "EnviarEstructuras":
+	    		EnviarEstructuras($param,$regreso);
+	    	break;
 			//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Carga Estructuras";
@@ -65,6 +70,7 @@ function traer_UrIni_UrFin($p,&$r){
 		$r["urIni"]		= $aRen[0]["unidad_inicio"];
 		$r["urFin"]		= $aRen[0]["unidad_fin"];
 		$r["urLis"]		= $aRen[0]["listaurs"];
+		$r["urUsu"]		= $aRen[0]["unidad_id"];
 
 		$aRen = metodos::trae_urls_soap();
 
@@ -175,6 +181,39 @@ function valida_Siga($p,&$r){
 	$r["success"]	= true;
 }
 // _______________________________________________________
+function EnviarEstructuras($p,&$r){
+	global $conn_pdo;
+	$nRenV = 0; $nRenI = 0;
+	try{
+		$conn_pdo->beginTransaction();
+		$cNoEnvio = metodos::numeroEnvio($p["urUsu"],date('Y')); //  date('Y-m-d-h:i:s', time());
+		$cUsuario = $r["idUsu"];
+		$aEstru   = $p["datos"];
+		$oEstruc  = new Estructura();
+		foreach ($aEstru as $vEstru ) {
+			$cArea = ($vEstru["subcuenta"]===SCTACONTA)?"C":"P";
+			$cEdo  = $vEstru["estado"];
+			$oEstruc->cargaEstructura($vEstru);
+			$oEstruc->cargaComplemento($cNoEnvio,$cUsuario,$cArea);
+			if ( $oEstruc->actualizaEstructura() ){
+				if ($cEdo===VALIDA){
+					$nRenV++;
+				}else{
+					$nRenI++;					
+				}
+			}
+		}
+		$conn_pdo->commit();
+		$r["success"] = true;
+		$r["mensaje"] = "Se envió la solicitud de alta de  $nRenV estructuras válidas y $nRenI estructuras a Revisar. Se tiene que esperar su alta en el SIGA por parte  de contabilidad y/o Presupuesto";
+
+	}catch(Exception $e){
+		$r["mensaje"] = "Ocurrio una inconsitencia en EnviarEstructuras ";
+		$r["error"]   = $e->getMessage();
+		$conn_pdo->rollBack();
+	}
+
+}
 // _______________________________________________________
 // _______________________________________________________
 

@@ -55,7 +55,7 @@ class metodos{
 	}
 	//  ___________________________________________________________________
 	public static function trae_Ur_Ini_Fin($cUsu){
-		$sql1 = "select unidad_inicio, unidad_fin, listaurs from public.usuarios where usuario_id=:usuario_id";
+		$sql1 = "select unidad_inicio, unidad_fin, listaurs,unidad_id from public.usuarios where usuario_id=:usuario_id";
 		$aRen = ejecutaSQL_($sql1,[":usuario_id"=>$cUsu]);
 		return $aRen;
 	}
@@ -198,6 +198,27 @@ class metodos{
 		return false;
 	}
 	//  ___________________________________________________________________
+	public static function numeroEnvio($vUr,$vAnio){
+		$regreso 	  = null;
+		$sql1 		  = "select consecutivo  as salida from consecutivos where ur=:ur and anio=:anio";
+		$vConsecutivo = getCampo($sql1,[":ur"=>$vUr,":anio"=>$vAnio]);
+
+		if ($vConsecutivo==""){
+			$vConsecutivo = 1 ;
+			$sql1 = "insert into consecutivos( ur, anio, consecutivo) values (:ur,:anio,:consecutivo )";
+		}else{
+			$vConsecutivo = intval($vConsecutivo)+1;
+			$sql1 = "update consecutivos set consecutivo=:consecutivo where ur=:ur and anio=:anio " ;
+		}
+		$nRen = actualizaSql($sql1,[":ur"=>$vUr,":anio"=>$vAnio,":consecutivo"=>$vConsecutivo]);
+		if ( $nRen>0 ){
+			$vConsecutivo = str_pad(intval($vConsecutivo),6,"0",STR_PAD_LEFT);
+			$regreso = ($vUr . $vAnio . $vConsecutivo); 
+		}
+		//var_ dump($regreso);
+		return $regreso;
+
+	}
 	//  ___________________________________________________________________
 	//  ___________________________________________________________________
 }

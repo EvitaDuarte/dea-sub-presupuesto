@@ -92,13 +92,36 @@ function ejecutaSQL_P($sql,$params,$conexion){	// Regresa un arreglo
     return $resultados;
 }*/
 // _____________________________________________________________________________
-function actualizaSql($sql,$params=[]){ // Update, Insert, Delete
-	global $conn_pdo;// Si no se lo pongo me manda error en el $sql 
-	$regreso	= null;
-	$stmt 		= $conn_pdo->prepare($sql); // Prepara el SQL
-	$stmt->execute($params);//  or die ("1 No se pudo ejecutar la consulta, $sql");
-	$regreso	= $stmt->rowCount();// Número de renglones afectados
-	return $regreso;
+// function actualizaSql($sql,$params=[]){ // Update, Insert, Delete
+// 	global $conn_pdo;// Si no se lo pongo me manda error en el $sql 
+// 	$regreso	= null;
+// 	$stmt 		= $conn_pdo->prepare($sql); // Prepara el SQL
+// 	$stmt->execute($params);//  or die ("1 No se pudo ejecutar la consulta, $sql");
+// 	$regreso	= $stmt->rowCount();// Número de renglones afectados
+// 	return $regreso;
+// }
+// _____________________________________________________________________________
+function actualizaSql($sql, $params = []) { 
+    global $conn_pdo;
+
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Hacer bind de cada parámetro con su tipo real
+    foreach ($params as $key => $value) {
+        if (is_bool($value)) {
+            $stmt->bindValue($key, $value, PDO::PARAM_BOOL);
+        } elseif (is_null($value)) {
+            $stmt->bindValue($key, null, PDO::PARAM_NULL);
+        } elseif (is_int($value)) {
+            $stmt->bindValue($key, $value, PDO::PARAM_INT);
+        } else {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
+    }
+
+    $stmt->execute();
+
+    return $stmt->rowCount();
 }
 // _____________________________________________________________________________
 function contar($sql){ // Usar para contar con select 

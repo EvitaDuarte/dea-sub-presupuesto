@@ -17,9 +17,11 @@ var gConfigura  = null;							// select id,nombre,valor,tipo from configuracion
 var gUrIni		= "";							// Urs permitidas 
 var gUrFin		= "";
 var gUrLis		= "";
+var gUrUsu		= "";
 var gUrlCtas	= "";							// url para validar via soap una estructura
 var gUrlPys		= "";							// url para validar via sopa un proyecto
 var gValidaPY	= "";							// 'S' si se requiere validar el proyecto( o si es geográfico)??
+var gEstructuras= null;							// Para guardar las estructuras que se enviarán al SIGA
 // ________________________________________________________________________
 window.onload = function () {		// Función que se ejecuta al cargar la página HTML que invoca a este JS
 	// Se obtiene el nombre del archivo que lo invoca
@@ -48,6 +50,7 @@ async function procesarRespuesta__(vRes) {
 			gUrIni		= vRes.urIni;
 			gUrFin		= vRes.urFin;
 			gUrLis		= vRes.urLis;
+			gUrUsu		= vRes.urUsu;
 			gUrlCtas	= vRes.urlCtas;
 			gUrlPys		= vRes.urlPys;
 			gValidaPY	= vRes.validaPy;
@@ -57,7 +60,8 @@ async function procesarRespuesta__(vRes) {
 			poblarTablaCargaEstructuras(vRes.aXls,"NP");
 		break;
 		// ______________________________
-
+		case "EnviarEstructuras":
+		break;
 		// ______________________________
 		// ______________________________
 
@@ -134,5 +138,67 @@ function traeUrIniUrFin(){
 		opcion : "traer_UrIni_UrFin"
 	}
 	conectayEjecutaPost(aParametros,cPhp);
+}
+// ________________________________________________________________________
+function CargaEnviar(){
+	if (SiNoSeCargoArchivoXls()){
+		return false;
+	}
+	if (SiNoHayDatosaEnviar()){
+		mandaMensaje("No hay estructuras válidas o a revisar para enviar.");
+		return false
+	}
+	aParametros = {
+		opcion : "EnviarEstructuras",
+		datos  : gEstructuras,
+		urUsu  : gUrUsu
+	}
+	conectayEjecutaPost(aParametros,cPhp);
+}
+// ________________________________________________________________________
+function SiNoSeCargoArchivoXls(){
+	
+	const vArchivo 	= document.getElementById("ArchivoCarga_file").files[0];
+	if (vArchivo==undefined){
+		mandaMensaje("Se requiere haber procesado primero un archivo XLS ");
+		return true;
+	}
+	const filas  = document.getElementById("cuerpo").rows;
+	if (filas.length==0){ // ya se cargo el archivo XLS, pero no se ha dado clic en Revisar (aunque al cargarlo se revisa en automático)
+		mandaMensaje("De clic en el botón de VALIDAR ");
+		return true;
+	}
+	return false;
+}
+// ________________________________________________________________________
+function SiNoHayDatosaEnviar() {
+
+	gEstructuras	= [];
+	const aCol 		= ["ine", "clvcos", "mayor", "subcuenta", "clvai", "clvpp", "clvspg", "clvpy", "clvpar", "estado"];
+    let lNohayDatos = true;
+    const filas		= document.getElementById("cuerpo").rows; // Body de la tabla HTML
+
+    for (const fila of filas) {
+        const cEstado = fila.cells[9];  // celda 10
+
+        if (!cEstado) continue;
+
+        const texto = cEstado.textContent.trim();
+
+        if (texto.startsWith("Estructura")) {
+            lNohayDatos = false;
+            // Convertimos la fila en un objeto con propiedades definidas en aCol
+            const filaObj = {};
+            Array.from(fila.cells).forEach((celda, idx) => {
+                const nombreProp = aCol[idx] || `columna${idx}`;
+                filaObj[nombreProp] = celda.textContent.trim();
+            });
+
+            gEstructuras.push(filaObj);
+            //  break;   // ← rompe el bucle inmediatamente
+        }
+    }
+
+    return lNohayDatos;
 }
 // ________________________________________________________________________

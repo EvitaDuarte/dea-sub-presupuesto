@@ -101,6 +101,7 @@ function validaCredenciales(&$validador){
 					$validador["resultados"]	  = $v_Datos;
 					$validador["success"] 		  = true;
 					// Genera variables de Sesión
+					$_SESSION['ValCtasUrUsu']		= $v_Datos[0]; // Ur del usuario segun Ldap
 					$_SESSION['ValCtasClave']		= $v_Datos[1];
 					$_SESSION['ValCtasApellidos']	= $v_Datos[3];
 					$_SESSION['ValCtasNombres']		= $v_Datos[4];

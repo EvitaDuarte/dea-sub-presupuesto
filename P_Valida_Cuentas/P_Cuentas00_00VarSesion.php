@@ -22,6 +22,7 @@
         header("Location: P_Cuentas00_Salir.php"); //exit;
     }else{
         // Se recuperan variables de sesion
+        $usrUr        = $_SESSION['ValCtasUrUsu'];
         $usrClave     = $_SESSION['ValCtasClave'];
         $usrApellidos = $_SESSION['ValCtasApellidos'];
         $usrNombres   = $_SESSION['ValCtasNombres'];
