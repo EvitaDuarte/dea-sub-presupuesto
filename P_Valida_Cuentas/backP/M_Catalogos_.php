@@ -220,6 +220,14 @@ class metodos{
 
 	}
 	//  ___________________________________________________________________
+	public static function trarCorreoPtoConta(){
+		$sql1 = "select valor from public.configuracion where id=1 or id=2 or id=20 or id=21 order by id";
+		$aRen = ejecutaSQL_($sql1);
+		if (count($aRen)==4){
+			return $aRen;
+		}
+		return null;
+	}
 	//  ___________________________________________________________________
 }
 ?>

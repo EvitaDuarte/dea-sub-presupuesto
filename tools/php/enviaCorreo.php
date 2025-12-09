@@ -10,45 +10,123 @@ require_once  '../../tools/PHPMailer/src/Exception.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-function EnviaCorreo($destino, $origen, $asunto, $cuerpo, &$v_mensaje, $archivoAdjunto = null) {
-    $mail = new PHPMailer(true); // Modo excepciones
+function EnviaCorreo($destino, $origen, $asunto, $cuerpo, &$v_mensaje, $v_UsuGene, $v_PassGene, $archivoAdjunto = null){
+    $v_mensaje = "";
 
-    try {
-        $mail->isSMTP();
-        $mail->Host       = 'correo.ife.org.mx';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'oficios.dea';
-        $mail->Password   = 'hBS13bKxT';
-        $mail->Port       = 465;
-        // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // No debe activarse, por como esta configurado la cuenta del INE
+    // Separar varios correos
+    $aCorreos = array_map('trim', explode(";", $destino));
 
-        // Remitente y destinatario
-        // $mail->setFrom('oficios.dea@ife.org.mx', 'Oficinas Centrales DEA-DRF'); // ❗ No funciono
-        $mail->setFrom($origen, 'Oficinas Centrales DEA-DRF'); // ❗ Usa el mismo que el Username
-        $mail->addAddress($destino);
+    for ($i = 0; $i < 3; $i++) {
 
-        $mail->isHTML(true);
-        $mail->Subject = utf8($asunto);
-        $mail->Body    = utf8($cuerpo);
+        try {
 
-        // ✅ Adjuntar archivo si se proporciona
-        if ($archivoAdjunto && file_exists($archivoAdjunto)) {
-            $mail->addAttachment($archivoAdjunto);
+            $mail = new PHPMailer(true);
+
+            // Config SMTP
+            $mail->isSMTP();
+            $mail->Host       = 'correo.ife.org.mx';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $v_UsuGene;
+            $mail->Password   = $v_PassGene;
+            $mail->Port       = 465;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+
+            // Remitente
+            $mail->setFrom($origen, 'Validación de Cuentas DEA-DRF');
+            $mail->isHTML(true);
+
+            $mail->Subject = $asunto;
+            $mail->Body    = $cuerpo;
+
+            // Adjuntar archivo
+            if ($archivoAdjunto && file_exists($archivoAdjunto)) {
+                $mail->addAttachment($archivoAdjunto);
+            }
+
+            // Destinatarios
+            foreach ($aCorreos as $corr) {
+                if (!empty($corr) && filter_var($corr, FILTER_VALIDATE_EMAIL)) {
+                    $mail->addAddress($corr);
+                } else {
+                    $v_mensaje .= "<br> Dirección de correo inválida: [$corr]";
+                }
+            }
+
+            // Intento de envío
+            if ($mail->send()) {
+                $v_mensaje = "<br>El correo electrónico se envió correctamente ";
+                return true;
+            } else {
+                $v_mensaje .= "<br>Fallo intento ".($i+1)." al enviar correo: ".$mail->ErrorInfo;
+            }
+
+        } catch (Exception $e) {
+            $v_mensaje = "Error en intento ".($i+1).": ".$e->getMessage();
         }
-	    // Solicitar acuse de lectura
-	    // $mail->addCustomHeader('Disposition-Notification-To', $origen);
 
-        $mail->send();
-        $v_mensaje = 'El correo electrónico se envió correctamente.';
-        return true;
-
-    } catch (Exception $e) {
-        $v_mensaje  = '- El correo electr&oacute;nico no puede enviarse.';
-        $v_mensaje .= '<br>Tipo de error: ' . $mail->ErrorInfo;
-        $v_mensaje .= '<br>- Favor de ponerse en contacto con el administrador del sistema.';
-        return false;
     }
+
+    // Si llega aquí, fallaron los 3 intentos
+    $v_mensaje .= "<br>❌ No se pudo enviar el correo después de 3 intentos.";
+    return false;
 }
+
+
+// function EnviaCorreo($destino, $origen, $asunto, $cuerpo, &$v_mensaje, $v_UsuGene, $v_PassGene, $archivoAdjunto = null)
+// {
+//     $mail		= new PHPMailer(true);
+// 	$v_mensaje	= "";
+//     try {
+
+//         // 🔹 Separar múltiples correos del destino
+//         $aCorreos = array_map('trim', explode(";", $destino));
+
+//         $mail->isSMTP();
+//         $mail->Host       = 'correo.ife.org.mx';
+//         $mail->SMTPAuth   = true;
+//         $mail->Username   = $v_UsuGene;
+//         $mail->Password   = $v_PassGene;
+//         $mail->Port       = 465;
+//         $mail->Subject = utf8($asunto);
+//         $mail->Body    = utf8($cuerpo);
+//         // Remitente
+//         $mail->setFrom($origen, utf8('Validación de Cuentas DEA-DRF'));
+//         $mail->isHTML(true);
+
+
+//         // 🔹 Adjuntar archivo
+//         if ($archivoAdjunto && file_exists($archivoAdjunto)) {
+//             $mail->addAttachment($archivoAdjunto);
+//         }
+
+//         // 🔹 Agregar cada correo por separado
+//         foreach ($aCorreos as $correo) {
+//             if (!empty($corr) && filter_var($corr, FILTER_VALIDATE_EMAIL)) {
+//                 $mail->addAddress($correo);
+//             }else{
+//             	$v_mensaje .= '<br> Dirección de correo inválida: [' . $correo . "]";
+//             }
+//         }
+//         for($i=0;$i<3;$i++){
+//         	if ($mail->send() ){
+// 		        $v_mensaje = 'El correo electrónico se envió correctamente.';
+//         		return true;
+//         	}else{
+//         		$v_mensaje .= "Se envía correo($i+1)";
+//         	}
+//         }
+//         return false;
+
+//     } catch (Exception $e) {
+
+//         $v_mensaje  = '- El correo electr&oacute;nico no puede enviarse.';
+//         $v_mensaje .= '<br>Tipo de error: ' . $mail->ErrorInfo;
+//         $v_mensaje .= '<br>- Favor de ponerse en contacto con el administrador del sistema.';
+
+//         return false;
+//     }
+// }
+
 
 /* Esta es para la versión de PHP 5.0
 require $_SERVER['DOCUMENT_ROOT'] . '/tools/phpmailer/PHPMailerAutoload.php';

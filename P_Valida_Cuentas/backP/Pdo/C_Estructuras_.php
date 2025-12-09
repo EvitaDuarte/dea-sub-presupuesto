@@ -166,6 +166,22 @@ public function adicionaEstructura($lValida){
 	// }
 }
 // ____________________________________________
+public function enviaEstructuras($aEstruc,$cNumeroEnvio,$correoOrigen,$correosDestino,$usuCorreoGenerico,$passCorreoGenerico,&$v_mensaje){
+	$v_mensaje = "";
+	$cAsunto   = "Solicitud de alta de Estructuras programáticas";
+	$cDetalle  = "<p style='font-size: large;font-family:courier;'>";
+	$cDetalle .= "Envío : " . $cNumeroEnvio . "<br><br>" ;
+	$cDetalle .= "Se solicita revisar y dar de alta las siguientes estructuras programáticas.<br>";
+	foreach($aEstruc as $cW){
+		$cW = $cW["ine"]."-".$cW["clvcos"]."-".$cW["mayor"]."-".$cW["subcuenta"]."-".$cW["clvai"]."-".$cW["clvpp"]."-".$cW["clvspg"]."-".
+			  $cW["clvpy"]."-".$cW["clvpar"]."    ".$cW["estado"]."<br>";
+		$cDetalle .= $cW;
+	}
+	$cDetalle .= "<br><br>Saludos</p>";
+
+	$lEnvio = EnviaCorreo($correosDestino, $correoOrigen, $cAsunto, $cDetalle,$v_mensaje,$usuCorreoGenerico,$passCorreoGenerico);
+	return $lEnvio;
+}
 // ____________________________________________
 // ____________________________________________
 // ____________________________________________

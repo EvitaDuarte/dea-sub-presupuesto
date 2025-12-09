@@ -22,6 +22,7 @@ var gUrlCtas	= "";							// url para validar via soap una estructura
 var gUrlPys		= "";							// url para validar via sopa un proyecto
 var gValidaPY	= "";							// 'S' si se requiere validar el proyecto( o si es geográfico)??
 var gEstructuras= null;							// Para guardar las estructuras que se enviarán al SIGA
+var gaCorreo	= null;							// Guardara Correo de envio a presupuesto, a contabilidad, usuario del correo genérico, contraseña del correo genérico
 // ________________________________________________________________________
 window.onload = function () {		// Función que se ejecuta al cargar la página HTML que invoca a este JS
 	// Se obtiene el nombre del archivo que lo invoca
@@ -54,6 +55,12 @@ async function procesarRespuesta__(vRes) {
 			gUrlCtas	= vRes.urlCtas;
 			gUrlPys		= vRes.urlPys;
 			gValidaPY	= vRes.validaPy;
+			gaCorreo    = {
+				correoConta : vRes.CorreoConta,
+				correoPto	: vRes.CorreoPto,
+				correoUsu	: vRes.CorreoUsu,
+				correoPass	: vRes.CorreoPass
+			}
 		break;
 		// ______________________________
 		case "validarCarga":
@@ -94,6 +101,7 @@ async function procesarError__(vRes) {
 // _______________________FUNCIONES GENERALES _____________________________
 async function CargaValidar(cWs){
 	// Leer y guardar en un arreglo el contenido del archivo XLS
+	loader('flex');
 	lColExtra	= true;
 	numColumnas = 9; // No se incluye la Columna extra para el Estado
 	aEnca   	= ["INE","UR","CUENTA"]; // alguno de los posibles encabezados
@@ -148,10 +156,13 @@ function CargaEnviar(){
 		mandaMensaje("No hay estructuras válidas o a revisar para enviar.");
 		return false
 	}
+	loader('flex');
 	aParametros = {
 		opcion : "EnviarEstructuras",
+		correo : gaCorreo,
 		datos  : gEstructuras,
 		urUsu  : gUrUsu
+
 	}
 	conectayEjecutaPost(aParametros,cPhp);
 }

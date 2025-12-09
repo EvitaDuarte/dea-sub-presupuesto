@@ -16,9 +16,11 @@
 		header("Location: ../P_Cuentas00_home.php");exit; return;
 	}
 	require_once($_SESSION['conW']);
+	require_once($_SESSION['_Mail_']);
 	require_once("P_rutinas_.php");
 	require_once("M_Catalogos_.php");
 	require_once("Pdo/C_Estructuras_.php"); // Clase para manejar insert update a epvalidas y epinvalidas(a revisar)
+
 	try{
 		$idUsuario  = $_SESSION['ValCtasClave'];
 		$urUsu		= $_SESSION['ValCtasUrUsu']; // Revisar trae un 1 , en lugar de la UR
@@ -75,10 +77,19 @@ function traer_UrIni_UrFin($p,&$r){
 		$aRen = metodos::trae_urls_soap();
 
 		if (count($aRen)>0){
-			$r["success"]	= true;
 			$r["urlCtas"]	= $aRen[0]["urlctas"];
 			$r["urlPys"]	= $aRen[0]["urlpy"];
 			$r["validaPy"]	= $aRen[0]["validapy"];
+			$aVarCorreo		= metodos::trarCorreoPtoConta();
+			if ($aVarCorreo!==null){
+				$r["success"]		= true;
+				$r["CorreoPto"]		= $aVarCorreo[0]["valor"];
+				$r["CorreoConta"]	= $aVarCorreo[1]["valor"];
+				$r["CorreoUsu"]		= $aVarCorreo[2]["valor"];
+				$r["CorreoPass"]	= $aVarCorreo[3]["valor"];
+			}else{
+				$r["mensaje"] = "No estan las variables del correo (Presupuesto, Contabilidad, Usuario, Contras";
+			}
 		}else{
 			$r["mensaje"] = "No estan definidas las url para accceder al SIGA";
 		}
@@ -186,10 +197,18 @@ function EnviarEstructuras($p,&$r){
 	$nRenV = 0; $nRenI = 0;
 	try{
 		$conn_pdo->beginTransaction();
-		$cNoEnvio = metodos::numeroEnvio($p["urUsu"],date('Y')); //  date('Y-m-d-h:i:s', time());
-		$cUsuario = $r["idUsu"];
-		$aEstru   = $p["datos"];
-		$oEstruc  = new Estructura();
+		$cNoEnvio	  = metodos::numeroEnvio($p["urUsu"],date('Y')); //  date('Y-m-d-h:i:s', time());
+		$cUsuario	  = $r["idUsu"];
+		$cCorreoUr    = trim($cUsuario). "@ine.mx";
+		$cMailGener   = $p["correo"]["correoUsu"];
+		$cPassGener   = $p["correo"]["correoPass"];
+		$cCorreoPto	  = $p["correo"]["correoPto"];
+		$cCorreoConta = $p["correo"]["correoConta"];
+		$aEstru		  = $p["datos"];
+		$oEstruc	  = new Estructura();
+		$aPtoEstr	  = [];
+		$aContaEstr   = [];
+		$cMensaje	  = $cMensaje2 = "";
 		foreach ($aEstru as $vEstru ) {
 			$cArea = ($vEstru["subcuenta"]===SCTACONTA)?"C":"P";
 			$cEdo  = $vEstru["estado"];
@@ -201,11 +220,27 @@ function EnviarEstructuras($p,&$r){
 				}else{
 					$nRenI++;					
 				}
+				if ($cArea=="C"){
+					array_push($aContaEstr,$vEstru);
+				}else{
+					array_push($aPtoEstr,$vEstru);
+				}
 			}
 		}
-		$conn_pdo->commit();
+		$lEnvio = true;
+		if (count($aPtoEstr)>0){
+			$lEnvio = $oEstruc->enviaEstructuras($aPtoEstr,$cNoEnvio,$cCorreoUr,$cCorreoPto,$cMailGener,$cPassGener,$cMensaje1);
+		}
+		if (!$lEnvio){ // Si no puede enviar Pto , que ya no mande contabilidad ???
+
+		}
+		if (count($aContaEstr)>0){
+			$lEnvio = $oEstruc->enviaEstructuras($aContaEstr,$cNoEnvio,$cCorreoUr,$cCorreoConta,$cMailGener,$cPassGener,$cMensaje2);
+		}
+		//$conn_pdo->commit();
+		$conn_pdo->rollBack();
 		$r["success"] = true;
-		$r["mensaje"] = "Se envió la solicitud de alta de  $nRenV estructuras válidas y $nRenI estructuras a Revisar. Se tiene que esperar su alta en el SIGA por parte  de contabilidad y/o Presupuesto";
+		$r["mensaje"] = "Se envió la solicitud de alta de  $nRenV estructuras válidas y $nRenI estructuras a Revisar. <br> Número de envío: $cNoEnvio <br> . Se tiene que esperar su alta en el SIGA por parte  de contabilidad y/o Presupuesto";
 
 	}catch(Exception $e){
 		$r["mensaje"] = "Ocurrio una inconsitencia en EnviarEstructuras ";
