@@ -4,7 +4,7 @@
         <?php
             require_once("P_Cuentas00_00VarSesion.php"); // Pone disponible las variables de sesión
         ?>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title><?=$v_TituloS?></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="script-principal" content="Usuarios_.js">
@@ -58,6 +58,13 @@
                                         </div>
                                     </div>
                                    <div class="caja_captura0"></div>
+                                    <div class="caja_captura" id="divAdiciona">
+                                        <div class="form-field-button_">
+                                            <a class="btn_1 efecto" onclick="ReEnviar('S',false);"> 
+                                                <span>ReEnvio</span>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </section> 
                                 <section class="seccion_caja" id="busqueda">
                                     <div class="caja_captura0">

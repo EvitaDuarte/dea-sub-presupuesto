@@ -50,6 +50,10 @@
 	    		EnviarEstructuras($param,$regreso);
 	    	break;
 			//___________________________________
+			case "ReEnviaEstructuras":
+				ReEnviarEstructuras($param,$regreso);
+			breaK;
+			//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Carga Estructuras";
 	    	break;
@@ -231,25 +235,98 @@ function EnviarEstructuras($p,&$r){
 		if (count($aPtoEstr)>0){
 			$lEnvio = $oEstruc->enviaEstructuras($aPtoEstr,$cNoEnvio,$cCorreoUr,$cCorreoPto,$cMailGener,$cPassGener,$cMensaje1);
 		}
-		if (!$lEnvio){ // Si no puede enviar Pto , que ya no mande contabilidad ???
-
+		if ($lEnvio){
+			if (count($aContaEstr)>0){
+				$lEnvio = $oEstruc->enviaEstructuras($aContaEstr,$cNoEnvio,$cCorreoUr,$cCorreoConta,$cMailGener,$cPassGener,$cMensaje2);
+			}
 		}
-		if (count($aContaEstr)>0){
-			$lEnvio = $oEstruc->enviaEstructuras($aContaEstr,$cNoEnvio,$cCorreoUr,$cCorreoConta,$cMailGener,$cPassGener,$cMensaje2);
+		$r["success"] = $lEnvio;
+		if ($lEnvio){
+			$conn_pdo->commit();
+			//$conn_pdo->rollBack();
+			$r["mensaje"] = "Se envió la solicitud de alta de  $nRenV estructuras válidas y $nRenI estructuras a Revisar. Número de envío: $cNoEnvio . Correo enviado a < $cMensaje1 $cMensaje2 > Se tiene que esperar su alta en el SIGA por parte  de contabilidad y/o Presupuesto";
+		}else{
+			$conn_pdo->rollBack();
+			$r["mensaje"] =$cMensaje1 ." >><< ". $cMensaje2;
 		}
-		//$conn_pdo->commit();
-		$conn_pdo->rollBack();
-		$r["success"] = true;
-		$r["mensaje"] = "Se envió la solicitud de alta de  $nRenV estructuras válidas y $nRenI estructuras a Revisar. <br> Número de envío: $cNoEnvio <br> . Se tiene que esperar su alta en el SIGA por parte  de contabilidad y/o Presupuesto";
+		$r["mensajeenvio1"] = $cMensaje1;
+		$r["mensajeenvio2"] = $cMensaje2;
+		
 
 	}catch(Exception $e){
-		$r["mensaje"] = "Ocurrio una inconsitencia en EnviarEstructuras ";
+		$r["mensaje"] = "Ocurrio una Inconsistencia en EnviarEstructuras ";
 		$r["error"]   = $e->getMessage();
 		$conn_pdo->rollBack();
 	}
 
 }
 // _______________________________________________________
+function ReEnviarEstructuras($p,&$r){
+	global $conn_pdo;
+	$nRenV = 0; $nRenI = 0;
+	try{
+		//$conn_pdo->beginTransaction(); No hay actualizaciones a tablas
+		$aEstru		  = $p["datos"];
+		$texto		  = $aEstru[0]["estado"]; // NP Ya fue solicitada anteriormente OF162025000048_Estructura Válida
+		$cNoEnvio	  = explode('_', explode('anteriormente ', $texto)[1])[0];	// metodos::numeroEnvio($p["urUsu"],date('Y')); //  date('Y-m-d-h:i:s', time());
+		$cUsuario	  = $r["idUsu"];
+		$cCorreoUr    = trim($cUsuario). "@ine.mx";
+		$cMailGener   = $p["correo"]["correoUsu"];
+		$cPassGener   = $p["correo"]["correoPass"];
+		$cCorreoPto	  = $p["correo"]["correoPto"];
+		$cCorreoConta = $p["correo"]["correoConta"];
+
+		$oEstruc	  = new Estructura();
+		$aPtoEstr	  = [];
+		$aContaEstr   = [];
+		$cMensaje	  = $cMensaje2 = "";
+		foreach ($aEstru as $vEstru ) {
+			$cArea = ($vEstru["subcuenta"]===SCTACONTA)?"C":"P";
+			$cEdo  = $vEstru["estado"];
+			$oEstruc->cargaEstructura($vEstru);
+			$oEstruc->cargaComplemento($cNoEnvio,$cUsuario,$cArea);
+			//if ( $oEstruc->actualizaEstructura() ){
+				if ( str_contains($cEdo, VALIDA) ){
+					$nRenV++;
+				}else{
+					$nRenI++;					
+				}
+				if ($cArea=="C"){
+					array_push($aContaEstr,$vEstru);
+				}else{
+					array_push($aPtoEstr,$vEstru);
+				}
+			//}
+		}
+		$lEnvio = true;
+		if (count($aPtoEstr)>0){
+			$lEnvio = $oEstruc->enviaEstructuras($aPtoEstr,$cNoEnvio,$cCorreoUr,$cCorreoPto,$cMailGener,$cPassGener,$cMensaje1);
+		}
+		if ($lEnvio){
+			if (count($aContaEstr)>0){
+				$lEnvio = $oEstruc->enviaEstructuras($aContaEstr,$cNoEnvio,$cCorreoUr,$cCorreoConta,$cMailGener,$cPassGener,$cMensaje2);
+			}
+		}
+		$r["success"] = $lEnvio;
+		if ($lEnvio){
+			//$conn_pdo->commit(); No hay actualizaciones a tablas
+			//$conn_pdo->rollBack();
+			$r["mensaje"] = "Se vuelve a solicitar el alta de $nRenV estructuras válidas y $nRenI estructuras a Revisar. Número de envío: $cNoEnvio . Correo enviado a < $cMensaje1 $cMensaje2 > Se tiene que esperar su alta en el SIGA por parte  de contabilidad y/o Presupuesto";
+		}else{
+			//$conn_pdo->rollBack(); No hay actualizaciones a tablas
+			$r["mensaje"] =$cMensaje1 ." >><< ". $cMensaje2;
+		}
+		$r["mensajeenvio1"] = $cMensaje1; 
+		$r["mensajeenvio2"] = $cMensaje2;
+		
+
+	}catch(Exception $e){
+		$r["mensaje"] = "Ocurrio una Inconsistencia en ReEnviarEstructuras ";
+		$r["error"]   = $e->getMessage();
+		//$conn_pdo->rollBack(); No hay actualizaciones a tablas
+	}
+
+}
 // _______________________________________________________
 
 ?>

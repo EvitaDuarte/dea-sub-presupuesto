@@ -16,7 +16,7 @@ function EnviaCorreo($destino, $origen, $asunto, $cuerpo, &$v_mensaje, $v_UsuGen
     // Separar varios correos
     $aCorreos = array_map('trim', explode(";", $destino));
 
-    for ($i = 0; $i < 3; $i++) {
+    for ($i = 0; $i < 3; $i++) {// Realizar tres intentos
 
         try {
 
@@ -24,19 +24,26 @@ function EnviaCorreo($destino, $origen, $asunto, $cuerpo, &$v_mensaje, $v_UsuGen
 
             // Config SMTP
             $mail->isSMTP();
+            $mail->CharSet    = 'UTF-8';
             $mail->Host       = 'correo.ife.org.mx';
             $mail->SMTPAuth   = true;
             $mail->Username   = $v_UsuGene;
             $mail->Password   = $v_PassGene;
             $mail->Port       = 465;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port       = 587;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 
             // Remitente
-            $mail->setFrom($origen, 'Validación de Cuentas DEA-DRF');
+            $mail->setFrom($origen, ('Validación de Cuentas DEA-DRF'));
             $mail->isHTML(true);
 
             $mail->Subject = $asunto;
             $mail->Body    = $cuerpo;
+
+            // Para efectos de depuración
+            //$mail->SMTPDebug = 2;
+            //$mail->Debugoutput = 'html';
 
             // Adjuntar archivo
             if ($archivoAdjunto && file_exists($archivoAdjunto)) {
@@ -45,29 +52,33 @@ function EnviaCorreo($destino, $origen, $asunto, $cuerpo, &$v_mensaje, $v_UsuGen
 
             // Destinatarios
             foreach ($aCorreos as $corr) {
-                if (!empty($corr) && filter_var($corr, FILTER_VALIDATE_EMAIL)) {
-                    $mail->addAddress($corr);
-                } else {
-                    $v_mensaje .= "<br> Dirección de correo inválida: [$corr]";
+                $corr = trim($corr);
+                if (!empty($corr)){
+                    if (filter_var($corr, FILTER_VALIDATE_EMAIL)) {
+                        $mail->addAddress($corr);
+                        $v_mensaje .="[$corr]";
+                    } else {
+                        $v_mensaje .= "Dirección de correo inválida: [$corr]";
+                    }
                 }
             }
 
             // Intento de envío
             if ($mail->send()) {
-                $v_mensaje = "<br>El correo electrónico se envió correctamente ";
+                // $v_mensaje = "<br>El correo electrónico se envió correctamente a " . $v_mensaje;
                 return true;
             } else {
                 $v_mensaje .= "<br>Fallo intento ".($i+1)." al enviar correo: ".$mail->ErrorInfo;
             }
 
         } catch (Exception $e) {
-            $v_mensaje = "Error en intento ".($i+1).": ".$e->getMessage();
+            $v_mensaje .= "Error en intento ".($i+1).": ".$e->getMessage();
         }
 
     }
 
     // Si llega aquí, fallaron los 3 intentos
-    $v_mensaje .= "<br>❌ No se pudo enviar el correo después de 3 intentos.";
+    $v_mensaje .= "<br>❌ No se logró enviar el correo después de 3 intentos.";
     return false;
 }
 

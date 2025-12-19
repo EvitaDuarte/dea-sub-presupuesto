@@ -33,7 +33,7 @@ public function creaCampoTipo(){
     $aRen	= ejecutaSQL_($sql);
     if (count($aRen)>0){
     	$nRen = 0;
-    	$aSql = ["UPDATE configuracion SET tipo='soloCorreoIne'		WHERE id = 1  or id=2; ", 	// Correo presupuesto o Contabilidad
+    	$aSql = ["UPDATE configuracion SET tipo='listaCorreosIne'	WHERE id = 1  or id=2; ", 	// Correo presupuesto o Contabilidad
     			 "UPDATE configuracion SET tipo='soloLetras'		WHERE id = 10 or id=11;", 	// Títulos
     			 "UPDATE configuracion SET tipo='soloDominio'		WHERE id = 20; ",			// Correo para PHPMailer
     			 "UPDATE configuracion SET tipo='soloPassword'		WHERE id = 21; "];			// Clave Correo para PHPMailer

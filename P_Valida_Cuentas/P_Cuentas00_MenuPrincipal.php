@@ -20,7 +20,7 @@
                         	<li id="li-drop" onClick="Enviar('P_Cuentas_02_05Usuarios.php');"	data-esquema="ADM"><a>Usuarios</a></li>
                         	<li id="li-drop" onClick="Enviar('P_Cuentas_02_06Unidades.php');"	data-esquema="ADM"><a>Unidades</a></li>
                         	<li id="li-drop" onClick="Enviar('P_Cuentas_02_07UrPpSpg.php') ;"	data-esquema="ADM"><a>Ur-PP-Spg</a></li>  
-                        	<li id="li-drop" onClick="Enviar('P_Cuentas_02_08Configura.php') ;"	data-esquema="ADM"><a>Correos</a></li>
+                        	<li id="li-drop" onClick="Enviar('P_Cuentas_02_08Configura.php') ;"	data-esquema="ADM"><a>Configuración</a></li>
                     	</ul>
                 	</li>
 

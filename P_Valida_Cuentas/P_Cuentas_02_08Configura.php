@@ -50,7 +50,7 @@
                                     <div class="caja_captura" id="divActualiza">
                                         <div class="form-field-button_" >
                                             <a class="btn_1 efecto" onclick="ConfiguraActualiza();"> 
-                                                <span>Actualizar</span>
+                                                <span>Actualiza Valor</span>
                                             </a>
                                         </div>
                                     </div>

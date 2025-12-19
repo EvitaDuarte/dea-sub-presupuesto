@@ -34,6 +34,8 @@ const expresiones = {
     soloLetrasNumerosComasEspa  : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s,]*$/                , mensaje : "solo puede llevar letras, números y comas"},
     soloDominio                 : { regex: /^[a-z]+\.[a-z]+$/                                           , mensaje : "solo debe ser el formato nombre.apellido en minúsculas"}, 
     soloCorreoIne               : { regex: /^[a-z]+(?:\.[a-z]+)@ine\.mx$/                               , mensaje : "solo debe ser nombre.apellido@ine.mx en minúsculas"}, 
+    listaCorreosIne             : { regex: /^([a-zA-Z0-9._%+-]+@ine\.mx)(;[a-zA-Z0-9._%+-]+@ine\.mx)*$/ , mensaje : "únicamente correos institucionales (@ine.mx), separados por punto y coma (;)"},
+    soloCorreos                 : { regex: /^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\s*;\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})*$/, mensaje: "Use punto y coma (;) para separar correos. Ejemplo: correo1@dominio.com;correo2@dominio.com"},
     soloNumeros                 : { regex: /^[0-9]+$/                                                   , mensaje : "solo puede llevar números"},
     soloUr                      : { regex: /^[a-zA-Z]{2}[a-zA-Z0-9]{2}$/                                , mensaje : "solo puede tener dos letras iniciales y letras y números en los dos últimos caracteres"},
     soloImportes                : { regex: /^-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/   , mensaje : "solo puede llevar números,comas,punto decimal"},
@@ -1429,38 +1431,36 @@ function validaFecha(dFecha,cIdFecha,lHoy){
 // _______________________________________________
 function efectoBotones(fnAccion = null) {
 
-    var input1_file = document.getElementById('ArchivoCarga_file');
-    var input_icon  = document.getElementById('input_icon');
-    var input_text  = document.getElementById('input_text');
-    var inputLabel  = document.getElementById('lblCarga');
+    const input1_file = document.getElementById('ArchivoCarga_file');
+    const input_icon  = document.getElementById('input_icon');
+    const input_text  = document.getElementById('input_text');
+    const inputLabel  = document.getElementById('lblCarga');
 
-    if (!input1_file) {
-        console.warn("No existe #ArchivoCarga_file en el DOM.");
-        return;
-    }
+    if (!input1_file) return;
 
-    input1_file.addEventListener('change', function () {
+    // ❗ Elimina listeners previos
+    input1_file.onchange = null;
 
-        let name_file = input1_file.files[0].name;
-        let full_name = "";
+    input1_file.onchange = function () {
+
+        if (!this.files.length) return;
+
+        let name_file = this.files[0].name;
+        let full_name = name_file;
 
         if (name_file.length >= 12) {
-            full_name = name_file;
             name_file = name_file.substring(0, 14) + "..";
         }
 
-        input_icon.innerHTML = "done_all";
-        input_text.innerHTML = name_file;
-        inputLabel.setAttribute('title', full_name);
+        input_icon.textContent = "done_all";
+        input_text.textContent = name_file;
+        inputLabel.title = full_name;
 
-        // 🟦 Ejecuta la función si fue enviada
         if (typeof fnAccion === "function") {
             fnAccion();
         }
-    });
+    };
 }
-
-
 // _______________________________________________
 // function efectoBotones(cOpc){
 //     /* Se agrega un escucha para cuando se carga el archivo CSV */
@@ -2077,11 +2077,29 @@ function escapeHTMLespacios(str) {
 }
 // __________________________________________________________________________________
 function limpiaInputFile(cId) {
-    const el = document.getElementById(cId);
-    document.getElementById(cId).value = ""
-    const nuevo = el.cloneNode(true); // clona sin archivos
+    const el                            = document.getElementById(cId);
+    document.getElementById(cId).value  = ""
+    const nuevo                         = el.cloneNode(true); // clona sin archivos
     el.parentNode.replaceChild(nuevo, el); // reemplaza el input
 }
+// __________________________________________________________________________________
+function limpiarInputFile(idInputFile="ArchivoCarga_file", idSpan="input_text", idIcono="input_icon") {
+    const input = document.getElementById(idInputFile);
+    const span  = document.getElementById(idSpan);
+    const icono = document.getElementById(idIcono);
+
+    if (!input) return;
+
+    // 🔁 Limpia el archivo seleccionado
+    input.value = "";
+
+    // 📝 Texto por defecto
+    if (span) span.textContent = "Seleccione un archivo";
+
+    // 🎯 Icono por defecto
+    if (icono) icono.textContent = "add_to_photos";
+}
+
 // __________________________________________________________________________________
 function ocultaObjeto(cId){
     oHtml               = document.getElementById(cId);

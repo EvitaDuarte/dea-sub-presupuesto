@@ -68,8 +68,12 @@ async function procesarRespuesta__(vRes) {
 		break;
 		// ______________________________
 		case "EnviarEstructuras":
+			limpiar_Boton_Input();
 		break;
 		// ______________________________
+		case "ReEnviaEstructuras":
+			limpiar_Boton_Input();
+		break;
 		// ______________________________
 
 		// ______________________________
@@ -90,6 +94,14 @@ async function procesarError__(vRes) {
 		break;
 		// ______________________________
 		case 'Configura_Salida':
+		break;
+		// ______________________________
+		case "EnviarEstructuras":
+			limpiar_Boton_Input();
+		break;
+		// ______________________________
+		case "ReEnviaEstructuras":
+			limpiar_Boton_Input();
 		break;
 		// ______________________________
 		// ______________________________
@@ -153,12 +165,32 @@ function CargaEnviar(){
 		return false;
 	}
 	if (SiNoHayDatosaEnviar()){
-		mandaMensaje("No hay estructuras válidas o a revisar para enviar.");
+		mandaMensaje("No hay estructuras válidas o a revisar para enviar.");// llena gEstructuras con Estructuras validas o Estructuras a Revisar
+		limpiarInputFile();
 		return false
 	}
 	loader('flex');
 	aParametros = {
 		opcion : "EnviarEstructuras",
+		correo : gaCorreo,
+		datos  : gEstructuras,
+		urUsu  : gUrUsu
+
+	}
+	conectayEjecutaPost(aParametros,cPhp);
+}
+// ________________________________________________________________________
+function ReEnviar(){
+	if (SiNoSeCargoArchivoXls()){
+		return false;
+	}
+	if (SiNoHayDatosaEnviar("NP Ya fue solicitada anteriormente")){ // llena gEstructuras con Estructuras con la leyenda "NP Ya fur soli...."
+		mandaMensaje("No hay estructuras enviadas anteriormente.");
+		return false
+	}
+	loader('flex');
+	aParametros = {
+		opcion : "ReEnviaEstructuras",
 		correo : gaCorreo,
 		datos  : gEstructuras,
 		urUsu  : gUrUsu
@@ -182,7 +214,7 @@ function SiNoSeCargoArchivoXls(){
 	return false;
 }
 // ________________________________________________________________________
-function SiNoHayDatosaEnviar() {
+function SiNoHayDatosaEnviar(cStatus="Estructura") {
 
 	gEstructuras	= [];
 	const aCol 		= ["ine", "clvcos", "mayor", "subcuenta", "clvai", "clvpp", "clvspg", "clvpy", "clvpar", "estado"];
@@ -196,7 +228,7 @@ function SiNoHayDatosaEnviar() {
 
         const texto = cEstado.textContent.trim();
 
-        if (texto.startsWith("Estructura")) {
+        if (texto.startsWith(cStatus)) {
             lNohayDatos = false;
             // Convertimos la fila en un objeto con propiedades definidas en aCol
             const filaObj = {};
@@ -211,5 +243,10 @@ function SiNoHayDatosaEnviar() {
     }
 
     return lNohayDatos;
+}
+// ________________________________________________________________________
+function limpiar_Boton_Input(){
+	limpiarInputFile();
+	efectoBotones(() => CargaValidar("NO"));
 }
 // ________________________________________________________________________
