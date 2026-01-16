@@ -28,28 +28,28 @@ botones.forEach((item) => {
 });
 // ______________________________________________________________________________
 const expresiones = {
-    soloLetras                  : { regex: /^[A-Za-záéíñóúÁÉÍÓÚüÜÑ\s\.]+$/                              , mensaje : "solo puede llevar letras y espacios" },
-    letrasNumerosSeparadores    : { regex: /^[A-Za-záéíóúñÑÁÉÍÓÚ0-9.\-_,\/\s]+$/                        , mensaje : "solo puede llevar letras, números, punto, -, _, / y espacios" },
-    soloLetrasNumerosEspacios   : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s]*$/                 , mensaje : "solo puede llevar letras, números y espacios"},
-    soloLetrasNumerosComasEspa  : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s,]*$/                , mensaje : "solo puede llevar letras, números y comas"},
-    soloDominio                 : { regex: /^[a-z]+\.[a-z]+$/                                           , mensaje : "solo debe ser el formato nombre.apellido en minúsculas"}, 
-    soloCorreoIne               : { regex: /^[a-z]+(?:\.[a-z]+)@ine\.mx$/                               , mensaje : "solo debe ser nombre.apellido@ine.mx en minúsculas"}, 
-    listaCorreosIne             : { regex: /^([a-zA-Z0-9._%+-]+@ine\.mx)(;[a-zA-Z0-9._%+-]+@ine\.mx)*$/ , mensaje : "únicamente correos institucionales (@ine.mx), separados por punto y coma (;)"},
+    soloLetras                  : { regex: /^[A-Za-záéíñóúÁÉÍÓÚüÜÑ\s\.]+$/                                  , mensaje : "solo puede llevar letras y espacios" },
+    letrasNumerosSeparadores    : { regex: /^[A-Za-záéíóúñÑÁÉÍÓÚ0-9.\-_,\/\s]+$/                            , mensaje : "solo puede llevar letras, números, punto, -, _, / y espacios" },
+    soloLetrasNumerosEspacios   : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s]*$/                     , mensaje : "solo puede llevar letras, números y espacios"},
+    soloLetrasNumerosComasEspa  : { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ0-9\s,]*$/                    , mensaje : "solo puede llevar letras, números y comas"},
+    soloDominio                 : { regex: /^[a-z]+\.[a-z]+$/                                               , mensaje : "solo debe ser el formato nombre.apellido en minúsculas"}, 
+    soloCorreoIne               : { regex: /^[a-z]+(?:\.[a-z]+)@ine\.mx$/                                   , mensaje : "solo debe ser nombre.apellido@ine.mx en minúsculas"}, 
+    listaCorreosIne             : { regex: /^[a-z]+(?:\.[a-z]+)@ine\.mx(?:;[a-z]+(?:\.[a-z]+)@ine\.mx)*;?$/ , mensaje : "únicamente correos institucionales (@ine.mx), separados por punto y coma (;)"},
     soloCorreos                 : { regex: /^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\s*;\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})*$/, mensaje: "Use punto y coma (;) para separar correos. Ejemplo: correo1@dominio.com;correo2@dominio.com"},
-    soloNumeros                 : { regex: /^[0-9]+$/                                                   , mensaje : "solo puede llevar números"},
-    soloUr                      : { regex: /^[a-zA-Z]{2}[a-zA-Z0-9]{2}$/                                , mensaje : "solo puede tener dos letras iniciales y letras y números en los dos últimos caracteres"},
-    soloImportes                : { regex: /^-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/   , mensaje : "solo puede llevar números,comas,punto decimal"},
-    soloImportesPositivos       : { regex: /^\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/     , mensaje : "solo números, comas(3), punto decimal, sin signo, dos decimales"},
-    soloCuenta                  : { regex: /^[a-zA-ZñÑ0-9-() ]+$/                                       , mensaje : "solo puede llevar Letras - Numeros ()"},
-    soloSiglas                  : { regex: /^[a-zA-Z]+[0-9]+-$/                                         , mensaje : "solo puede llevar Letras seguido de Números y Guion final"},
-    soloNumerosGuion            : { regex: /^[0-9-]+$/                                                  , mensaje : "solo puede llevar Números y guion"},
-    soloLetrasNumerosGuion      : { regex: /^[A-Za-z0-9\- ]+$/                                          , mensaje : "solo puede llevar Letras, Números y guion"},
-    soloLetrasNumeros           : { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ ]+$/                                , mensaje : "solo puede llevar Letras, Números y espacios"},
-    soloLetrasNumerosSinEspacios: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ]+$/                                 , mensaje : "solo puede llevar Letras, Números sin espacios"},
-    soloPassword                : {regex : /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/    , mensaje : "contraseña de 8 caracteres, un número, una mayúscula"},
-    soloLetrasNumerosDiagoSinEsp: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\/]+$/                               , mensaje : "solo puede llevar Letras, Números, Diagonal sin espacios"},
-    exclusivoLetras             : { regex: /^[a-zA-Z]+$/                                                , mensaje : "solo puede llevar Letras, sin espacios"},
-    exclusivoUR                 : { regex: /^[A-Za-z]{2}\d{2}$/                                         , mensaje : "Por favor, ingresa dos letras seguidas de dos números. para UR"}
+    soloNumeros                 : { regex: /^[0-9]+$/                                                       , mensaje : "solo puede llevar números"},
+    soloUr                      : { regex: /^[a-zA-Z]{2}[a-zA-Z0-9]{2}$/                                    , mensaje : "solo puede tener dos letras iniciales y letras y números en los dos últimos caracteres"},
+    soloImportes                : { regex: /^-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/       , mensaje : "solo puede llevar números,comas,punto decimal"},
+    soloImportesPositivos       : { regex: /^\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$|^\d+(?:\.\d{1,2})?$/         , mensaje : "solo números, comas(3), punto decimal, sin signo, dos decimales"},
+    soloCuenta                  : { regex: /^[a-zA-ZñÑ0-9-() ]+$/                                           , mensaje : "solo puede llevar Letras - Numeros ()"},
+    soloSiglas                  : { regex: /^[a-zA-Z]+[0-9]+-$/                                             , mensaje : "solo puede llevar Letras seguido de Números y Guion final"},
+    soloNumerosGuion            : { regex: /^[0-9-]+$/                                                      , mensaje : "solo puede llevar Números y guion"},
+    soloLetrasNumerosGuion      : { regex: /^[A-Za-z0-9\- ]+$/                                              , mensaje : "solo puede llevar Letras, Números y guion"},
+    soloLetrasNumeros           : { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ ]+$/                                    , mensaje : "solo puede llevar Letras, Números y espacios"},
+    soloLetrasNumerosSinEspacios: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ]+$/                                     , mensaje : "solo puede llevar Letras, Números sin espacios"},
+    soloPassword                : {regex : /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/        , mensaje : "contraseña de 8 caracteres, un número, una mayúscula"},
+    soloLetrasNumerosDiagoSinEsp: { regex: /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\/]+$/                                   , mensaje : "solo puede llevar Letras, Números, Diagonal sin espacios"},
+    exclusivoLetras             : { regex: /^[a-zA-Z]+$/                                                    , mensaje : "solo puede llevar Letras, sin espacios"},
+    exclusivoUR                 : { regex: /^[A-Za-z]{2}\d{2}$/                                             , mensaje : "Por favor, ingresa dos letras seguidas de dos números. para UR"}
 };
 // ______________________________________________________________________________
 function regresaExpresiones(){
@@ -756,7 +756,7 @@ function llenaCombo(select,aCombo,cValor=""){ // llena un HTML Select (combobox)
     }
 }
 // ______________________________________________
-function llenaComboCveDes(select, aCombo) {
+function llenaComboCveDes(select, aCombo , lDes=true) {
     // Limpiar el select
     select.innerHTML = "";
 
@@ -771,7 +771,7 @@ function llenaComboCveDes(select, aCombo) {
         const item      = aCombo[i];
         const opcion    = document.createElement("option");
 
-        if (item.descripcion) {
+        if (item.descripcion && lDes ) {
             // Si existe descripción, mostrar "clave - descripción"
             opcion.text = `${item.clave} - ${item.descripcion.trim()}`;
         } else {

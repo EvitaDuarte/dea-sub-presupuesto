@@ -90,6 +90,14 @@ class metodos{
 		return false;
 	}
 	//  ___________________________________________________________________
+	public static function trae_CuentasMayor(){
+		$sql = 	"SELECT compramenor AS clave FROM partidas WHERE compramenor IS NOT NULL AND compramenor <> '' union ".
+				"SELECT ordencompra AS clave FROM partidas WHERE ordencompra IS NOT NULL AND ordencompra <> '' union ".
+				"SELECT contactamay AS clave FROM partidas WHERE contactamay IS NOT NULL AND contactamay <> '' order by clave";
+		$reg = ejecutaSQL_($sql);
+		return $reg;
+	}
+	//  ___________________________________________________________________
 	public static function nuevaSopa($url, &$r){
 	    try {
 	        $soap = new SoapClient($url, self::aOpcionesWs($url));
@@ -177,7 +185,7 @@ class metodos{
 		return count($aRen)>0;
 	}
 	//  ___________________________________________________________________
-	public static function solicitada_Anteriormente($ine,$ur,$cta,$scta,$ai,$pp,$spg,$py,$ptda,&$cEdo){
+	public static function solicitada_Anteriormente($ine,$ur,$cta,$scta,$ai,$pp,$spg,$py,$ptda,&$cEdo,&$r=null){
 		$sql = "";
 		for ($i=0;$i<=1;$i++){
 			if ($i==0){
@@ -189,9 +197,16 @@ class metodos{
 					 " clvspg=:spg and clvpy=:py and clvpar=:ptda";
 			$param = [":ine"=>$ine,":ur"=>$ur,":cta"=>$cta,":scta"=>$scta,":ai"=>$ai,":pp"=>$pp,":spg"=>$spg,":py"=>$py,":ptda"=>$ptda];
 			$sql1  = $sql . $where;
-			$val   = getCampo($sql1,$param);
-			if ($val!=""){ // Ya existe
-				$cEdo = $val;
+			//$val   = getCampo($sql1,$param);
+			$val   = ejecutaSQL_($sql1,$param);
+				if ($r!=null){
+					$r["sql1"][] = $sql1;
+					$r["para"][] = $param;
+					$r["val_"][] = $val;
+				}
+			if ($val!==""){ // Ya existe
+			if (count($val)>0)
+				$cEdo = $val[0]["salida"];
 				return true;
 			}
 		}

@@ -165,7 +165,7 @@ function CargaEnviar(){
 		return false;
 	}
 	if (SiNoHayDatosaEnviar()){
-		mandaMensaje("No hay estructuras válidas o a revisar para enviar.");// llena gEstructuras con Estructuras validas o Estructuras a Revisar
+		mandaMensaje("No hay estructuras válidas o a revisar, para enviar.");// llena gEstructuras con Estructuras validas o Estructuras a Revisar
 		limpiarInputFile();
 		return false
 	}

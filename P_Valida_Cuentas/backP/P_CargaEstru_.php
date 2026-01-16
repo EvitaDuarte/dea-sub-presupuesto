@@ -20,6 +20,7 @@
 	require_once("P_rutinas_.php");
 	require_once("M_Catalogos_.php");
 	require_once("Pdo/C_Estructuras_.php"); // Clase para manejar insert update a epvalidas y epinvalidas(a revisar)
+	require_once("Pdo/C_Urs_.php"); 		// Clase para manejar catalogo URs
 
 	try{
 		$idUsuario  = $_SESSION['ValCtasClave'];
@@ -32,18 +33,23 @@
 	    switch ($cOpc){
 	    	//___________________________________
 	    	case "traer_UrIni_UrFin":
-	    		if ( no_existe_indice("precombi","idx_precombi_clvpy6_geo")){
-
-					$sql	= "CREATE INDEX idx_precombi_clvpy6_geo ON precombi (LEFT(clvpy, 6), geografico);";
-					$stmt	= $conn_pdo->prepare($sql); // Prepara el SQL
-					$res	= $stmt->execute();
-				}
+	    		revisa_indice();
 	    		traer_UrIni_UrFin($param,$regreso);
 	    	break;
+			//___________________________________
+			case "trae_CatUrCtas":
+				revisa_indice();
+				traer_UrIni_UrFin($param,$regreso);
+				if ($regreso["success"]){
+					$regreso["success"] = false;
+					trae_CatUrCtas($regreso);
+				}
+			break;
 			//___________________________________
 	    	case "validarCarga":
 	    		validar_Carga($param,$regreso);
 	    		valida_Siga($param,$regreso);
+	    		verifica_Cuenta($param,$regreso);
 	    	break;
 			//___________________________________
 	    	case "EnviarEstructuras":
@@ -53,6 +59,14 @@
 			case "ReEnviaEstructuras":
 				ReEnviarEstructuras($param,$regreso);
 			breaK;
+			//___________________________________
+			case "validaEstructura":
+				copiaDatos($param,$regreso);
+	    		validar_Carga($param,$regreso);
+	    		valida_Siga($param,$regreso);
+	    		$regreso["parametros_"] = $param;
+				//validaEstructura($regreso);
+			break;
 			//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Carga Estructuras";
@@ -67,6 +81,14 @@
 	echo json_encode($regreso);
 return;
 // _______________________________________________________
+function revisa_indice(){
+	global $conn_pdo;
+	if ( no_existe_indice("precombi","idx_precombi_clvpy6_geo")){
+		$sql	= "CREATE INDEX idx_precombi_clvpy6_geo ON precombi (LEFT(clvpy, 6), geografico);";
+		$stmt	= $conn_pdo->prepare($sql); // Prepara el SQL
+		$res	= $stmt->execute();
+	}
+}
 // _______________________________________________________
 function traer_UrIni_UrFin($p,&$r){
 	$aRen = metodos::trae_Ur_Ini_Fin($r["idUsu"]); // trae las urs permitidas al usuario
@@ -101,7 +123,6 @@ function traer_UrIni_UrFin($p,&$r){
 	}else{
 		$r["mensaje"] = "No se logró acceder a datos de urs del usuario " .  $r["idUsu"] ;
 	}
-
 }
 // _______________________________________________________
 function validar_Carga($p,&$r){
@@ -109,8 +130,11 @@ function validar_Carga($p,&$r){
 	$aXls		= $p["aXls"];
 	$validaPy	= $p["validaPY"];
 	$soap		= metodos::nuevaSopa($p["urlPys"],$r);
+	$cEdo		= "";
+
 //	Se revisa primero en la tabla de Postgresql
 	foreach($aXls as &$xls){
+
 		$vDigito = "";
 		$cEdo	 = "";
 		list($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo) = $xls;
@@ -127,8 +151,11 @@ function validar_Carga($p,&$r){
 
 					    			$cEdo = XREVISAR;
 					    		}
-					    		if ( metodos::solicitada_Anteriormente($cIne,$cUr,$cCta,$cSubCta,$ai,$pp,$spg,$py,$ptda,$cEdo) ){
+					    		$r["trace"] = $cEdo;
+					    		if ( metodos::solicitada_Anteriormente($cIne,$cUr,$cCta,$cSubCta,$ai,$pp,$spg,$py,$ptda,$cEdo,$r) ){
+
 					    			$cEdo = "NP Ya fue solicitada anteriormente " . $cEdo ;
+					    			$r["Estado"] = $cUr;
 					    		}
 							}else{
 								$cEdo = "NP No se encontro el proyecto $py en SIGA";
@@ -151,11 +178,13 @@ function validar_Carga($p,&$r){
 
 	}
 	$r["aXls"] = $aXls;
+	
 }
 // _______________________________________________________
 function valida_Siga($p,&$r){
 	// ahora revisar si existe en el SIGA solo las que tienen estado Valida o XRevisar
 	$soap = metodos::nuevaSopa($p["urlCtas"],$r);
+	$cEdo = "";
 
 	foreach($r["aXls"] as &$xls){
 		list($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo) = $xls;
@@ -173,7 +202,7 @@ function valida_Siga($p,&$r){
 					$xls[IDXEDO] = "NP " .$xls[IDXEDO] . " " . YAEXISTE;
 				}
 			}
-
+			$r["lNoEsta"] = $lNoEsta;
 			//if ($lNoEsta && $lVal5Seg && $aCtas[$k][9+$nIni]==XREVISAR && $nIni==0){
 			if ($lNoEsta && $cEdo==XREVISAR){ // Se busca a 5 segmentos
 				$params = Array(
@@ -186,13 +215,14 @@ function valida_Siga($p,&$r){
 
 				$ctaSiga = json_decode(json_encode($soap->consultaSegmentoUnion1($params)),true);
 				//var_ dump($ctaSiga); return;  // ["noregistros"][0]["concatenatedSegment"]
+				$r["ctaSiga"] = $ctaSiga;
 				if ( isset($ctaSiga["noregistros"])  ){
 					$xls[IDXEDO] = VALIDA; // .
 				}
 			}
 		}
 	}
-
+	//$r["Edo"]		= $cEdo; // util solo para la captura manual
 	$r["success"]	= true;
 }
 // _______________________________________________________
@@ -325,6 +355,88 @@ function ReEnviarEstructuras($p,&$r){
 		$r["error"]   = $e->getMessage();
 		//$conn_pdo->rollBack(); No hay actualizaciones a tablas
 	}
+
+}
+// _______________________________________________________
+function trae_CatUrCtas(&$r){
+	$aReg = metodos::trae_CuentasMayor();
+	if( count($aReg)>0){
+		$r["cuentas"] = $aReg;
+		$oUr  = new Urs();
+		$cUri = $r["urIni"];
+		$cUrf = $r["urFin"];
+		$aReg = $oUr->traeRangoUrs($cUri,$cUrf);
+		if (count($aReg)>0){
+			$r["urs"] 		= $aReg;
+			$r["success"]	= true;
+		}else{
+			$r["mensaje"] = "No hay rango para Urs";
+		}
+	}else{
+		$r["mensaje"] = "No hay cuentas de mayor";
+	}
+
+}
+// _______________________________________________________
+// function validaEstructura(&$r){
+// 	$estructura = $r["parametros"]["estructura"];
+
+// 	$r["c1Ine"]  = $cIne = $estructura['cIne'];
+// 	$r["c2Ur"]   = $cUr  = $estructura['cUr'];
+// 	$r["c3Cta"]  = $cCta = $estructura['cCta'];
+// 	$r["c4Sub"]  = $cSub = $estructura['cScta'];
+// 	$r["c5Ai"]   = $cAi  = $estructura['cAi'];
+// 	$r["c6Pp"]   = $cPp  = $estructura['cPp'];
+// 	$r["c7Spg"]  = $cSpg = $estructura['cSpg'];
+// 	$r["c8Py"]   = $cPy  = $estructura['cPy'];
+// 	$r["c9Ptda"] = $cPtda= $estructura['cPtda'];
+// 	$validaPy    = $r["parametros"]["gValidaPY"];
+// 	$soap		 = metodos::nuevaSopa($r["parametros"]["urlPys"],$r);
+// 	$vDigito	 = "";
+// 	$cEdo		 = "";
+
+
+// 	if (metodos::laUrEstaActiva($cUr)){
+// 		if ( metodos::valida_CuentaMayor($cCta,$cPtda,$cSub) ){
+// 			if ( metodos::valida_UrPpSpg($cUr,$cAi,$cPp,$cSpg)){
+// 				if ( metodos::valida_ProyectoUr($cPy,$cUr,$vDigito) ){
+// 					if ( metodos::valida_PySiga($cPy,$soap,$validaPy)){
+// 			    		if ( metodos::valida_Combinacion($cUr,$cAi,$cSub,$cPp,$cSpg,$cPy)){ // En la tabla de combinaciones
+// 			    			$cEdo = VALIDA;
+// 			    		}else{
+
+// 			    			$cEdo = XREVISAR;
+// 			    		}
+// 			    		if ( metodos::solicitada_Anteriormente($cIne,$cUr,$cCta,$cSub,$cAi,$cPp,$cSpg,$cPy,$cPtda,$cEdo) ){
+// 			    			$cEdo = "NP Ya fue solicitada anteriormente " . $cEdo ;
+// 			    		}
+// 					}else{
+// 						$cEdo = "NP No se encontro el proyecto $py en SIGA";
+// 					}
+
+// 				}else{
+// 					$cEdo = "NP El dígito del proyecto $py no corresponde a la UR $cUr ($vDigito)";
+// 				}
+// 			}else{
+// 				$cEdo = "NP Combinación Ur-ProgPresupestario-SubPrograma no reconocida [$cUr-$pp-$spg]";
+// 			}
+// 		}else{
+// 			$cEdo = "NP La partida $ptda no corresponde a la cuenta $cCta";
+// 		}
+// 	}else{
+// 		$cEdo = "NP La Ur $cUr no existe o esta inactiva"; 
+// 	}
+// 	$r["cZEdo"] = $cEdo;
+// }
+// _______________________________________________________
+function copiaDatos(&$p,&$r){
+	$e			= $r["parametros"]["estructura"];
+	$cEdo		= "";
+	$r["aXls"]	= [[$e["cIne"],$e["cUr"],$e["cCta"],$e["cScta"],$e["cAi"],$e["cPp"],$e["cSpg"],$e["cPy"],$e["cPtda"],$cEdo]];
+	$p["aXls"]	= $r["aXls"];
+}
+// _______________________________________________________
+function verifica_Cuenta(&$p,&$r){
 
 }
 // _______________________________________________________

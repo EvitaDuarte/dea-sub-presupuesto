@@ -24,10 +24,6 @@
                     	</ul>
                 	</li>
 
-
-
-
-
             		<li id="carga">
                     	<a>Validación<b>▼</b></a>
                         <ul>
@@ -37,8 +33,6 @@
                             <li onClick="Enviar('P_Cuentas_04_04CtasReEnvio.php');">	<a>Reenvío Correo</a></li>
                         </ul>
                 	</li>
-
-
 
             		<li id="captura" data-esquema="ADM,CON,PTO,MABG">
                     	<a>LayOut<b>▼</b></a>
@@ -54,8 +48,6 @@
                     <li>
                         <li><a data-after="Guía de usuario" href="MPTIC/Guia SISVAL.pdf" target="_blank">Guía de Usuario</a></li>
                     </li>
-
-
 
  					<li>
                         <a id="b_user" data-after="Mi cuenta" style="color: #ff41ae; text-transform: uppercase;">

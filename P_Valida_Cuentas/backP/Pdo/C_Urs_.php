@@ -9,7 +9,7 @@ private $unidad_digito;
 private $activo;
 private $conexion;
 //	__________________________________________________________________________________________
-public function __construct($conexion) {
+public function __construct($conexion=null) {
 	if ($conexion==null){
 		// Solo construye el objeto
 	}else{
@@ -42,6 +42,12 @@ public function traeUrCampo($cUrIni,$cUrFin,$cCampo){
 public function traeUrs(){ // Solo trae las activas
 	$sql = "select unidad_id,unidad_desc,unidad_digito from public.unidades where activo='S' order by unidad_id ";
 	$reg = ejecutaSQL_($sql);
+	return $reg;
+}
+//	__________________________________________________________________________________________
+public function traeRangoUrs($cUrI,$cUrF){
+	$sql = "select unidad_id as clave,unidad_desc as descripcion,unidad_digito from public.unidades where activo='S' and unidad_id>=:uri and unidad_id<=:urf order by unidad_id ";
+	$reg = ejecutaSQL_($sql,[":uri"=>$cUrI,":urf"=>$cUrF]);
 	return $reg;
 }
 //	__________________________________________________________________________________________
