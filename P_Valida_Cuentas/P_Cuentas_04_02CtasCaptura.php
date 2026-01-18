@@ -82,7 +82,7 @@
                                         </div>
                                     </div>
                                    <div class="caja_captura0"></div>
-                                    <div class="caja_captura" id="divAdiciona">
+                                    <div class="caja_captura oculto" id="divAdiciona">
                                         <div class="form-field-button_">
                                             <a class="btn_1 efecto" onclick="ReEnviarCaptura('S',false);"> 
                                                 <span>ReEnvio</span>

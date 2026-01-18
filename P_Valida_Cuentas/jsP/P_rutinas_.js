@@ -812,6 +812,15 @@ function limpiaTabla(table){
     }
 }
 // ______________________________________________
+function limpiaBody(cId="cuerpo"){
+    const tbody = document.getElementById(cId);
+
+    while (tbody.firstChild) {
+      tbody.removeChild(tbody.firstChild);
+    }
+
+}
+// ______________________________________________
 Paginador = function(divPaginador, tabla, tamPagina){
     this.miDiv      = divPaginador;     //un DIV donde irán controles de paginación
     this.tabla      = tabla;            //la tabla a paginar
@@ -2996,5 +3005,35 @@ function poblarTablaCargaEstructuras(datos,cMensajeError="NO PERMITIDO") {
         cuerpo.appendChild(tr);
     });
 }
+// ________________________________________________________________________
+function SiNoHayDatosaEnviar(cStatus="Estructura",cTbody="cuerpo") {
 
+    gEstructuras    = [];
+    const aCol      = ["ine", "clvcos", "mayor", "subcuenta", "clvai", "clvpp", "clvspg", "clvpy", "clvpar", "estado"];
+    let lNohayDatos = true;
+    const filas     = document.getElementById(cTbody).rows; // Body de la tabla HTML
+
+    for (const fila of filas) {
+        const cEstado = fila.cells[9];  // celda 10
+
+        if (!cEstado) continue;
+
+        const texto = cEstado.textContent.trim();
+
+        if (texto.startsWith(cStatus)) {
+            lNohayDatos = false;
+            // Convertimos la fila en un objeto con propiedades definidas en aCol
+            const filaObj = {};
+            Array.from(fila.cells).forEach((celda, idx) => {
+                const nombreProp = aCol[idx] || `columna${idx}`;
+                filaObj[nombreProp] = celda.textContent.trim();
+            });
+
+            gEstructuras.push(filaObj);
+            //  break;   // ← rompe el bucle inmediatamente
+        }
+    }
+
+    return lNohayDatos;
+}
 // ___________________________________________________________

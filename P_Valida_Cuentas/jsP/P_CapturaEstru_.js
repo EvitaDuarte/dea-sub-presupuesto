@@ -80,6 +80,9 @@ async function procesarRespuesta__(vRes) {
 
 		break;
 		// ______________________________
+		case "EnviarEstructuras":
+			limpiaBody();
+		break;
 		// ______________________________
 
 		// ______________________________
@@ -98,8 +101,12 @@ async function procesarError__(vRes) {
 		break;
 		// ______________________________
 		case "validaEstructura":
+
 		break;
 		// ______________________________
+		case "EnviarEstructuras":
+			limpiaBody();
+		break;
 		// ______________________________
 		// ______________________________
 		// ______________________________
@@ -224,6 +231,21 @@ function agregarEstructuraATabla(g) {
     tbody.appendChild(tr);
 }
 // _______________________________________________________________
+function EnviarCaptura(){
+	if (SiNoHayDatosaEnviar()){
+		mandaMensaje("No hay estructuras válidas o a revisar, para enviar.");// llena gEstructuras con Estructuras validas o Estructuras a Revisar
+		return false
+	}
+	loader('flex');
+	aParametros = {
+		opcion : "EnviarEstructuras",
+		correo : gaCorreo,
+		datos  : gEstructuras,
+		urUsu  : gUrUsu
+
+	}
+	conectayEjecutaPost(aParametros,cPhp);
+}
 // _______________________________________________________________
 // _______________________________________________________________
 // _______________________________________________________________

@@ -49,7 +49,6 @@
 	    	case "validarCarga":
 	    		validar_Carga($param,$regreso);
 	    		valida_Siga($param,$regreso);
-	    		verifica_Cuenta($param,$regreso);
 	    	break;
 			//___________________________________
 	    	case "EnviarEstructuras":
@@ -61,7 +60,7 @@
 			breaK;
 			//___________________________________
 			case "validaEstructura":
-				copiaDatos($param,$regreso);
+				simulaCargaXls($param,$regreso);
 	    		validar_Carga($param,$regreso);
 	    		valida_Siga($param,$regreso);
 	    		$regreso["parametros_"] = $param;
@@ -160,7 +159,6 @@ function validar_Carga($p,&$r){
 							}else{
 								$cEdo = "NP No se encontro el proyecto $py en SIGA";
 							}
-
 						}else{
 							$cEdo = "NP El dígito del proyecto $py no corresponde a la UR $cUr ($vDigito)";
 						}
@@ -222,7 +220,7 @@ function valida_Siga($p,&$r){
 			}
 		}
 	}
-	//$r["Edo"]		= $cEdo; // util solo para la captura manual
+	$r["Edo"]		= $cEdo; // util solo para la captura manual
 	$r["success"]	= true;
 }
 // _______________________________________________________
@@ -429,16 +427,13 @@ function trae_CatUrCtas(&$r){
 // 	$r["cZEdo"] = $cEdo;
 // }
 // _______________________________________________________
-function copiaDatos(&$p,&$r){
+function simulaCargaXls(&$p,&$r){
 	$e			= $r["parametros"]["estructura"];
 	$cEdo		= "";
 	$r["aXls"]	= [[$e["cIne"],$e["cUr"],$e["cCta"],$e["cScta"],$e["cAi"],$e["cPp"],$e["cSpg"],$e["cPy"],$e["cPtda"],$cEdo]];
 	$p["aXls"]	= $r["aXls"];
 }
 // _______________________________________________________
-function verifica_Cuenta(&$p,&$r){
-
-}
 // _______________________________________________________
 
 ?>

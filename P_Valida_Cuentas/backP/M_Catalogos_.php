@@ -204,8 +204,8 @@ class metodos{
 					$r["para"][] = $param;
 					$r["val_"][] = $val;
 				}
-			if ($val!==""){ // Ya existe
-			if (count($val)>0)
+			//if ($val!==""){ // Ya existe
+			if (count($val)>0){
 				$cEdo = $val[0]["salida"];
 				return true;
 			}

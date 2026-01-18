@@ -214,37 +214,6 @@ function SiNoSeCargoArchivoXls(){
 	return false;
 }
 // ________________________________________________________________________
-function SiNoHayDatosaEnviar(cStatus="Estructura") {
-
-	gEstructuras	= [];
-	const aCol 		= ["ine", "clvcos", "mayor", "subcuenta", "clvai", "clvpp", "clvspg", "clvpy", "clvpar", "estado"];
-    let lNohayDatos = true;
-    const filas		= document.getElementById("cuerpo").rows; // Body de la tabla HTML
-
-    for (const fila of filas) {
-        const cEstado = fila.cells[9];  // celda 10
-
-        if (!cEstado) continue;
-
-        const texto = cEstado.textContent.trim();
-
-        if (texto.startsWith(cStatus)) {
-            lNohayDatos = false;
-            // Convertimos la fila en un objeto con propiedades definidas en aCol
-            const filaObj = {};
-            Array.from(fila.cells).forEach((celda, idx) => {
-                const nombreProp = aCol[idx] || `columna${idx}`;
-                filaObj[nombreProp] = celda.textContent.trim();
-            });
-
-            gEstructuras.push(filaObj);
-            //  break;   // ← rompe el bucle inmediatamente
-        }
-    }
-
-    return lNohayDatos;
-}
-// ________________________________________________________________________
 function limpiar_Boton_Input(){
 	limpiarInputFile();
 	efectoBotones(() => CargaValidar("NO"));
