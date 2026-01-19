@@ -716,3 +716,48 @@ Azul oscuro - rgb (15,26,47) - 0F1A2F
   height: 3px;     /* grosor de la línea horizontal */
 }
 /* ________________________________________________________________ */
+.caja_captura_chk {
+    display: inline-block;
+    width: fit-content;
+    margin: 2px;
+    padding: 2px;
+    font-size: 14px;
+    vertical-align: top; /* 🔑 alineación con otras cajas */
+}
+.caja_captura_chk label {
+    color: rgb(149,0,84);
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    text-align: left;
+}
+.caja_captura_chk input[type="checkbox"] {
+    display: block;
+    margin: 0 auto;              /* centra el checkbox */
+    transform: scale(1.4);
+    accent-color: rgb(149,0,84);
+    cursor: pointer;
+}
+/* ________________________________________________________________ */
+table.dataTable td,
+table.dataTable th {
+    white-space: nowrap;
+}
+.top-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.top-controls .dataTables_length {
+    order: 1;
+}
+
+.top-controls .dataTables_paginate {
+    order: 2;
+}
+
+.top-controls .dataTables_filter {
+    order: 3;
+}
+/* ________________________________________________________________ */

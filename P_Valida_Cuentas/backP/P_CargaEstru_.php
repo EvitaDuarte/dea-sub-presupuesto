@@ -67,6 +67,10 @@
 				//validaEstructura($regreso);
 			break;
 			//___________________________________
+			case "trae_CatUrs": // para llenar los combos de UrIni, UrFin
+				trae_CatUrs($param,$regreso);
+			break;
+			//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Carga Estructuras";
 	    	break;
@@ -434,6 +438,26 @@ function simulaCargaXls(&$p,&$r){
 	$p["aXls"]	= $r["aXls"];
 }
 // _______________________________________________________
+function trae_CatUrs(&$p,&$r){
+	$aRen = metodos::trae_Ur_Ini_Fin($r["idUsu"]); // trae las urs permitidas al usuario
+
+	if (count($aRen)>0){
+		$r["urIni"]		= $aRen[0]["unidad_inicio"];
+		$r["urFin"]		= $aRen[0]["unidad_fin"];
+		$oUr  = new Urs();
+		$cUri = $r["urIni"];
+		$cUrf = $r["urFin"];
+		$aReg = $oUr->traeRangoUrs($cUri,$cUrf);
+		if (count($aReg)>0){
+			$r["urs"] 		= $aReg;
+			$r["success"]	= true;
+		}else{
+			$r["mensaje"] = "No hay rango para Urs [$cUri,$cUrf]";
+		}
+	}else{
+		$r["mensaje"] = "No se logró acceder a datos de urs del usuario " .  $r["idUsu"] ;
+	}
+}
 // _______________________________________________________
 
 ?>
