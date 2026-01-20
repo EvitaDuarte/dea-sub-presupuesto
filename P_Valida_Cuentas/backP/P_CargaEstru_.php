@@ -71,6 +71,10 @@
 				trae_CatUrs($param,$regreso);
 			break;
 			//___________________________________
+			case "actualizaEstado":
+				actualiza_Estado($param,$regreso);
+			break;
+			//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Carga Estructuras";
 	    	break;
@@ -451,11 +455,66 @@ function trae_CatUrs(&$p,&$r){
 		if (count($aReg)>0){
 			$r["urs"] 		= $aReg;
 			$r["success"]	= true;
+			$aReg 			= metodos::trae_urls_soap();
+
+			if (count($aReg)>0){
+				$r["urlCtas"]	= $aReg[0]["urlctas"];
+				$r["urlPys"]	= $aReg[0]["urlpy"];
+				$r["validaPy"]	= $aReg[0]["validapy"];
+			}
+
 		}else{
 			$r["mensaje"] = "No hay rango para Urs [$cUri,$cUrf]";
 		}
 	}else{
 		$r["mensaje"] = "No se logró acceder a datos de urs del usuario " .  $r["idUsu"] ;
+	}
+}
+// _______________________________________________________
+function actualiza_Estado(&$p,&$r){
+	$where	= "";
+	$cEnvio = "";
+	$cUrI	= "";
+	$cUrF	= "";
+	$cTabla = "";
+	$url	= $p["url"];
+	$aPar	= [];
+	$cFiltro= $p["filtros"]["tipo"];
+
+	if ($cFiltro==="envio"){
+		$cEnvio = $p["filtros"]["numEnvio"];
+		$where	= " where noenvio=:noenvio ";
+		$aPar	= [":noenvio"=>$cEnvio];
+
+	}elseif($cFiltro==="ur" || $cFiltro==="pendientes"){
+		$cUrI	= $p["filtros"]["urI"];
+		$cUrF	= $p["filtros"]["urF"];
+		$where	= " where clvcos BETWEEN :urI and :urF ";
+		$aPar	= [":urI"=>$cUrI,":urF"=>$cUrF];
+		if ($cFiltro==="pendientes"){
+			$where = $where . " and estado like 'Estructura%' ";
+		}
+	}
+
+	for ($i=0;$i<=1;$i++){
+		$sql = "select ine,clvcos,mayor,subcuenta,clvai,clvpp,clvspg,clvpy,clvpar,estado,noenvio from ";
+		if ($i==0){
+			$cTabla = " epvalidas ";
+			$sql	= $sql . $cTabla . $where;
+		}else{
+			$cTabla = " epinvalidas ";
+			$sql = $sql . $cTabla  . $where;
+		}
+		//
+		$aRen = ejecutaSQL_($sql,$aPar);
+
+		if (count($aRen)>0){
+
+			$ren = metodos::revisaSiga($aRen,$url,trim($cTabla),$r);
+			$r[$cTabla.$i]	= $ren;
+			$r[$cTabla]		= $aRen;
+		}
+
 	}
 }
 // _______________________________________________________

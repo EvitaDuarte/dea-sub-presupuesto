@@ -1888,6 +1888,17 @@ function visible(cId, visible) {
     }
 }
 // __________________________________________________________________________________
+function apaga_prendeId(cIdHtml){
+    oHtml = document.getElementById(cIdHtml);
+    if (oHtml){
+        if ( oHtml.classList.contains("oculto") ){
+            oHtml.classList.remove('oculto');
+        }else{
+            oHtml.classList.add('oculto');
+        }
+    }
+}
+// __________________________________________________________________________________
 const tituloSelect = (cId)=>{
     cSele = document.getElementById(cId);            // Debe ser un HTML select
     cTxt  = cSele.options[cSele.selectedIndex].text; // Regresa el texto desplegado en el select

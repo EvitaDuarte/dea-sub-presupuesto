@@ -739,14 +739,50 @@ Azul oscuro - rgb (15,26,47) - 0F1A2F
     cursor: pointer;
 }
 /* ________________________________________________________________ */
+.sectiontCuadricula { /* Se usa en conjunto con DataTables */
+    width           : 100%; /* Ancho de la tabla */
+}
+
+.sectiontCuadricula th, sectiontCuadricula td {
+    border        : 1px solid #000; /* Borde de 1 píxel sólido en las celdas */
+    padding       : 4px; /* Espaciado interior para el contenido de las celdas */
+    text-align    : left; /* Alineación del texto en el centro */
+}
+
+
+.sectiontCuadricula th {
+    background-color: #950054; 
+    color:white;
+    font-size: 14px;
+    position: sticky;
+    top: 0;
+} 
+.sectiontCuadricula.dataTable thead th {
+    background-color: #950054;
+    color: white;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* Estilos opcionales para las filas pares e impares */
+.sectiontCuadricula tr:nth-child(even) {
+    background-color: #e0e0e0; /* Color de fondo para filas pares */
+}
+
+.sectiontCuadricula tr:nth-child(odd) {
+    background-color: #ffffff; /* Color de fondo para filas impares */
+}
 table.dataTable td,
 table.dataTable th {
     white-space: nowrap;
 }
 .top-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    background: #fff;
+    padding: 6px 8px;
+    border-bottom: 1px solid #ccc;
 }
 
 .top-controls .dataTables_length {
@@ -759,5 +795,8 @@ table.dataTable th {
 
 .top-controls .dataTables_filter {
     order: 3;
+}
+.sectiontCuadricula table.dataTable {
+    width: 100% !important;
 }
 /* ________________________________________________________________ */

@@ -29,7 +29,7 @@
                                 <section class="seccion_caja_Izquierda" id="sec1">
                                     <div class="caja_captura">
                                         <label for="filtro" class="lbl_txt">Filtro</label>
-                                        <select name="filtro" id="filtro"  onchange="light_Title('filtro');" onchange="filtroOpciones(this) data-field="filtro" title="Filtro">
+                                        <select name="filtro" id="filtro"  onchange="light_Title('filtro');" onclick="filtroOpciones(this.value)" data-field="filtro" title="Filtro">
                                             <option value="">Seleccione</option>
                                             <option value="T">Todos</option>
                                             <option value="N">Número Envio</option>
@@ -39,24 +39,24 @@
                                     </div>
                                     <div class="caja_captura_chk">
                                         <label for="filVal">Válidas</label>
-                                        <input type="checkbox" id="filVal" name="filVal" value="V">
+                                        <input type="checkbox" id="filVal" name="filVal" checked onclick="apaga_prendeId('divValidas')">
                                     </div>
                                     <div class="caja_captura0"></div><div class="caja_captura0"></div>
                                     <div class="caja_captura_chk">
                                         <label for="filRevisar" class="lbl_txt">a Revisar</label>
-                                        <input type="checkbox" id="filRevisar" name="filRevisa" value="R">
+                                        <input type="checkbox" id="filRevisar" name="filRevisa" checked onclick="apaga_prendeId('divRevisar')">
                                     </div>
                                     <div class="caja_captura0"></div><div class="caja_captura0"></div><div class="caja_captura0"></div>
-                                    <div class="caja_captura0" id=filEnvio>
+                                    <div class="caja_captura0 oculto" id=filEnvio>
                                         <label for="numEnvio" class="lbl_txt">Número Envío</label>
                                         <input type="text" name="numEnvio" id="numEnvio" maxlength="50" size="28" 
                                         onkeyup="this.value = this.value.toUpperCase();" title="Número Envío" data-field="noenvio" onblur="validaValor(this);" data-exp='soloLetrasNumeros' data-valida="false" >
                                     </div>
-                                    <div class="caja_captura" id="filUrI">
+                                    <div class="caja_captura oculto" id="filUrI">
                                         <label for="cveUrI" class="lbl_txt">Ur Inicial</label>
                                         <select name="cveUrI" id="cveUrI"  onchange="light_Title('cveUrI');" data-field="clvcos" title="Ur Inicial"></select>
                                     </div>
-                                    <div class="caja_captura" id="filUrF">
+                                    <div class="caja_captura oculto" id="filUrF">
                                         <label for="cveUrF" class="lbl_txt">Ur Final</label>
                                         <select name="cveUrF" id="cveUrF"  onchange="light_Title('cveUrF');" data-field="clvcos" title="Ur Final"></select>
                                     </div>
@@ -79,50 +79,7 @@
                                         </div>
                                     </div>
                                 </section> 
-<!--
-                                <section class="seccion_caja" id="busqueda">
-                                    <div class="caja_captura0">
-                                        <label for="selOpe" class="lbl_txt">Operación</label>
-                                        <select id="selOpe" name="selOpe" title="Operación" onchange="Salida_UrPpSpg();">
-                                            <option value="">Seleccione</option>
-                                            <option value="Excel">Excel</option>
-                                            <option value="Pdf">PDF</option>
-                                        </select>
-                                    </div>
-                                    <div class="caja_captura0">
-                                        <label for="selNumReg" class="lbl_txt">No.Reg</label>
-                                        <select id="selNumReg" name="selNumReg" title="No Reg">
-                                            <option value=15>15</option>
-                                            <option value=30>30</option>
-                                            <option value=60>60</option>
-                                        </select>
-                                    </div>
-                                    <div class="caja_captura0">
-                                        <label for="aCamSel" class="lbl_txt">Celda</label>
-                                        <select id="aCamSel" name="aCamSel" onchange="cambiaMaxLength('txtBuscar',this);">
-                                            <option data-max = "200"    value="">-- Todos --</option>
-                                            <option data-max = "4"      value="a.id">Id</option>
-                                            <option data-max = "40"     value="a.nombre">Nombre</option>
-                                            <option data-max = "200"    value="a.valor">Valor</option>
-                                            <option data-max = "40"     value="a.tipo">Tipo</option>
-                                        </select>
-                                    </div>
-                                    <div class="caja_captura3">
-                                        <label for="txtBuscar" class="lbl_txt">Valor</label>
-                                        <input type="text" id="txtBuscar" name="txtConfigura1"  maxlength="4" 
-                                        title="Valor a Buscar" onblur="validaValor(this);" data-exp='soloLetrasNumerosDiagoSinEsp' data-valida="false">
-                                    </div>
-                                    <div class="form-field-button_" id="grpBotones">
-                                        <a class="btn_1 efecto" onclick="ConfiguraCarga(1);"> 
-                                            <span>Buscar</span>
-                                        </a>
-                                    </div>
-                                </section>
-                                <section class="seccion_caja" id="paginas">
-                                    <div id="paginador"></div>
-                                </section>
--->
-                                <div class="tabla-con-cuadricula">
+                                <section class="sectiontCuadricula " id='divValidas'>
                                     <table class="tablex" id="tblEstruValidas">
                                         <thead>
                                             <tr>
@@ -145,8 +102,8 @@
                                             </tr>
                                         </thead>
                                     </table>
-                                </div>
-                                <div class="tabla-con-cuadricula">
+                                </section>
+                                <section class="sectiontCuadricula " id='divRevisar'>
                                     <table class="tablex" id="tblEstruRevisar">
                                         <thead>
                                             <tr>
@@ -169,7 +126,7 @@
                                             </tr>
                                         </thead>
                                     </table>
-                                </div>
+                                </section>
                             </div>
                         </div>
                     </div>

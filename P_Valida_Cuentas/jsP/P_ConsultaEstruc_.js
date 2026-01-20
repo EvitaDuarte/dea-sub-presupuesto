@@ -38,85 +38,92 @@ window.onload = function () {		// Función que se ejecuta al cargar la página H
 /* ==========================
    CARGA DEL DOM (DataTables)
    ========================== */
+
 $(document).ready(function () {
 
-    tablaValidas = $('#tblEstruValidas').DataTable({
-        processing: true,
-        serverSide: true,
-        deferLoading: 0,
-        ajax: {
+    /* =========================
+       CONFIGURACIÓN BASE
+       ========================= */
+
+    const dtBaseConfig = {
+        processing      : true,
+        serverSide      : true,
+        deferLoading    : 0,
+        pageLength      : 25,
+        scrollY         : '420px',
+        scrollCollapse  : true,
+        paging          : true,
+        fixedHeader     : true,
+        autoWidth       : false,
+        dom             : '<"top-controls"lpf>rt<"bottom"i>',
+        columnDefs      : [ { targets: '_all', className: 'dt-left' } ]
+    };
+
+    /* =========================
+       AJAX REUTILIZABLE
+       ========================= */
+
+    function ajaxDatatable(tablaBackend) {
+        return {
             url: 'backP/api_datatables.php',
             type: 'POST',
             data: function (d) {
-                d.tabla = 'epvalidas';
-                d.filtro = filtrosActuales;
+                d.tabla     = tablaBackend;
+                d.filtro    = filtrosActuales;
+                d.url       = gUrlCtas;
             },
-		    dataSrc: function (json) {
+            dataSrc: function (json) {
 
-		        // 👇 AQUÍ CAE EL ERROR DEL CATCH DE PHP
-		        if (json.error) {
+                // 👇 Error que viene del catch en PHP
+                if (json.error) {
+                    console.error(`Error PHP (${tablaBackend}):`, json.error);
+                    mandaMensaje("Error en el servidor");
+                    return [];
+                }
 
-		            // Mostrar en consola
-		            console.error('Error PHP:', json.error);
-
-		            // Mostrar al usuario
-		            mandaMensaje("Error en el servidor");
-
-		            // Evitar que DataTables intente renderizar
-		            return [];
-		        }
-
-		        return json.data;
-		    }
-        },
-        pageLength: 25,
-        dom: '<"top"lpf>t<"bottom"i>'
-    });
-
-    tablaRevisar = $('#tblEstruRevisar').DataTable({
-        processing: true,
-        serverSide: true,
-        deferLoading: 0,
-        ajax: {
-            url: 'backP/api_datatables.php',
-            type: 'POST',
-            data: function (d) {
-                d.tabla = 'epinvalidas';
-                d.filtro = filtrosActuales;
+                return json.data;
             },
-		    dataSrc: function (json) {
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                mandaMensaje("Error de comunicación con el servidor");
+            }
+        };
+    }
 
-		        // 👇 AQUÍ CAE EL ERROR DEL CATCH DE PHP
-		        if (json.error) {
+    /* =========================
+       FUNCIÓN FÁBRICA DE TABLAS
+       ========================= */
 
-		            // Mostrar en consola
-		            console.error('Error PHP:', json.error);
+    function crearTabla(selector, tablaBackend, nombreTabla) {
 
-		            // Mostrar al usuario
-		            mandaMensaje("Error en el servidor");
+        const tabla = $(selector).DataTable({
+            ...dtBaseConfig,
+            ajax: ajaxDatatable(tablaBackend)
+        });
 
-		            // Evitar que DataTables intente renderizar
-		            return [];
-		        }
+        // Manejo de errores internos de DataTables
+        tabla.on('error.dt', function (e, settings, techNote, message) {
+            mandaMensaje(`Error en tabla <b>${nombreTabla}</b>:<br>${message}`);
+        });
 
-		        return json.data;
-		    }
-        },
-        pageLength: 25,
-        dom: '<"top"lpf>t<"bottom"i>'
-    });
+        return tabla;
+    }
 
-    /* ======================
-       MANEJO DE ERRORES
-       ====================== */
+    /* =========================
+       CREACIÓN DE TABLAS
+       ========================= */
 
-    tablaValidas.on('error.dt', function (e, settings, techNote, message) {
-        mandaMensaje('Error en tabla <b>Válidas</b>:<br>' + message);
-    });
+    window.tablaValidas = crearTabla(
+        '#tblEstruValidas',
+        'epvalidas',
+        'Válidas'
+    );
 
-    tablaRevisar.on('error.dt', function (e, settings, techNote, message) {
-        mandaMensaje('Error en tabla <b>a Revisar</b>:<br>' + message);
-    });
+    window.tablaRevisar = crearTabla(
+        '#tblEstruRevisar',
+        'epinvalidas',
+        'a Revisar'
+    );
 
 });
 // ________________________________________________________________________
@@ -128,6 +135,7 @@ async function procesarRespuesta__(vRes) {
 		case "trae_CatUrs":
 			 llenaComboCveDes(document.getElementById("cveUrI"), vRes.urs , false);
 			 llenaComboCveDes(document.getElementById("cveUrF"), vRes.urs , false);
+             gUrlCtas = vRes.urlCtas;
 		break;
 	}
 }
@@ -154,7 +162,7 @@ function traeCatUrs(){
 	conectayEjecutaPost(aParametros,cPhp);
 }
 // ________________________________________________________________________
-function ConsultaEstructuras() {
+function ConsultaEstructuras(cDataTables=true) {
 
     filtrosActuales = {}; // reset
 
@@ -199,27 +207,60 @@ function ConsultaEstructuras() {
         filtrosActuales.tipo = 'ur';
         filtrosActuales.urI	 = urI;
         filtrosActuales.urF	 = urF;
+        if (filtro==="P"){
+            filtrosActuales.tipo = 'pendientes';
+        }
     }
+    if (cDataTables){
+        // ✔ Checkboxes
+        filtrosActuales.validas   = $('#filVal').is(':checked');
+        filtrosActuales.revisar   = $('#filRevisar').is(':checked');
 
-    // ✔ Checkboxes
-    filtrosActuales.validas   = $('#filVal').is(':checked');
-    filtrosActuales.revisar   = $('#filRevisar').is(':checked');
+        // 🔥 Recargar tablas
+        if (filtrosActuales.validas) {
+            tablaValidas.ajax.reload();
+        } else {
+            tablaValidas.clear().draw();
+        }
 
-    // 🔥 Recargar tablas
-    if (filtrosActuales.validas) {
-        tablaValidas.ajax.reload();
-    } else {
-        tablaValidas.clear().draw();
-    }
-
-    if (filtrosActuales.revisar) {
-        tablaRevisar.ajax.reload();
-    } else {
-        tablaRevisar.clear().draw();
+        if (filtrosActuales.revisar) {
+            tablaRevisar.ajax.reload();
+        } else {
+            tablaRevisar.clear().draw();
+        }
+    }else{
+        aParametros ={
+            opcion  :"actualizaEstado",
+            url     : gUrlCtas,
+            filtros : filtrosActuales
+        }
+        loader('block');
+        conectayEjecutaPost(aParametros,cPhp);
     }
 }
 // ________________________________________________________________________
+function filtroOpciones(cOpc){
+    //console.log("cOpc",cOpc);
+    document.getElementById('filEnvio').classList.add('oculto');
+    document.getElementById('filUrI').classList.add('oculto');
+    document.getElementById('filUrF').classList.add('oculto');
+    switch(cOpc){
+        case 'N': // Numero de Envio
+            document.getElementById('filEnvio').classList.remove('oculto');
+            //console.log("cOpc",cOpc);
+        break;
+        case 'U':
+        case 'P':
+            document.getElementById('filUrI').classList.remove('oculto');
+            document.getElementById('filUrF').classList.remove('oculto');
+            //console.log("cOpc",cOpc);
+        break;
+    }
+}
 // ________________________________________________________________________
+function ActualizarEstado(){
+    ConsultaEstructuras(false);
+}
 // ________________________________________________________________________
 // ________________________________________________________________________
 // ________________________________________________________________________

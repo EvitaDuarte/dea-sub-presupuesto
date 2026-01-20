@@ -113,6 +113,18 @@ class metodos{
 	    }
 	}
 	//  ___________________________________________________________________
+	public static function nuevaSopita($url){
+	    try {
+	        $soap = new SoapClient($url, self::aOpcionesWs($url));
+	        return $soap;
+
+	    } catch (Exception $fault) {
+	    	$cError			= "Falla Conexión SIGA: (Código: {$fault->faultcode}, Descripción: {$fault->faultstring})";
+	        // En PHP 8 es mejor lanzar excepción personalizada:
+	        throw new Exception($cError);
+	    }
+	}
+	//  ___________________________________________________________________
 	public static function aOpcionesWs($url){
 		return     Array(
 			"uri"					=> $url,			"style"					=> SOAP_RPC,
@@ -243,6 +255,51 @@ class metodos{
 		}
 		return null;
 	}
+	
+	//  ___________________________________________________________________
+	public static function revisaSiga(&$data,$url,$tabla,&$r){
+    	$oEstruc = new Estructura();
+    	$soap	 = metodos::nuevaSopita($url);
+    	$nRen	 = 0;
+    	$debug   = "";
+    	foreach ($data as &$estru) {
+    		
+		    $cIne     = $estru['ine'];
+		    $cUr      = $estru['clvcos'];
+		    $cCta     = $estru['mayor'];
+		    $cSubCta  = $estru['subcuenta'];
+		    $ai       = $estru['clvai'];
+		    $pp       = $estru['clvpp'];
+		    $spg      = $estru['clvspg'];
+		    $py       = $estru['clvpy'];
+		    $ptda     = $estru['clvpar'];
+		    $cEdo     = $estru['estado'];
+
+			if ($cEdo==VALIDA || $cEdo==XREVISAR){
+
+				$params = Array("segment10" => $cIne	, "segment1" => $cUr, "segment2" => $cCta,
+				    			 "segment3"	=> $cSubCta	, "segment5" => $ai , "segment6" => $pp,
+				    			 "segment7"	=> $spg		, "segment8" => $py , "segment9" => $ptda );
+				$ctaSiga = json_decode(json_encode($soap->consultaCuentas($params)),true); 
+				$lNoEsta = true;
+				$r["debug"] = $ctaSiga;
+				if ( isset($ctaSiga["cuentas"]) ){
+					$cCta1	 = $cIne . "-" . $cUr . "-" . $cCta . "-" . $cSubCta . "-" . $ai . "-" . $pp . "-" . $spg . "-" . $py . "-" . $ptda;
+					if ($cCta1===$ctaSiga["cuentas"][0]["concatenatedSegment"]){
+						$lNoEsta		= false;
+						$cEdo			= YAEXISTE;
+						$estru["estado"]= $cEdo;
+						 
+						$r["trace"] ="actualiza postgresql [" . $tabla ."]";
+						//$nRen += $oEstruc->modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla,$aSql);
+						$nRen += $oEstruc->modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla,$debug);
+					}
+				}
+			}
+    	}
+    	return $nRen;
+	}
+	//  ___________________________________________________________________
 	//  ___________________________________________________________________
 }
 ?>

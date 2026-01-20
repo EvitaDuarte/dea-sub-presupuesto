@@ -183,6 +183,24 @@ public function enviaEstructuras($aEstruc,$cNumeroEnvio,$correoOrigen,$correosDe
 	return $lEnvio;
 }
 // ____________________________________________
+//public function modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla,&$aSql){
+public function modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla,&$debug){
+	$sql = "";
+	if ($tabla==="epvalidas"){
+		$sql = "update public.epvalidas ";
+	}elseif($tabla=="epinvalidas"){
+		$sql = "update public.epinvalidas";
+	}
+	if ($sql!==""){
+		$sql	= $sql . " set estado=:estado where ine=:ine and clvcos=:ur and mayor=:cta and subcuenta=:scta and clvai=:ai and clvpp=:pp and clvspg=:spg and clvpy=:py and clvpar=:ptda ";
+		$par	= [":estado"=>$cEdo,":ine"=>$cIne,":ur"=>$cUr,":cta"=>$cCta,":scta"=>$cSubCta,":ai"=>$ai,":pp"=>$pp,":spg"=>$spg,":py"=>$py,":ptda"=>$ptda];
+		//$aSql[] = $sql;
+		//$aSql[] = $par;
+		$nRen	= actualizaSql($sql,$par);
+		return ($nRen);
+	}
+	return 0;
+}
 // ____________________________________________
 // ____________________________________________
 // ____________________________________________
