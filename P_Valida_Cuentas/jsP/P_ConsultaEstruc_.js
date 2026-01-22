@@ -137,6 +137,14 @@ async function procesarRespuesta__(vRes) {
 			 llenaComboCveDes(document.getElementById("cveUrF"), vRes.urs , false);
              gUrlCtas = vRes.urlCtas;
 		break;
+        // _______________________________
+        case "actualizaEstado":
+            ConsultaEstructuras(true);
+        break;
+        // _______________________________
+        // _______________________________
+        // _______________________________
+        // _______________________________
 	}
 }
 // __________________________REGRESOS DE PHP _____________________________________
@@ -162,7 +170,7 @@ function traeCatUrs(){
 	conectayEjecutaPost(aParametros,cPhp);
 }
 // ________________________________________________________________________
-function ConsultaEstructuras(cDataTables=true) {
+function ConsultaEstructuras(cDataTables=true,lCorreo=false) {
 
     filtrosActuales = {}; // reset
 
@@ -228,6 +236,10 @@ function ConsultaEstructuras(cDataTables=true) {
         } else {
             tablaRevisar.clear().draw();
         }
+        // El boton de reenvio detecta que las tablas HTML estan vacías
+        // if(lCorreo){
+        //     reenviarCorreo(1);// podría entrar en un loop si los filtros no generar información
+        // }
     }else{
         aParametros ={
             opcion  :"actualizaEstado",
@@ -244,9 +256,11 @@ function filtroOpciones(cOpc){
     document.getElementById('filEnvio').classList.add('oculto');
     document.getElementById('filUrI').classList.add('oculto');
     document.getElementById('filUrF').classList.add('oculto');
+//  document.getElementById('divReEnvio').classList.add('oculto');
     switch(cOpc){
         case 'N': // Numero de Envio
             document.getElementById('filEnvio').classList.remove('oculto');
+//          document.getElementById('divReEnvio').classList.remove('oculto');
             //console.log("cOpc",cOpc);
         break;
         case 'U':
@@ -262,5 +276,24 @@ function ActualizarEstado(){
     ConsultaEstructuras(false);
 }
 // ________________________________________________________________________
-// ________________________________________________________________________
+// function reenviarCorreo(nUnaVez=0){
+//     tabla   = $('#tblEstruValidas').DataTable(); // obtiene instancia existente
+//     nRenVal = tabla.rows().count();
+//     tabla   = $('#tblEstruRevisar').DataTable();
+//     nRenVal+=tabla.rows().count();
+//     if ( nRenVal> 0) {
+//         enviarCorreo(nUnaVez);
+//     }else{
+//         if (nUnaVez===0){
+//             ConsultaEstructuras(true,true); //podría entrar en un bucle si al ir a PHP no hay registros que cumplan la condición
+//         }else{
+//             mandaMensaje("No hay información a reenviar. Revise si los filtros de información son correctos")
+//         }
+//     }
+
+// }
+// // ________________________________________________________________________
+// function enviarCorreo(nUnaVez){
+//     console.log("nUnaVez",nUnaVez);
+// }
 // ________________________________________________________________________

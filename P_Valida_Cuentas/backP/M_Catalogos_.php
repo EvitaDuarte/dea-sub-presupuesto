@@ -262,18 +262,26 @@ class metodos{
     	$soap	 = metodos::nuevaSopita($url);
     	$nRen	 = 0;
     	$debug   = "";
+    	$lLista  = false;
+    	if ($tabla===""){
+    		$lLista= true;
+    		$tabla =$data[0][16]; // no esta referenciado no se puede buscar por "tabla"
+    	}
     	foreach ($data as &$estru) {
-    		
-		    $cIne     = $estru['ine'];
-		    $cUr      = $estru['clvcos'];
-		    $cCta     = $estru['mayor'];
-		    $cSubCta  = $estru['subcuenta'];
-		    $ai       = $estru['clvai'];
-		    $pp       = $estru['clvpp'];
-		    $spg      = $estru['clvspg'];
-		    $py       = $estru['clvpy'];
-		    $ptda     = $estru['clvpar'];
-		    $cEdo     = $estru['estado'];
+    		if ($lLista){
+				list($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo) = $estru;
+    		}else{
+			    $cIne     = $estru['ine'];
+			    $cUr      = $estru['clvcos'];
+			    $cCta     = $estru['mayor'];
+			    $cSubCta  = $estru['subcuenta'];
+			    $ai       = $estru['clvai'];
+			    $pp       = $estru['clvpp'];
+			    $spg      = $estru['clvspg'];
+			    $py       = $estru['clvpy'];
+			    $ptda     = $estru['clvpar'];
+			    $cEdo     = $estru['estado'];
+			}
 
 			if ($cEdo==VALIDA || $cEdo==XREVISAR){
 
@@ -288,8 +296,7 @@ class metodos{
 					if ($cCta1===$ctaSiga["cuentas"][0]["concatenatedSegment"]){
 						$lNoEsta		= false;
 						$cEdo			= YAEXISTE;
-						$estru["estado"]= $cEdo;
-						 
+						$estru["estado"]= $cEdo;					 
 						$r["trace"] ="actualiza postgresql [" . $tabla ."]";
 						//$nRen += $oEstruc->modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla,$aSql);
 						$nRen += $oEstruc->modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla,$debug);

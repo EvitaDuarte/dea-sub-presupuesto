@@ -75,6 +75,10 @@
 				actualiza_Estado($param,$regreso);
 			break;
 			//___________________________________
+			case "traeUrlCtas":
+				trae_UrlCtas($regreso);
+			break;
+			//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Carga Estructuras";
 	    	break;
@@ -454,15 +458,8 @@ function trae_CatUrs(&$p,&$r){
 		$aReg = $oUr->traeRangoUrs($cUri,$cUrf);
 		if (count($aReg)>0){
 			$r["urs"] 		= $aReg;
-			$r["success"]	= true;
-			$aReg 			= metodos::trae_urls_soap();
-
-			if (count($aReg)>0){
-				$r["urlCtas"]	= $aReg[0]["urlctas"];
-				$r["urlPys"]	= $aReg[0]["urlpy"];
-				$r["validaPy"]	= $aReg[0]["validapy"];
-			}
-
+			//$r["success"]	= true;
+			trae_UrlCtas($r);
 		}else{
 			$r["mensaje"] = "No hay rango para Urs [$cUri,$cUrf]";
 		}
@@ -479,6 +476,7 @@ function actualiza_Estado(&$p,&$r){
 	$cTabla = "";
 	$url	= $p["url"];
 	$aPar	= [];
+	$ren 	= 0;
 	$cFiltro= $p["filtros"]["tipo"];
 
 	if ($cFiltro==="envio"){
@@ -510,11 +508,24 @@ function actualiza_Estado(&$p,&$r){
 
 		if (count($aRen)>0){
 
-			$ren = metodos::revisaSiga($aRen,$url,trim($cTabla),$r);
-			$r[$cTabla.$i]	= $ren;
-			$r[$cTabla]		= $aRen;
+			$ren += metodos::revisaSiga($aRen,$url,trim($cTabla),$r);
+			//$r[$cTabla.$i]	= $ren;
+			//$r[$cTabla]		= $aRen;
+			$r["success"]	= true;
+			$r["mensaje"]	= "Se actualizaron $ren estructuras";
 		}
 
+	}
+}
+// _______________________________________________________
+function trae_UrlCtas(&$r){
+	$aReg = metodos::trae_urls_soap();
+
+	if (count($aReg)>0){
+		$r["urlCtas"]	= $aReg[0]["urlctas"];
+		$r["urlPys"]	= $aReg[0]["urlpy"];
+		$r["validaPy"]	= $aReg[0]["validapy"];
+		$r["success"]	= true;
 	}
 }
 // _______________________________________________________
