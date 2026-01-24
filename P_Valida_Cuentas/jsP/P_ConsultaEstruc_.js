@@ -236,10 +236,6 @@ function ConsultaEstructuras(cDataTables=true,lCorreo=false) {
         } else {
             tablaRevisar.clear().draw();
         }
-        // El boton de reenvio detecta que las tablas HTML estan vacías
-        // if(lCorreo){
-        //     reenviarCorreo(1);// podría entrar en un loop si los filtros no generar información
-        // }
     }else{
         aParametros ={
             opcion  :"actualizaEstado",

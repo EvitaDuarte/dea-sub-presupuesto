@@ -265,11 +265,12 @@ class metodos{
     	$lLista  = false;
     	if ($tabla===""){
     		$lLista= true;
-    		$tabla =$data[0][16]; // no esta referenciado no se puede buscar por "tabla"
+    		
     	}
     	foreach ($data as &$estru) {
     		if ($lLista){
 				list($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo) = $estru;
+				$tabla = $estru[16]; // no esta referenciado no se puede buscar por "tabla"
     		}else{
 			    $cIne     = $estru['ine'];
 			    $cUr      = $estru['clvcos'];
@@ -290,16 +291,21 @@ class metodos{
 				    			 "segment7"	=> $spg		, "segment8" => $py , "segment9" => $ptda );
 				$ctaSiga = json_decode(json_encode($soap->consultaCuentas($params)),true); 
 				$lNoEsta = true;
-				$r["debug"] = $ctaSiga;
+				//$r["debug"] = $ctaSiga;
 				if ( isset($ctaSiga["cuentas"]) ){
 					$cCta1	 = $cIne . "-" . $cUr . "-" . $cCta . "-" . $cSubCta . "-" . $ai . "-" . $pp . "-" . $spg . "-" . $py . "-" . $ptda;
 					if ($cCta1===$ctaSiga["cuentas"][0]["concatenatedSegment"]){
 						$lNoEsta		= false;
 						$cEdo			= YAEXISTE;
-						$estru["estado"]= $cEdo;					 
-						$r["trace"] ="actualiza postgresql [" . $tabla ."]";
+						if ($lLista){
+							$estru[IDXEDO] = $cEdo;
+						}else{
+							$estru["estado"]= $cEdo;
+						}					 
+						//$debug = "";
 						//$nRen += $oEstruc->modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla,$aSql);
 						$nRen += $oEstruc->modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla,$debug);
+						//$r["debug"][] = [$debug];
 					}
 				}
 			}

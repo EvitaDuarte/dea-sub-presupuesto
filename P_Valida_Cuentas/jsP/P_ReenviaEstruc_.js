@@ -170,7 +170,7 @@ function inicializarTablaVacia() {
 // ===========================
 // Función que se ejecuta al pulsar "Consultar"
 // ===========================
-function ConsultaEstructuras() {
+function ConsultaEstructuras(lReenvio=false) {
 
     filtrosActuales = {};
 
@@ -202,6 +202,14 @@ function ConsultaEstructuras() {
                 mandaMensaje("Error en el servidor");
                 return [];
             }
+            if (lReenvio){
+                aParametros = {
+                    opcion  : "reEnviarCorreo",
+                    datos   : json.data,
+                    url     : gUrlCtas
+                }
+                conectayEjecutaPost(aParametros,cPhp);
+            }
             return json.data;
         }
     };
@@ -217,4 +225,8 @@ function traeUrlCtas(){
 	conectayEjecutaPost(aParametros,cPhp);
 }
 // ________________________________________________________________________
+function ReenviarCorreo(){
+    lReenvio = true;
+    ConsultaEstructuras(lReenvio);
+}
 // ________________________________________________________________________

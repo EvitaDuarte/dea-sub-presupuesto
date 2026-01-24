@@ -79,6 +79,10 @@
 				trae_UrlCtas($regreso);
 			break;
 			//___________________________________
+			case "reEnviarCorreo":
+				reEnviar_Correo($param,$regreso);
+			break;
+			//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Carga Estructuras";
 	    	break;
@@ -518,6 +522,18 @@ function actualiza_Estado(&$p,&$r){
 	}
 }
 // _______________________________________________________
+function traeDatosCorreos(&$r){
+	$aVarCorreo	= metodos::trarCorreoPtoConta();
+	if ($aVarCorreo!==null){
+		$r["correoPto"]		= $aVarCorreo[0]["valor"];
+		$r["correoConta"]	= $aVarCorreo[1]["valor"];
+		$r["correoUsu"]		= $aVarCorreo[2]["valor"];
+		$r["correoPass"]	= $aVarCorreo[3]["valor"];
+		return true;
+	}
+	return false;
+}
+// _______________________________________________________
 function trae_UrlCtas(&$r){
 	$aReg = metodos::trae_urls_soap();
 
@@ -527,6 +543,78 @@ function trae_UrlCtas(&$r){
 		$r["validaPy"]	= $aReg[0]["validapy"];
 		$r["success"]	= true;
 	}
+}
+// _______________________________________________________
+function reEnviar_Correo(&$p,&$r){
+	global $conn_pdo;
+	$nRenV = 0; $nRenI = 0;
+
+	if (!traeDatosCorreos($r)){
+		$r["mensaje"] = "No se logro traer configuración de correos";
+		return false;
+	}
+
+	try{
+
+		$cUsuario	  = $r["idUsu"];
+		$cCorreoUr    = trim($cUsuario). "@ine.mx";
+		$cMailGener   = $r["correoUsu"];
+		$cPassGener   = $r["correoPass"];
+		$cCorreoPto	  = $r["correoPto"];
+		$cCorreoConta = $r["correoConta"];
+		$aEstru		  = $r["parametros"]["datos"];
+		$claves  	  = ["ine", "clvcos", "mayor", "subcuenta","clvai","clvpp","clvspg","clvpy","clvpar","estado"];
+		$oEstruc	  = new Estructura();
+		$aPtoEstr	  = [];
+		$aContaEstr   = [];
+		$cMensaje	  = $cMensaje2 = "";
+		foreach ($aEstru as $tEstructura ) {
+			// Genera un arreglo referenciado de acuerdo al tamaño de $claves
+			$vEstru		= array_combine($claves,array_slice($tEstructura, 0, count($claves)));
+			$cArea		= ($vEstru["subcuenta"]===SCTACONTA)?"C":"P";
+			$cNoEnvio	= $tEstructura[10];
+			$cEdo		= $vEstru["estado"];
+
+			$oEstruc->cargaEstructura($vEstru);
+			$oEstruc->cargaComplemento($cNoEnvio,$cUsuario,$cArea);
+
+			if ( $cEdo===VALIDA || $cEdo===XREVISAR ){
+				if ($cEdo===VALIDA){
+					$nRenV++;
+				}else{
+					$nRenI++;					
+				}
+				if ($cArea=="C"){
+					array_push($aContaEstr,$vEstru);
+				}else{
+					array_push($aPtoEstr,$vEstru);
+				}
+			}
+		}
+		$lEnvio = true;
+		if (count($aPtoEstr)>0){
+			$lEnvio = $oEstruc->enviaEstructuras($aPtoEstr,$cNoEnvio,$cCorreoUr,$cCorreoPto,$cMailGener,$cPassGener,$cMensaje1);
+		}
+		if ($lEnvio){
+			if (count($aContaEstr)>0){
+				$lEnvio = $oEstruc->enviaEstructuras($aContaEstr,$cNoEnvio,$cCorreoUr,$cCorreoConta,$cMailGener,$cPassGener,$cMensaje2);
+			}
+		}
+		$r["success"] = $lEnvio;
+		if ($lEnvio){
+			$r["mensaje"] = "Se envió la solicitud de alta de  $nRenV estructuras válidas y $nRenI estructuras a Revisar. Número de envío: $cNoEnvio . Correo enviado a < $cMensaje1 $cMensaje2 > Se tiene que esperar su alta en el SIGA por parte  de contabilidad y/o Presupuesto";
+		}else{
+			$r["mensaje"] =$cMensaje1 ." >><< ". $cMensaje2;
+		}
+		$r["mensajeenvio1"] = $cMensaje1;
+		$r["mensajeenvio2"] = $cMensaje2;
+		
+
+	}catch(Exception $e){
+		$r["mensaje"] = "Ocurrio una Inconsistencia en EnviarEstructuras ";
+		$r["error"]   = $e->getMessage();
+	}
+
 }
 // _______________________________________________________
 

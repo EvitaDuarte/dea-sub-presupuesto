@@ -24,6 +24,7 @@ session_start();
 	    $start  = intval($_POST['start'] ?? 0);
 	    $length = intval($_POST['length'] ?? 25);
 	    $url	= $_POST['url'];
+	    $r		= array('success' => false , 'mensaje' => '');
 	    // Variables de depuracion
     	$nRen	= 0;
 
@@ -60,7 +61,7 @@ session_start();
 	       Revisar si ya existe cada combinación de este bloque (limit, offset ) en SIGA 
 		   ================================ */
 	    if (count($data)>0){
-	    	$r	= array('success' => false , 'mensaje' => '');
+	    	
 			metodos::revisaSiga($data,$url,"",$r);
 	    }
 
@@ -72,7 +73,8 @@ session_start();
 	        'recordsTotal'    => $total,
 	        'recordsFiltered' => $filtered,
 	        'data'            => $data,
-	        'nRen'			  => $nRen
+	        'nRen'			  => $nRen,
+	        'r'				  => $r
 //	        'aSql'			  => $aSql
 	    ]);
 

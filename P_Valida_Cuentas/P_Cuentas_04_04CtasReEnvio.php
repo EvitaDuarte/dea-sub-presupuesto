@@ -24,7 +24,7 @@
             <div id="main_container">    
                 <?php include('P_Cuentas00_MenuPrincipal.php'); // Incluye el menú principal?>
                 <section class="datos-personales2">
-                    <h2 class="titleM">ReEnvio de Correo solicitando estructuras</h2>
+                    <h2 class="titleM">ReEnviar Correo, solicitando estructuras</h2>
                     <div class="container-data">
                         <div class="data-form">
                             <div class="wrapper">
@@ -46,7 +46,7 @@
                                     <div class="caja_captura" id="divActualiza">
                                         <div class="form-field-button_">
                                             <a class="btn_1 efecto" onclick="ReenviarCorreo();"> 
-                                                <span>Actualizar Estado</span>
+                                                <span>Reenviar Correo</span>
                                             </a>
                                         </div>
                                     </div>
