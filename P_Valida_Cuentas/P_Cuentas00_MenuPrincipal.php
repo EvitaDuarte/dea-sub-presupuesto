@@ -38,10 +38,10 @@
                     	<a>LayOut<b>▼</b></a>
                         <ul>
                         	<hr>
-                            <li onClick="Enviar1('Cuentas_05_01Validas.php','validas');"		data-esquema="ADM,CON,PTO">	<a>Estructuras Válidas</a></li>
-                            <li onClick="Enviar1('Cuentas_05_01Validas.php','arevisar');"		data-esquema="ADM,CON,PTO">	<a>Estructuras a Revisar</a></li>
-                            <li onClick="Enviar1('Cuentas_05_03InsertaSiga.php','validas');"	data-esquema="MABG">		<a>Válidas a SIGA</a></li>
-                            <li onClick="Enviar1('Cuentas_05_03InsertaSiga.php','arevisar');"	data-esquema="MABG">		<a>A revisar a SIGA</a></li>
+                            <li onClick="Enviar1('P_Cuentas_05_01Validas.php','epvalidas');"		data-esquema="ADM,CON,PTO">	<a>Estructuras Válidas</a></li>
+                            <li onClick="Enviar1('P_Cuentas_05_01Validas.php','epinvalidas');"		data-esquema="ADM,CON,PTO">	<a>Estructuras a Revisar</a></li>
+                            <li onClick="Enviar1('P_Cuentas_05_03InsertaSiga.php','validas');"	data-esquema="MABG">		<a>Válidas a SIGA</a></li>
+                            <li onClick="Enviar1('P_Cuentas_05_03InsertaSiga.php','arevisar');"	data-esquema="MABG">		<a>A revisar a SIGA</a></li>
                         </ul>
                 	</li>
 

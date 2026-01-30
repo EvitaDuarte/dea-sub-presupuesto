@@ -602,9 +602,7 @@ Azul oscuro - rgb (15,26,47) - 0F1A2F
     width: 600px; 
 }
 
-.oculto {
-  display: none;
-}
+
 /* Anchos fijos */
 #partida     { width: 12ch; }
 #compraMenor { width: 20ch; }/*Aunque lleva solo 5 carcateres su letrero ocupa mas espacios */
@@ -978,7 +976,34 @@ table.dataTable th {
     height: 32px;
     font-size: 0.875rem;
 }
+/* ________________________________________________________________ */
+.caja_captura_opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 2px;
+    padding: 2px;
+    font-size: 14px;
+}
+
+.caja_captura_opt label {
+    color: rgb(149,0,84);
+    font-weight: bold;
+    cursor: pointer;
+    margin: 0;
+}
+
+.caja_captura_opt input[type="radio"] {
+    transform: scale(1.4);
+    accent-color: rgb(149,0,84);
+    cursor: pointer;
+}
+/* ________________________________________________________________ */
 
 
-
+/* ________________________________________________________________ */
+/* Debe ir hasta el final */
+.oculto {
+  display: none;
+}
 /* ________________________________________________________________ */

@@ -8,6 +8,14 @@ function Enviar(sitio){
     }, 600);
 }
 //=============================================================
+function Enviar1(sitio,cTabla){
+    //console.log('Sitio: '+sitio);
+    //$('#main_container').fadeOut(600);
+    setTimeout(function(){
+        location.href = sitio+"?tabla="+cTabla;
+    }, 600);
+}
+//=============================================================
 function EnviarDropdown(clase, tipo, interes){
     //console.log('Clase: '+clase+'\nTipo: '+tipo+'\nInterés: '+interes);
     /*$('#clases_dropdown').fadeTo("fast" , 0);*/

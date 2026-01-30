@@ -46,9 +46,19 @@ header('Content-Type: application/json; charset=utf-8');
 	       FILTROS
 	       ========================= */
 	    $filtro		= $_POST['filtro'] ?? [];
-	    $where		= '1=1';
+	    $where		= '';
 	    $params		= [];
 	    $cFilTipo	= $filtro['tipo'];
+	    $cArea		= $filtro["area"];
+
+	    // _________________________________ // SI es necesario , aunque epvalidas solo tiene estado VALIDA y epinvalidas solo tiene XREVISAR. Para quitar las YAEXISTE 
+    	if ($tablaReq==="epvalidas"){
+    		$where = " estado='" . VALIDA . "' ";
+    	}else{
+    		$where = " estado='" . XREVISAR . "' ";
+    	}
+    	$where .= " and ( numproceso is null or numproceso='' ) ";
+	    // _________________________________
 
 	    if (!empty($cFilTipo)) {
 	        switch ($cFilTipo) {
@@ -76,6 +86,11 @@ header('Content-Type: application/json; charset=utf-8');
 	            default:
 	                break;
 	        }
+	    }
+	    if ($cArea==="P"){
+	    	$where .= " and subcuenta='00000' ";
+	    }elseif ($cArea==="C"){
+	    	$where .= " and subcuenta!='00000' ";
 	    }
 
 	    /* =========================

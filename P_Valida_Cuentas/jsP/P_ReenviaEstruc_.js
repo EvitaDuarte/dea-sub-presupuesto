@@ -63,52 +63,52 @@ async function procesarError__(vRes) {
 // ===========================
 
 // Función que inicializa la tabla vacía
-function inicializarTablaVaciaMal() {
+// function inicializarTablaVaciaMal() {
 
-    const dtBaseConfig = {
-        processing      : true,
-        serverSide      : false,
-        deferLoading    : 0,          // Evita carga inicial
-        pageLength      : 25,
-        scrollY         : '420px',
-        scrollCollapse  : true,
-        paging          : true,
-        fixedHeader     : true,
-        autoWidth       : false,
-        dom             : '<"top-controls"lpf>rt<"bottom"i>',
-        columnDefs      : [ { targets: '_all', className: 'dt-left' } ],
-        data            : [],          // Inicialmente vacía
+//     const dtBaseConfig = {
+//         processing      : true,
+//         serverSide      : false,
+//         deferLoading    : 0,          // Evita carga inicial
+//         pageLength      : 25,
+//         scrollY         : '420px',
+//         scrollCollapse  : true,
+//         paging          : true,
+//         fixedHeader     : true,
+//         autoWidth       : false,
+//         dom             : '<"top-controls"lpf>rt<"bottom"i>',
+//         columnDefs      : [ { targets: '_all', className: 'dt-left' } ],
+//         data            : [],          // Inicialmente vacía
 
-        // Configuración AJAX
-        ajax: {
-            url  : 'backP/api_reenviar.php',
-            type : 'POST',
-            data : function(d) {
-                d.filtro = filtrosActuales;
-                d.url    = gUrlCtas;
-            },
-            dataSrc: function(json) {
-                if (json.error) {
-                    console.error("Error PHP:", json.error);
-                    mandaMensaje("Error en el servidor");
-                    return [];
-                }
-                return json.data;
-            },
-            error: function(xhr) {
-                console.error(xhr.responseText);
-                mandaMensaje("Error de comunicación con el servidor");
-            }
-        }
-    };
+//         // Configuración AJAX
+//         ajax: {
+//             url  : 'backP/api_reenviar.php',
+//             type : 'POST',
+//             data : function(d) {
+//                 d.filtro = filtrosActuales;
+//                 d.url    = gUrlCtas;
+//             },
+//             dataSrc: function(json) {
+//                 if (json.error) {
+//                     console.error("Error PHP:", json.error);
+//                     mandaMensaje("Error en el servidor");
+//                     return [];
+//                 }
+//                 return json.data;
+//             },
+//             error: function(xhr) {
+//                 console.error(xhr.responseText);
+//                 mandaMensaje("Error de comunicación con el servidor");
+//             }
+//         }
+//     };
 
-    tablaEnvio = $('#tblReenvio').DataTable(dtBaseConfig);
+//     tablaEnvio = $('#tblReenvio').DataTable(dtBaseConfig);
 
-    // Manejo de errores internos de DataTables
-    tablaEnvio.on('error.dt', function (e, settings, techNote, message) {
-        mandaMensaje(`Error en tabla <b>Reenvío</b>:<br>${message}`);
-    });
-}
+//     // Manejo de errores internos de DataTables
+//     tablaEnvio.on('error.dt', function (e, settings, techNote, message) {
+//         mandaMensaje(`Error en tabla <b>Reenvío</b>:<br>${message}`);
+//     });
+// }
 // ________________________________________________________________________
 function inicializarTablaVacia() {
 
