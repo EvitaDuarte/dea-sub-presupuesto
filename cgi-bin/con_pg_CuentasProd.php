@@ -1,0 +1,1 @@
+$conn_pg   = pg_connect('host=10.0.15.19 port=5432 user=usrvalida_cuentas password=u5rV4L1d4cu3nt4as$3 dbname=bdvalida_cuentas');

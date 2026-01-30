@@ -1,7 +1,7 @@
 <?php
 try{
 	//
-	require_once("../../cgi-bin/con_pg_Cuentas.php");
+	require_once("../../cgi-bin/con_pg_CuentasProd.php");
 	require_once("../backP/M_Catalogos_.php");
 	require_once("../backP/P_rutinas_.php");
 	$idUsuario = "miguel.bolanos";
