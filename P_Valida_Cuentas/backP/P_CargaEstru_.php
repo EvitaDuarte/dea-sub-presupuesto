@@ -83,6 +83,10 @@
 				reEnviar_Correo($param,$regreso);
 			break;
 			//___________________________________
+			case "generaLayOut":
+				generaTxtLayOut($param,$regreso);
+			break;
+			//___________________________________
 	    	default:
 	    		$regreso["mensaje"]= "No esta codificada $cOpc en Carga Estructuras";
 	    	break;
@@ -615,6 +619,98 @@ function reEnviar_Correo(&$p,&$r){
 		$r["error"]   = $e->getMessage();
 	}
 
+}
+// _______________________________________________________
+function generaTxtLayOut(&$p,&$r){
+	$tabla		= $p["tabla"];
+	$sql		= "select ine, clvcos, mayor, subcuenta, clvai, clvpp, clvspg, clvpy, clvpar from ";
+	$where		= "";
+	$filtro		= $p["filtros"];
+	$cArea		= $filtro["area"]  ?? '';
+	$cFilTipo   = $filtro['tipo']  ?? '';
+	$params		= [];
+	$nombre 	= "_validas_";
+	// __________________________________
+	if ($tabla=="epvalidas"){
+		$sql	= $sql . " epvalidas ";
+		$where	= "where estado='" . VALIDA . "' ";
+
+	}elseif($tabla=="epinvalidas"){
+		$sql	= $sql . " epinvalidas ";
+		$where	= "where  estado='" . XREVISAR . "' ";
+		$nombre = "_xrevisar_";
+	}else{
+		$r["mensaje"] = "No hay programación para " . $tabla;
+		return;
+	}
+	$where .= " AND (numproceso IS NULL OR numproceso = '') ";
+	// ________________________________
+	if ($cArea==="P"){
+		$where .= " and subcuenta='00000' ";
+	}elseif($cArea==="C"){
+		$where .= " and subcuenta!='00000' ";
+	}else{
+		$r["mensaje"] = "No hay programación para el área " . $cArea;
+		return;
+	}
+	// ________________________________
+	if (!empty($cFilTipo)) {
+	    switch ($cFilTipo) {
+	    	case 'todas':
+	    		// nada que filtrar
+	    	break;
+	        case 'envio':
+	            $where .= " AND noenvio = :envio ";
+	            $params[':envio'] = $filtro['numEnvio'] ?? '';
+            break;
+	        case 'ur':
+	            $where .= " AND clvcos BETWEEN :urI AND :urF ";
+	            $params[':urI'] = $filtro['urI'] ?? '';
+	            $params[':urF'] = $filtro['urF'] ?? '';
+            break;
+	    }
+	}
+	// ________________________________
+	$sql = $sql . $where . " order by fechahora desc ";
+	// ________________________________
+	$archivo	= "../salidas/{$nombre}_";
+	$archivo	= ipRepo($archivo,".txt");
+	$fh			= fopen($archivo, 'w');
+	$hayDatos	= false;
+	$soap		= metodos::nuevaSopa($p["urlCtas"],$r);
+	$oEstruc	= new Estructura();
+	// ________________________________
+	foreach (ejecutaQueryStream($sql, $params) as $row) { // Trae registro x registro evitando usar un arreglo gigante
+    	// Verifico nuevamente que laestructura no este en el SIGA 
+    	list($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda) = array_values($row);
+
+		$params = Array("segment10" => $cIne	, "segment1" => $cUr, "segment2" => $cCta,
+		    			 "segment3"	=> $cSubCta	, "segment5" => $ai , "segment6" => $pp,
+		    			 "segment7"	=> $spg		, "segment8" => $py , "segment9" => $ptda );
+		$ctaSiga = json_decode(json_encode($soap->consultaCuentas($params)),true); 
+		$lNoEsta = true;
+		if ( isset($ctaSiga["cuentas"]) ){// Ya esta en el SIGA
+			$lNoEsta	= false;
+			$cEdo		= YAEXISTE;
+			$nRen 		= $oEstruc->modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla);
+
+
+		}
+		if ( $lNoEsta){
+			$hayDatos = true;
+    		fwrite($fh, implode('-', $row) . PHP_EOL);
+    	}
+	}
+	fclose($fh);
+	//_________________________________
+	if (!$hayDatos) {
+	    // No hubo datos → borras archivo vacío
+	    @unlink($archivo);
+	    $r["mensaje"] = "No hay datos para generar el archivo de layout";
+	} else {
+	    $r["success"] = true;
+	    $r["archivo"] = $archivo;
+	}
 }
 // _______________________________________________________
 

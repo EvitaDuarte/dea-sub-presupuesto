@@ -36,7 +36,7 @@
                                             <option value="T">Todos</option>
                                             <option value="N">Número Envio</option>
                                             <option value="U">Por Ur</option>
-                                            <option value="P">Pendientes</option>
+                                            <!-- <option value="P">Pendientes</option> sería lo mismo que todas lasque no se ha generado LayOut -->
                                         </select>
                                     </div>
                                     <div class="caja_captura_opt">
@@ -75,7 +75,7 @@
                                     <div class="caja_captura0"></div>
                                     <div class="caja_captura" id="divConsulta">
                                         <div class="form-field-button_" >
-                                            <a class="btn_1 efecto" onclick="ConsultaEstructuras();"> 
+                                            <a class="btn_1 efecto" onclick="ConsultaLyEstructuras();"> 
                                                 <span>Consultar</span>
                                             </a>
                                         </div>

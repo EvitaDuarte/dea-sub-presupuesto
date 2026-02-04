@@ -22,7 +22,7 @@
             <div id="main_container">    
                 <?php include('P_Cuentas00_MenuPrincipal.php'); // Incluye el menú principal?>
                 <section class="datos-personales2">
-                    <h2 class="titleM">Captura Estructuras a Validar y Enviar</h2>
+                    <h2 class="titleM">Consulta Estructuras a Validar y Enviar</h2>
                     <div class="container-data">
                         <div class="data-form">
                             <div class="wrapper">

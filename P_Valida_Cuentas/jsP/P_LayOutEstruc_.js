@@ -57,6 +57,29 @@ async function procesarRespuesta__(vRes) {
              gUrlCtas = vRes.urlCtas;
         break;
         // _______________________________
+        case "generaLayOut":
+            //con sole.log(vRes);
+            if (vRes.archivot) {
+                // 1. Corregimos la ruta para el cliente (index.html)
+                // Quitamos el "../" inicial para que sea relativa a la raíz
+                const urlPublica = vRes.archivo.replace('../', ''); 
+
+                // 2. Creamos el enlace de descarga
+                const link = document.createElement('a');
+                link.href = urlPublica;
+
+                // 3. Forzamos el nombre del archivo (opcional)
+                link.download = "layOutEstructuras.txt"; 
+
+                // 4. Ejecutamos la descarga
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            if (vRes.archivo){
+                descargarConSelector(vRes.archivo);
+            }
+        break;
         // _______________________________
         // _______________________________
         // _______________________________
@@ -100,56 +123,11 @@ function filtro_Opciones(cOpc){
     }
 }
 // ________________________________________________________________________
-function ConsultaEstructuras(lLayOut=false) {
+function ConsultaLyEstructuras(lLayOut=false) {
 
- filtrosActuales = {}; // reset
-
-    const filtro = valorDeObjeto("filtro");
-
-    if (!filtro) {
-        mandaMensaje('Seleccione un filtro');
-        return;
+    if (!revisaFiltros()){
+        return false;
     }
-
-    // ✔ Todas
-    if (filtro === 'T') {
-        filtrosActuales.tipo = 'todas';
-    }
-
-    // ✔ Número de envío
-    if (filtro === 'N') {
-        const numEnvio = valorDeObjeto("numEnvio");
-        if (!numEnvio) {
-            mandaMensaje('Capture el número de envío');
-            return;
-        }
-        filtrosActuales.tipo = 'envio';
-        filtrosActuales.numEnvio = numEnvio.trim();
-    }
-
-    // ✔ Rango de UR
-    if (filtro==='U' || filtro==="P") {
-        const urI = valorDeObjeto("cveUrI");
-        const urF = valorDeObjeto('cveUrF');
-
-        if (!urI || !urF) {
-            mandaMensaje('Seleccione UR inicial y final');
-            return;
-        }
-        if (urI>urF){
-            urT = urI;
-            urI = urF;
-            urF = urT;
-        }
-
-        filtrosActuales.tipo = 'ur';
-        filtrosActuales.urI  = urI;
-        filtrosActuales.urF  = urF;
-        if (filtro==="P"){
-            filtrosActuales.tipo = 'pendientes';
-        }
-    }
-    filtrosActuales.area = document.querySelector('input[name="tipo"]:checked').value;
 
     // Inicializar tabla si aún no existe
     if (!tablaEnvio) {
@@ -241,5 +219,98 @@ function inicializarTablaVacia() {
     });
 }
 // ________________________________________________________________________
+function revisaFiltros(){
+    filtrosActuales = {}; // reset
+
+    const filtro = valorDeObjeto("filtro");
+
+    if (!filtro) {
+        mandaMensaje('Seleccione un filtro');
+        return false;
+    }
+
+    // ✔ Todas
+    if (filtro === 'T') {
+        filtrosActuales.tipo = 'todas';
+    }
+
+    // ✔ Número de envío
+    if (filtro === 'N') {
+        const numEnvio = valorDeObjeto("numEnvio");
+        if (!numEnvio) {
+            mandaMensaje('Capture el número de envío');
+            return false;
+        }
+        filtrosActuales.tipo = 'envio';
+        filtrosActuales.numEnvio = numEnvio.trim();
+    }
+
+    // ✔ Rango de UR
+    if (filtro==='U' || filtro==="P") {
+        const urI = valorDeObjeto("cveUrI");
+        const urF = valorDeObjeto('cveUrF');
+
+        if (!urI || !urF) {
+            mandaMensaje('Seleccione UR inicial y final');
+            return false;
+        }
+        if (urI>urF){
+            urT = urI;
+            urI = urF;
+            urF = urT;
+        }
+
+        filtrosActuales.tipo = 'ur';
+        filtrosActuales.urI  = urI;
+        filtrosActuales.urF  = urF;
+        if (filtro==="P"){
+            filtrosActuales.tipo = 'pendientes';
+        }
+    }
+    filtrosActuales.area = document.querySelector('input[name="tipo"]:checked').value;
+    return true;
+}
 // ________________________________________________________________________
+function GenerarLayOut(){
+
+    if (!revisaFiltros()){
+        return false;
+    }
+    aParametros = {
+        opcion  : "generaLayOut",
+        filtros : filtrosActuales,
+        tabla   : gTabla,
+        urlCtas : gUrlCtas
+    }
+    loader('flex');
+    conectayEjecutaPost(aParametros,cPhp);
+}
+// ________________________________________________________________________
+async function descargarConSelector(urlRelativa) {
+    try {
+        const urlPublica = urlRelativa.replace('../', '');
+        
+        // Obtenemos los datos del servidor
+        const response = await fetch(urlPublica);
+        const blob = await response.blob();
+
+        // Abrimos el cuadro de diálogo del Sistema Operativo
+        const handle = await window.showSaveFilePicker({
+            suggestedName: 'layOut.txt',
+            types: [{
+                description: 'Archivos de Texto',
+                accept: {'text/plain': ['.txt']},
+            }],
+        });
+
+        // Escribimos el archivo en la ruta elegida por el usuario
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+
+    } catch (err) {
+        // El usuario canceló o el navegador no es compatible
+        console.log("Descarga cancelada o error de API");
+    }
+}
 // ________________________________________________________________________

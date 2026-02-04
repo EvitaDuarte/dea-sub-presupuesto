@@ -57,6 +57,17 @@ function ejecutaSQL_($sql, $params = []){	// Regresa un arreglo
     $resultados = null;
     return $regreso;
 }
+// _____________________________________________________________________________ Para que procese registro x registro y no genere un arreglo gigante que consuma ram
+function ejecutaQueryStream($sql, $params = []){	// Se debe de invocar así foreach (ejecutaQueryStream("SELECT ...", $params) as $row) {
+    global $conn_pdo;
+
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        yield $row;
+    }
+}
 // _____________________________________________________________________________
 function ejecutaSQL_C($sql,$conexion,$params=[]){	// Regresa un arreglo
 	$regreso = null;
