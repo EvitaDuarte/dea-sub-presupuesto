@@ -201,6 +201,21 @@ public function modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py
 	return 0;
 }
 // ____________________________________________
+public function modificaLayout($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$tabla,$numpro){
+	$sql = "";
+	if ($tabla==="epvalidas"){
+		$sql = "update public.epvalidas ";
+	}else if($tabla==="epinvalidas"){
+		$sql = "update public.epinvalidas";
+	}
+	if ($sql!==""){
+		$sql	= $sql . " set procesado=true, numproceso=:numproceso where ine=:ine and clvcos=:ur and mayor=:cta and subcuenta=:scta and clvai=:ai and clvpp=:pp and clvspg=:spg and clvpy=:py and clvpar=:ptda ";
+		$par	= [":numproceso"=>$numpro,":ine"=>$cIne,":ur"=>$cUr,":cta"=>$cCta,":scta"=>$cSubCta,":ai"=>$ai,":pp"=>$pp,":spg"=>$spg,":py"=>$py,":ptda"=>$ptda];
+		//$debug = [$sql,$par,$tabla];
+		$nRen	= actualizaSql($sql,$par);
+		return ($nRen);
+	}
+}
 // ____________________________________________
 // ____________________________________________
 // ____________________________________________
