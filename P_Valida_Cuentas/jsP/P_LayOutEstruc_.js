@@ -81,6 +81,9 @@ async function procesarRespuesta__(vRes) {
             }
         break;
         // _______________________________
+        case "rechazaEstructura":
+            tablaEnvio.ajax.reload(null, false);
+        break;
         // _______________________________
         // _______________________________
         // _______________________________
@@ -125,62 +128,187 @@ function filtro_Opciones(cOpc){
 // ________________________________________________________________________
 function ConsultaLyEstructuras(lLayOut=false) {
 
-    if (!revisaFiltros()){
+    if (!revisaFiltros()) {
         return false;
     }
 
-    // Inicializar tabla si aún no existe
-    if (!tablaEnvio) {
+    // Guardamos el estado en una variable global para que el AJAX lo sepa
+    window.gEsLayOut = lLayOut;
+
+    if (!$.fn.DataTable.isDataTable('#tblLayOut')) {
         inicializarTablaVacia();
+    } else {
+        // reload(null, true) -> El 'true' hace que la tabla vuelva a la página 1
+        // lo cual es ideal al aplicar filtros nuevos.
+        tablaEnvio.ajax.reload(null, true);
     }
 
-    // 👉 ASIGNAR AJAX DINÁMICAMENTE
-    tablaEnvio.settings()[0].ajax = {
-        url  : 'backP/api_layout.php',
-        type : 'POST',
-        data : function (d) {
-                d.tabla     = gTabla;
-                d.filtro    = filtrosActuales;
-                d.url       = gUrlCtas;
-        },
-        dataSrc: function (json) {
-            if (json.error) {
-                console.error(json.error);
-                mandaMensaje("Error en el servidor");
-                return [];
-            }
-            if (lLayOut){
-                aParametros = {
-                    opcion  : "reEnviarCorreo",
-                    datos   : json.data,
-                    url     : gUrlCtas
-                }
-                conectayEjecutaPost(aParametros,cPhp);
-            }
-            return json.data;
-        }
-    };
+    // // 👉 ASIGNAR AJAX DINÁMICAMENTE
+    // tablaEnvio.settings()[0].ajax = {
+    //     url  : 'backP/api_layout.php',
+    //     type : 'POST',
+    //     data : function (d) {
+    //             d.tabla     = gTabla;
+    //             d.filtro    = filtrosActuales;
+    //             d.url       = gUrlCtas;
+    //     },
+    //     dataSrc: function (json) {
+    //         if (json.error) {
+    //             console.error(json.error);
+    //             mandaMensaje("Error en el servidor");
+    //             return [];
+    //         }
+    //         if (lLayOut){
+    //             aParametros = {
+    //                 opcion  : "reEnviarCorreo",
+    //                 datos   : json.data,
+    //                 url     : gUrlCtas
+    //             }
+    //             conectayEjecutaPost(aParametros,cPhp);
+    //         }
+    //         return json.data;
+    //     }
+    // };
 
-    tablaEnvio.ajax.reload();
+    // tablaEnvio.ajax.reload();
 }
 // ________________________________________________________________________
-function inicializarTablaVacia() {
+// function inicializarTablaVacia() {
 
-    // 👇 1. Desactivar alert nativo (por si este JS se carga varias veces)
+//     // 👇 1. Desactivar alert nativo (por si este JS se carga varias veces)
+//     $.fn.dataTable.ext.errMode = 'none';
+
+//     tablaEnvio = $('#tblLayOut').DataTable({
+//         processing      : true,
+//         serverSide      : true,
+//         pageLength      : 25,
+//         scrollY         : '420px',
+//         scrollCollapse  : true,
+//         paging          : true,
+//         fixedHeader     : true,
+//         autoWidth       : false,
+//         dom             : '<"top-controls"lpf>rt<"bottom"i>',
+//         columnDefs: [
+//                     { targets: '_all', className: 'dt-left' },
+//                     {
+//                         targets: 16, // Es la columna 17 (empezando desde 0)
+//                         data: null,  // No viene del servidor
+//                         render: function (data, type, row) {
+//                             // 'row' contiene todo el array de datos de la fila
+//                             // Usamos un icono de FontAwesome o un botón simple
+//                             return `
+//                                 <button class="btn_accion" title="Rechazar" 
+//                                         onclick="rechazarEstructura('${row[13]}')">
+//                                     <i class="fa fa-cog"></i> ⚙️
+//                                 </button>`;
+//                         }
+//                     }
+//                 ],
+//         data            : [],
+//         language: {
+//             processing: "Procesando...",
+//             search: "Buscar:",
+//             lengthMenu: "Mostrar _MENU_ registros",
+//             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+//             infoEmpty: "Mostrando 0 a 0 de 0 registros",
+//             infoFiltered: "(filtrado de _MAX_ registros totales)",
+//             loadingRecords: "Cargando...",
+//             zeroRecords: "No se encontraron registros",
+//             emptyTable: "No hay información disponible",
+//             paginate: {
+//                 first: "Primero",
+//                 previous: "Anterior",
+//                 next: "Siguiente",
+//                 last: "Último"
+//             }
+//         }
+
+//     });
+
+//     // 👇 2. Error de servidor / negocio (PHP, SQL, filtros)
+//     $('#tblReenvio').on('xhr.dt', function (e, settings, json, xhr) {
+
+//         if (json && json.error) {
+//             mandaMensaje(`Error en Reenvío:<br>${json.error}`);
+//         }
+
+//         if (xhr.status !== 200) {
+//             mandaMensaje(`Error HTTP ${xhr.status} en Reenvío`);
+//         }
+//     });
+
+//     // 👇 3. Error interno DataTables (columnas, JSON inválido, etc.)
+//     $('#tblReenvio').on('error.dt', function (e, settings, techNote, message) {
+//         mandaMensaje(`Error interno DataTables:<br>${message}`);
+//     });
+// }
+// ________________________________________________________________________
+function inicializarTablaVacia() {
+    // 1. Desactivar alert nativo
     $.fn.dataTable.ext.errMode = 'none';
 
     tablaEnvio = $('#tblLayOut').DataTable({
-        processing      : true,
-        serverSide      : false,
-        pageLength      : 25,
-        scrollY         : '420px',
-        scrollCollapse  : true,
-        paging          : true,
-        fixedHeader     : true,
-        autoWidth       : false,
-        dom             : '<"top-controls"lpf>rt<"bottom"i>',
-        columnDefs      : [{ targets: '_all', className: 'dt-left' }],
-        data            : [],
+        processing: true,
+        serverSide: true, // Importante: Tu PHP ya hace LIMIT/OFFSET
+        pageLength: 25,
+        scrollY: '420px',
+        scrollCollapse: true,
+        paging: true,
+        fixedHeader: true,
+        autoWidth: false,
+        dom: '<"top-controls"lpf>rt<"bottom"i>',
+        
+        // 👇 AQUÍ VA EL BLOQUE AJAX (Reemplaza a data: [])
+        ajax: {
+            url: 'backP/api_layout.php',
+            type: 'POST',
+            data: function (d) {
+                d.tabla  = gTabla;
+                d.filtro = filtrosActuales;
+                d.url    = gUrlCtas;
+                // Pasamos el flag al servidor si lo necesitas, 
+                // o lo usamos abajo en dataSrc
+            },
+            dataSrc: function (json) {
+                if (json.error) {
+                    mandaMensaje(json.error);
+                    return [];
+                }
+
+                // 👉 Recuperamos la lógica que tenías:
+                // 'gEsLayOut' sería una variable global que activamos en la consulta
+                if (window.gEsLayOut) { 
+                    let aParametros = {
+                        opcion : "reEnviarCorreo",
+                        datos  : json.data,
+                        url    : gUrlCtas
+                    };
+                    conectayEjecutaPost(aParametros, cPhp);
+                    window.gEsLayOut = false; // Lo apagamos para la siguiente consulta normal
+                }
+                return json.data;
+            }
+        },
+
+        columnDefs: [
+            { targets: '_all', className: 'dt-left' },
+            {
+                targets: 16, // La columna de ACCION
+                data: null,
+                render: function (data, type, row) {
+                    // Color vino/rosa mexicano
+                    const colorVino = "#800020"; 
+
+                    return `
+                        <button type="button" class="btn_accion" title="Rechazar Estructura" 
+                                onclick="event.stopPropagation(); rechazarEstructura('${row[13]}');"
+                                style="border: none; background: transparent; cursor: pointer; padding: 0;">
+                            <span style="color: ${colorVino}; font-size: 20px; line-height: 1;">📵</span>
+                        </button>`;
+                }
+            }
+        ],
+
         language: {
             processing: "Procesando...",
             search: "Buscar:",
@@ -198,24 +326,13 @@ function inicializarTablaVacia() {
                 last: "Último"
             }
         }
-
     });
 
-    // 👇 2. Error de servidor / negocio (PHP, SQL, filtros)
-    $('#tblReenvio').on('xhr.dt', function (e, settings, json, xhr) {
-
+    // Eventos de error (Asegúrate que el ID coincida con tu tabla: #tblLayOut)
+    $('#tblLayOut').on('xhr.dt', function (e, settings, json, xhr) {
         if (json && json.error) {
-            mandaMensaje(`Error en Reenvío:<br>${json.error}`);
+            mandaMensaje(`Error en Servidor:<br>${json.error}`);
         }
-
-        if (xhr.status !== 200) {
-            mandaMensaje(`Error HTTP ${xhr.status} en Reenvío`);
-        }
-    });
-
-    // 👇 3. Error interno DataTables (columnas, JSON inválido, etc.)
-    $('#tblReenvio').on('error.dt', function (e, settings, techNote, message) {
-        mandaMensaje(`Error interno DataTables:<br>${message}`);
     });
 }
 // ________________________________________________________________________
@@ -312,5 +429,21 @@ async function descargarConSelector(urlRelativa) {
         // El usuario canceló o el navegador no es compatible
         console.log("Descarga cancelada o error de API");
     }
+}
+// ________________________________________________________________________
+function rechazarEstructura(cConse){
+    //mandaMensaje("se rechazara la estructura con consecutivo "+cConse);
+    esperaRespuesta(`¿Desea rechazar la estructura con Id ${cConse} `).then((respuesta) => {
+        if(respuesta){
+            aParametros ={
+                opcion  : "rechazaEstructura",
+                tabla   : gTabla,
+                conse   : cConse
+            };
+            conectayEjecutaPost(aParametros,cPhp);
+        }
+    });
+
+
 }
 // ________________________________________________________________________

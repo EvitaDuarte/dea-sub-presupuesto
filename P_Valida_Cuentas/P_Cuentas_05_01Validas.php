@@ -110,6 +110,7 @@
                                                 <th>CONSE</th>
                                                 <th>SEL</th>
                                                 <th>FECHA</th>
+                                                <th>ACCION</th>
                                             </tr>
                                         </thead>
                                     </table>

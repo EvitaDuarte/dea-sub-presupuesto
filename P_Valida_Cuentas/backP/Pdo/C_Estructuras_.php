@@ -217,6 +217,17 @@ public function modificaLayout($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py
 	}
 }
 // ____________________________________________
+public function modificaEstadoPorId($cConce,$estado,$tabla){
+	if ($tabla==="epvalidas"){
+		$sql = "update public.epvalidas ";
+	}else if($tabla==="epinvalidas"){
+		$sql = "update public.epinvalidas";
+	}
+	$sql = $sql . " set estado=:estado where consecutivo=:consecutivo ";
+	$par = [":estado"=>$estado,":consecutivo"=>$cConce];
+	$nRen	= actualizaSql($sql,$par);
+	return ($nRen);
+}
 // ____________________________________________
 // ____________________________________________
 } // Fin de clase

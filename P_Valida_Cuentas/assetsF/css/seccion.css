@@ -999,6 +999,17 @@ table.dataTable th {
     cursor: pointer;
 }
 /* ________________________________________________________________ */
+/* Clase para el botón de rechazo */
+.btn-rechazar {
+    color: #800020; /* Color vino */
+    transition: transform 0.2s;
+}
+
+.btn-rechazar:hover {
+    color: #D81B60; /* Cambia a un rosa más claro al pasar el mouse */
+    transform: scale(1.2); /* Se hace un poquito más grande */
+}
+/* ________________________________________________________________ */
 
 
 /* ________________________________________________________________ */
@@ -1006,4 +1017,4 @@ table.dataTable th {
 .oculto {
   display: none;
 }
-/* ________________________________________________________________ */
+/* ________________________________________________________________ No poner nada despues*/ 

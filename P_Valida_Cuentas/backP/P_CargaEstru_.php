@@ -4,6 +4,7 @@
 	// _______________________________	
 	define("VALIDA"		, "Estructura Válida");
 	define("XREVISAR"	, "Estructura a revisar");
+	define("RECHAZADA"	, "Rechazada Estructura");
 	define("YAEXISTE"	, "Ya existe combinación en siga -----");
 	define("IDXEDO"		, 9);
 	define("SCTACONTA"	, "99999");
@@ -85,6 +86,10 @@
 			//___________________________________
 			case "generaLayOut":
 				generaTxtLayOut($param,$regreso);
+			break;
+			//___________________________________
+			case "rechazaEstructura":
+				rechaza_Estructura($param,$regreso);
 			break;
 			//___________________________________
 	    	default:
@@ -698,8 +703,6 @@ function generaTxtLayOut(&$p,&$r){
 				$lNoEsta	= false;
 				$cEdo		= YAEXISTE;
 				$nRen 		= $oEstruc->modificaEstado($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$cEdo,$tabla);
-
-
 			}
 			if ( $lNoEsta){
 				$hayDatos = true;
@@ -722,6 +725,20 @@ function generaTxtLayOut(&$p,&$r){
 		$conn_pdo->rollBack();
 		$r["mensaje"] = "Se detectaron inconsistencias al generar el layout TXT";
 		$r["error"]	  = $e->getMessage();
+	}
+}
+// _______________________________________________________
+function rechaza_Estructura(&$p,&$r){
+	$oEstruc = new Estructura();
+	$cConce  = $p["conse"];
+	$tabla	 = $p["tabla"];
+	$estado	 = RECHAZADA;
+	$nRen = $oEstruc->modificaEstadoPorId($cConce,$estado,$tabla);
+	if ($nRen>0){
+		$r["success"] = true;
+		$r["mensaje"] = "Estructura rechazada con éxito";
+	}else{
+		$r["mensaje"] = "No se logro cambiar el estado de la estructura a Rechazada";
 	}
 }
 // _______________________________________________________
