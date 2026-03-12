@@ -637,6 +637,7 @@ function generaTxtLayOut(&$p,&$r){
 		$cFilTipo   = $filtro['tipo']  ?? '';
 		$params		= [];
 		$nombre 	= "_validas_";
+		$r["lineas"]= [];
 		// __________________________________
 		if ($tabla=="epvalidas"){
 			$sql	= $sql . " epvalidas ";
@@ -707,6 +708,7 @@ function generaTxtLayOut(&$p,&$r){
 			if ( $lNoEsta){
 				$hayDatos = true;
 	    		fwrite($fh, implode('-', $row) . PHP_EOL);
+	    		$r["lineas"][] = implode('-', $row);
 	    	}
 	    	$oEstruc->modificaLayout($cIne, $cUr, $cCta, $cSubCta, $ai, $pp, $spg, $py, $ptda,$tabla,$numpro);
 		}

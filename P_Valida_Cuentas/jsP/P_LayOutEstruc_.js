@@ -59,25 +59,28 @@ async function procesarRespuesta__(vRes) {
         // _______________________________
         case "generaLayOut":
             //con sole.log(vRes);
-            if (vRes.archivot) {
-                // 1. Corregimos la ruta para el cliente (index.html)
-                // Quitamos el "../" inicial para que sea relativa a la raíz
-                const urlPublica = vRes.archivo.replace('../', ''); 
+            // if (vRes.archivot) { // Esta variable no existe por lo que este código no se ejecuta
+            //     // 1. Corregimos la ruta para el cliente (index.html)
+            //     // Quitamos el "../" inicial para que sea relativa a la raíz
+            //     const urlPublica = vRes.archivo.replace('../', ''); 
 
-                // 2. Creamos el enlace de descarga
-                const link = document.createElement('a');
-                link.href = urlPublica;
+            //     // 2. Creamos el enlace de descarga
+            //     const link = document.createElement('a');
+            //     link.href = urlPublica;
 
-                // 3. Forzamos el nombre del archivo (opcional)
-                link.download = "layOutEstructuras.txt"; 
+            //     // 3. Forzamos el nombre del archivo (opcional)
+            //     link.download = "layOutEstructuras.txt"; 
 
-                // 4. Ejecutamos la descarga
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
+            //     // 4. Ejecutamos la descarga
+            //     document.body.appendChild(link);
+            //     link.click();
+            //     document.body.removeChild(link);
+            // }
+            // if (vRes.archivo){
+            //     descargarConSelector(vRes.archivo);
+            // }
             if (vRes.archivo){
-                descargarConSelector(vRes.archivo);
+                descargarConSelector(vRes);
             }
         break;
         // _______________________________
@@ -403,33 +406,210 @@ function GenerarLayOut(){
     conectayEjecutaPost(aParametros,cPhp);
 }
 // ________________________________________________________________________
-async function descargarConSelector(urlRelativa) {
+async function descargarConSelector(vRes) {
+    // 1. DEPUREMOS: Mira en la consola qué trae vRes realmente
+    console.log("Contenido de vRes recibido:", vRes);
+
+    // 2. BLINDAJE: Validar que vRes existe y que tiene la propiedad 'lineas'
+    if (!vRes || !vRes.lineas) {
+        console.error("Error: El servidor no envió el objeto esperado o 'lineas' no existe.");
+        // Si usas SweetAlert o algún mensaje al usuario, ponlo aquí
+        return; 
+    }
+
+    const aRes = vRes.lineas;
+
+    // 3. Validar que 'lineas' sea realmente un arreglo
+    if (!Array.isArray(aRes)) {
+        console.error("Error: 'lineas' se recibió pero no es un arreglo.");
+        return;
+    }
+
+    const regexINE = /^INE-[A-Z0-9]{4}-\d{5}-\d{5}-\d{3}-[A-Z0-9]{4}-\d{3}-[A-Z0-9]{7}-\d{5}$/;
+
     try {
-        const urlPublica = urlRelativa.replace('../', '');
+        let contenido = aRes.map(op => {
+            // Veracode amará que valides que 'op' existe antes de usarlo
+            if (!op) return ""; 
+            
+            const linea = String(op).trim();
+
+            if (!regexINE.test(linea)) {
+                // Si una línea falla, lanzamos error detallado
+                throw new Error(`Línea con formato inválido: ${linea}`);
+            }
+
+            return linea;
+        }).filter(l => l !== "").join('\n'); // El filter elimina líneas vacías
+
+        // Si el archivo quedó vacío por las validaciones, no descargamos nada
+        if (contenido.length === 0) {
+            throw new Error("El archivo resultante está vacío.");
+        }
+
+        const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'layout_' + regresaYMDHM() + '.txt';
         
-        // Obtenemos los datos del servidor
-        const response = await fetch(urlPublica);
-        const blob = await response.blob();
-
-        // Abrimos el cuadro de diálogo del Sistema Operativo
-        const handle = await window.showSaveFilePicker({
-            suggestedName: 'layOut.txt',
-            types: [{
-                description: 'Archivos de Texto',
-                accept: {'text/plain': ['.txt']},
-            }],
-        });
-
-        // Escribimos el archivo en la ruta elegida por el usuario
-        const writable = await handle.createWritable();
-        await writable.write(blob);
-        await writable.close();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
 
     } catch (err) {
-        // El usuario canceló o el navegador no es compatible
-        console.log("Descarga cancelada o error de API");
+        // Aquí atrapamos el error del map o de las validaciones de Veracode
+        console.error("Error de integridad de datos:", err.message);
+        mandaMensaje("No se logro generar el archivo. Reporte a CTIA");
     }
 }
+// ________________________________________________________________________
+// async function descargarConSelector(urlRelativa) { No paso VeraCode
+//     try {
+//         // 1. Validar que la ruta sea segura (Previene Path Traversal)
+//         const urlPublica = validarRutaArchivo(urlRelativa);
+
+//         if (!urlPublica) {
+//             throw new Error("Ruta inválida");
+//         }
+
+//         // 2. Traer el archivo del servidor
+//         const response = await fetch(urlPublica, {
+//             method: 'GET',
+//             headers: { 'Accept': 'text/plain' }
+//         });
+
+//         if (!response.ok) {
+//             throw new Error("No se pudo descargar el archivo");
+//         }
+
+//         // 3. Leer el contenido como texto (Dato "manchado" según Veracode)
+//         const text = await response.text();
+
+//         // =====================================================================
+//         // 4. SANITIZACIÓN Y VALIDACIÓN DEL CONTENIDO (Mitigación para Veracode)
+//         // =====================================================================
+//         const lineas = text.split(/\r?\n/);
+//         const lineasSeguras = [];
+        
+//         // Patrón exacto para tu estructura: INE-GT12-11510-00000-001-M001-001-B00OD01-27401
+//         const regexINE = /^INE-[A-Z0-9]{4}-\d{5}-\d{5}-\d{3}-[A-Z0-9]{4}-\d{3}-[A-Z0-9]{7}-\d{5}$/;
+
+//         for (let linea of lineas) {
+//             linea = linea.trim();
+//             if (linea === "") continue; // Ignorar líneas en blanco al final
+
+//             // Si encuentra una sola línea que no sea estructura válida, bloquea todo
+//             if (!regexINE.test(linea)) {
+//                 throw new Error("Vulnerabilidad detectada: El contenido del archivo fue alterado o no cumple con la estructura esperada.");
+//             }
+//             lineasSeguras.push(linea);
+//         }
+
+//         // Reconstruimos el texto solo con las líneas que pasaron el filtro estricto
+//         const textoSeguro = lineasSeguras.join('\n');
+//         // =====================================================================
+
+//         // 5. Crear explícitamente un blob de texto plano usando SOLO el texto seguro
+//         const blob = new Blob([textoSeguro], { type: "text/plain;charset=utf-8" });
+
+//         const handle = await window.showSaveFilePicker({
+//             suggestedName: 'layOut.txt',
+//             types: [{
+//                 description: 'Archivos de Texto',
+//                 accept: { 'text/plain': ['.txt'] }
+//             }]
+//         });
+
+//         const writable = await handle.createWritable();
+        
+//         // Al llegar aquí, Veracode y el sistema saben que el contenido es 100% predecible y seguro
+//         await writable.write(blob); 
+//         await writable.close();
+
+//     } catch (err) {
+//         console.log("Descarga cancelada o error de validación:", err);
+//         mandaMensaje("Se ha detectado una vulnerabilidad. Avise a CTIA");
+//         // Opcional: Podrías mandar un 'alert' al usuario si falla la validación
+//     }
+// }
+// ________________________________________________________________________
+// async function descargarConSelector(urlRelativa) { // La marcó VeraCode como vulnerable
+//     try {
+//         const urlPublica = urlRelativa.replace('../', '');
+        
+//         // Obtenemos los datos del servidor
+//         const response = await fetch(urlPublica);
+//         const blob = await response.blob();
+
+//         // Abrimos el cuadro de diálogo del Sistema Operativo
+//         const handle = await window.showSaveFilePicker({
+//             suggestedName: 'layOut.txt',
+//             types: [{
+//                 description: 'Archivos de Texto',
+//                 accept: {'text/plain': ['.txt']},
+//             }],
+//         });
+
+//         // Escribimos el archivo en la ruta elegida por el usuario
+//         const writable = await handle.createWritable();
+//         await writable.write(blob);
+//         await writable.close();
+
+//     } catch (err) {
+//         // El usuario canceló o el navegador no es compatible
+//         console.log("Descarga cancelada o error de API");
+//     }
+// }
+// ________________________________________________________________________
+// async function descargarConSelector(urlRelativa) {
+//     try {
+
+//         // //const patron = /^\.\.\/salidas\/_xrevisar___\d+\.txt$/;
+//         // const patron = /^\.\.\/salidas\/[a-zA-Z0-9_]+___\d+\.txt$/;
+//         // if (!patron.test(urlRelativa)) {
+//         //     throw new Error("Ruta de archivo no válida");
+//         // }
+
+//         // const urlPublica = urlRelativa.replace(/^\.\.\//, '');
+//         const urlPublica = validarRutaArchivo(urlRelativa);
+
+//         if (!urlPublica) {
+//             throw new Error("Ruta inválida");
+//         }
+
+//         const response = await fetch(urlPublica, {
+//             method: 'GET',
+//             headers: { 'Accept': 'text/plain' }
+//         });
+
+//         if (!response.ok) {
+//             throw new Error("No se pudo descargar el archivo");
+//         }
+
+//         // leer el contenido como texto
+//         const text = await response.text();
+
+//         // crear explícitamente un blob de texto plano
+//         const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+
+//         const handle = await window.showSaveFilePicker({
+//             suggestedName: 'layOut.txt',
+//             types: [{
+//                 description: 'Archivos de Texto',
+//                 accept: { 'text/plain': ['.txt'] }
+//             }]
+//         });
+
+//         const writable = await handle.createWritable();
+//         await writable.write(blob);
+//         await writable.close();
+
+//     } catch (err) {
+//         console.log("Descarga cancelada o error:", err);
+//     }
+// }
 // ________________________________________________________________________
 function rechazarEstructura(cConse){
     //mandaMensaje("se rechazara la estructura con consecutivo "+cConse);
@@ -445,5 +625,16 @@ function rechazarEstructura(cConse){
     });
 
 
+}
+// ________________________________________________________________________
+function validarRutaArchivo(ruta) {
+
+    const patron = /^\.\.\/salidas\/[a-zA-Z0-9_]+___\d+\.txt$/;
+
+    if (!patron.test(ruta)) {
+        return null;
+    }
+
+    return ruta.replace(/^\.\.\//, '');
 }
 // ________________________________________________________________________
